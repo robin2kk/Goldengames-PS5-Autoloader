@@ -30,13 +30,16 @@ check_pin third_party/slopkit "$expected_slopkit"
 check_pin third_party/ps5-unified-autoloader "$expected_unified"
 check_pin third_party/ps5-elfldr "$expected_elfldr"
 
+# Keep upstream v0.3.0 app.js as the functional base. Only replace the visual
+# shell, then patch upstream's tested start() flow to wait for a menu choice.
 cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
-cp "$ROOT/overlay/frontend/app.js" frontend/autoloader/app.js
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
 cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
+python3 "$ROOT/tools/patch_upstream_frontend.py" "$UPSTREAM"
 
 mkdir -p frontend/autoloader/payloads
 
 echo "Goldengames overlay staged at: $UPSTREAM"
+echo "Functional launcher base: upstream v0.3.0 app.js + Goldengames menu patch"
 echo "Next: place the exact pinned payloads in frontend/autoloader/payloads and run the upstream build."
