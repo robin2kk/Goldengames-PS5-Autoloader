@@ -26,6 +26,7 @@ jobs:
           grep -q "AUTO JAILBREAK" overlay/frontend/index.html
           grep -q "etahen-2.5B.bin" overlay/frontend/app.js
           grep -q "kstuff-1.10.elf" overlay/frontend/app.js
+          node --check overlay/frontend/app.js
 
       - name: Upload prepared source tree
         uses: actions/upload-artifact@v4
