@@ -1,0 +1,25 @@
+name: Validate Goldengames Inputs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - agent/import-v0.5
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show pinned upstream revisions
+        run: cat dependency-pins.json
+
+      - name: Verify integrated payloads when present
+        run: |
+          if [ -f payloads/etahen-2.5B.bin ] && [ -f payloads/kstuff-1.10.elf ]; then
+            python3 tools/verify_payloads.py
+          else
+            echo "Payload binaries are not committed yet; exact required SHA-256 values are pinned in dependency-pins.json."
+          fi
