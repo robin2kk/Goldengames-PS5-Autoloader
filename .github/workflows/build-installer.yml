@@ -41,7 +41,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v0.5
+          CUSTOM_VERSION: goldengames-v0.5.1-test
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" \
@@ -50,22 +50,27 @@ jobs:
             -e CUSTOM_VERSION \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.1-test.elf
 
       - name: Verify built ELF contains Goldengames resources
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          test -f goldengames-ps5-autoloader-installer_v0.5.elf
-          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'GGAU00001'
-          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'etahen-2.5B.bin'
-          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'kstuff-1.10.elf'
-          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'Goldengames PS5 Autoloader'
-          sha256sum goldengames-ps5-autoloader-installer_v0.5.elf
+          ELF=goldengames-ps5-autoloader-installer_v0.5.1-test.elf
+          test -f "$ELF"
+          strings "$ELF" | grep -Fq 'GGAU00001'
+          if strings "$ELF" | grep -Fq 'WKAL00001'; then
+            echo 'ERROR: upstream WKAL00001 leaked into Goldengames installer' >&2
+            exit 1
+          fi
+          strings "$ELF" | grep -Fq 'etahen-2.5B.bin'
+          strings "$ELF" | grep -Fq 'kstuff-1.10.elf'
+          strings "$ELF" | grep -Fq 'Goldengames PS5 Autoloader'
+          sha256sum "$ELF"
 
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v0.5
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.elf
+          name: goldengames-ps5-autoloader-installer-v0.5.1-test
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.1-test.elf
           if-no-files-found: error
