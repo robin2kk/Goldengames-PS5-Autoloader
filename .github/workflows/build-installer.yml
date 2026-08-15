@@ -15,14 +15,26 @@ jobs:
       - name: Prepare exact upstream v0.3.0 tree
         run: bash tools/prepare_upstream.sh
 
-      - name: Stage payloads when present
+      - name: Apply Goldengames registry and app identity
+        run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
+
+      - name: Download exact official payloads
+        run: |
+          set -euo pipefail
+          mkdir -p payloads
+          curl -fL --retry 3 -o payloads/etahen-2.5B.bin \
+            https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/kstuff-1.10.elf \
+            https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+
+      - name: Verify exact payload hashes
+        run: python3 tools/verify_payloads.py
+
+      - name: Stage verified payloads into Goldengames frontend
         run: |
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
-          if [ -f payloads/etahen-2.5B.bin ]; then cp payloads/etahen-2.5B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/; fi
-          if [ -f payloads/kstuff-1.10.elf ]; then cp payloads/kstuff-1.10.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/; fi
-
-      - name: Verify exact payload hashes when present
-        run: python3 tools/verify_payloads.py --allow-missing
+          cp payloads/etahen-2.5B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/etahen-2.5B.bin
+          cp payloads/kstuff-1.10.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/kstuff-1.10.elf
 
       - name: Build installer via upstream Docker SDK
         working-directory: work/ps5-webkit-autoloader
@@ -39,6 +51,17 @@ jobs:
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
           mv installer.elf goldengames-ps5-autoloader-installer_v0.5.elf
+
+      - name: Verify built ELF contains Goldengames resources
+        working-directory: work/ps5-webkit-autoloader
+        run: |
+          set -euo pipefail
+          test -f goldengames-ps5-autoloader-installer_v0.5.elf
+          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'GGAU00001'
+          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'etahen-2.5B.bin'
+          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'kstuff-1.10.elf'
+          strings goldengames-ps5-autoloader-installer_v0.5.elf | grep -Fq 'Goldengames PS5 Autoloader'
+          sha256sum goldengames-ps5-autoloader-installer_v0.5.elf
 
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
