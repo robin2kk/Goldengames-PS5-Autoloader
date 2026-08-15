@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import hashlib, json, sys
+import argparse, hashlib, json, sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--allow-missing', action='store_true', help='Do not fail when exact payload binaries have not been staged yet.')
+args = parser.parse_args()
 
 ROOT = Path(__file__).resolve().parents[1]
 PINS = json.loads((ROOT / 'dependency-pins.json').read_text())
@@ -12,7 +16,8 @@ for name in FILES:
     expected = PINS[name + '.sha256']
     if not path.is_file():
         print(f'[MISSING] {path.relative_to(ROOT)}')
-        ok = False
+        if not args.allow_missing:
+            ok = False
         continue
     data = path.read_bytes()
     actual = hashlib.sha256(data).hexdigest()
