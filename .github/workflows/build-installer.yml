@@ -1,0 +1,48 @@
+name: Build Goldengames Installer ELF
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Goldengames overlay
+        uses: actions/checkout@v4
+
+      - name: Prepare exact upstream v0.3.0 tree
+        run: bash tools/prepare_upstream.sh
+
+      - name: Stage payloads when present
+        run: |
+          mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
+          if [ -f payloads/etahen-2.5B.bin ]; then cp payloads/etahen-2.5B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/; fi
+          if [ -f payloads/kstuff-1.10.elf ]; then cp payloads/kstuff-1.10.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/; fi
+
+      - name: Verify exact payload hashes when present
+        run: python3 tools/verify_payloads.py --allow-missing
+
+      - name: Build installer via upstream Docker SDK
+        working-directory: work/ps5-webkit-autoloader
+        env:
+          BUILD_TYPE: dev
+          FORCE_EXPLOIT: auto
+          CUSTOM_VERSION: goldengames-v0.5
+        run: |
+          docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" \
+            -e BUILD_TYPE \
+            -e FORCE_EXPLOIT \
+            -e CUSTOM_VERSION \
+            -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.elf
+
+      - name: Upload installer ELF
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-ps5-autoloader-installer-v0.5
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.elf
+          if-no-files-found: error
