@@ -36,10 +36,17 @@ cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
 cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
+
+# Replace the upstream PS5 homescreen icon with the Goldengames icon. The
+# upstream Makefile converts assets/icon.svg to the final icon0.png embedded
+# by the installer, so this keeps the build reproducible from source.
+cp "$ROOT/overlay/assets/icon.svg" assets/icon.svg
+
 python3 "$ROOT/tools/patch_upstream_frontend.py" "$UPSTREAM"
 
 mkdir -p frontend/autoloader/payloads
 
 echo "Goldengames overlay staged at: $UPSTREAM"
 echo "Functional launcher base: upstream v0.3.0 app.js + Goldengames menu patch"
+echo "Homescreen icon: Goldengames overlay/assets/icon.svg"
 echo "Next: place the exact pinned payloads in frontend/autoloader/payloads and run the upstream build."
