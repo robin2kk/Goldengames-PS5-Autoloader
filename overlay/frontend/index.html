@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <title>Goldengames PS5 Autoloader v0.2</title>
+  <title>Goldengames PS5 Autoloader v0.5.1 Test</title>
 </head>
 <body>
   <div id="splash" aria-hidden="false">
-    <img class="logo" src="logo.svg" alt="Goldengames PS5 Autoloader" />
-    <h1>Goldengames PS5 Autoloader</h1>
-    <p>Based on PS5 WebKit Autoloader by PLK</p>
+    <img class="logo" src="logo.svg" alt="Goldengames" />
+    <h1><span>GOLDEN</span>GAMES</h1>
+    <p>PS5 AUTOLOADER</p>
   </div>
 
   <iframe id="exploit" title="exploit" hidden></iframe>
@@ -19,48 +19,47 @@
   <main id="dashboard" hidden>
     <section class="shell">
       <header class="topbar">
-        <div>
-          <div class="eyebrow">GOLDENGAMES</div>
-          <h1>PS5 Autoloader</h1>
+        <div class="brand">
+          <img src="logo.svg" alt="" />
+          <div><h1><span>GOLDEN</span>GAMES</h1><p>PS5 AUTOLOADER</p></div>
         </div>
         <div class="statusbox">
           <div><span>Firmware</span><strong id="firmwareValue">Detecting...</strong></div>
+          <div class="divider"></div>
           <div><span>Exploit</span><strong id="exploitValue">Auto</strong></div>
+          <div class="divider"></div>
           <div><span>Status</span><strong id="statusValue" class="ready">READY</strong></div>
         </div>
       </header>
 
       <button id="autoJailbreak" class="heroButton" type="button">
         <span class="heroIcon">&#128640;</span>
-        <span><b>AUTO JAILBREAK</b><small>Exploit + elfldr + etaHEN 2.5B</small></span>
+        <span class="heroCopy"><b>AUTO JAILBREAK</b><small>Run the jailbreak automatically with etaHEN 2.5B</small><em>RECOMMENDED</em></span>
+        <span class="arrow">&#8250;</span>
       </button>
 
       <div class="grid">
-        <button class="tile" data-payload="etahen" type="button">
-          <span class="tileIcon">EH</span><b>etaHEN 2.5B</b><small>Launch integrated payload</small>
-        </button>
-        <button class="tile" data-payload="kstuff" type="button">
-          <span class="tileIcon">KS</span><b>Kstuff Lite 1.10</b><small>Launch integrated ELF</small>
-        </button>
-        <button class="tile" data-payload="manager" type="button">
-          <span class="tileIcon">PM</span><b>Payload Manager</b><small>Original unified autoloader</small>
-        </button>
+        <button class="tile etahen" data-payload="etahen" type="button"><span class="tileIcon">EH</span><span><b>etaHEN</b><strong>2.5B</strong><small>Launch integrated payload</small></span><i>&#8250;</i></button>
+        <button class="tile kstuff" data-payload="kstuff" type="button"><span class="tileIcon">KS</span><span><b>Kstuff Lite</b><strong>1.10</strong><small>Launch integrated ELF</small></span><i>&#8250;</i></button>
+        <button class="tile manager" data-payload="manager" type="button"><span class="tileIcon">PM</span><span><b>Payload Manager</b><strong>TOOLS</strong><small>Manage and run payloads</small></span><i>&#8250;</i></button>
       </div>
 
-      <div class="note">Select one payload per exploit run. This avoids automatically stacking payloads that may overlap.</div>
+      <div class="bottomBar">
+        <div><span class="infoDot">i</span><p>Goldengames PS5 Autoloader<br><strong>v0.5.1-test</strong></p></div>
+        <div class="community">Built for the <strong>PS5 Community</strong></div>
+        <div class="miniBrand"><img src="logo.svg" alt="" /><b>GOLDENGAMES</b></div>
+      </div>
+      <p class="tip">Select one payload per exploit run. AUTO JAILBREAK uses etaHEN 2.5B.</p>
     </section>
   </main>
 
   <main id="loader" hidden>
-    <div class="loaderHeader">
-      <button id="backButton" type="button" disabled>&larr; Menu</button>
-      <div><strong id="runTitle">Starting...</strong><span id="runSubtitle"></span></div>
-    </div>
+    <div class="loaderHeader"><button id="backButton" type="button" disabled>&larr; Menu</button><div><strong id="runTitle">Starting...</strong><span id="runSubtitle"></span></div></div>
     <div id="logWrapper"><div id="logContainer"></div></div>
     <div id="progressContainer"><div id="progressBar"></div><div id="progressLabel">Loading...</div></div>
   </main>
 
-  <footer id="footer">Goldengames modifications v0.2 &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
+  <footer id="footer">Goldengames v0.5.1-test &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
   <script src="app.js"></script>
 </body>
 </html>
