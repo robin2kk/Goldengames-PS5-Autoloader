@@ -10,7 +10,7 @@ param = root / 'assets' / 'param.json.template'
 registry = root / 'tools' / 'gen_file_registry.py'
 wkali_h = root / 'include' / 'wkali.h'
 installer_c = root / 'src' / 'app_installer.c'
-umtx_patch = root / 'patches' / 'umtx2-autoload.patch'
+umtx_apply = root / 'tools' / 'apply_umtx2_patch.sh'
 
 param.write_text('''{
     "titleId": "GGAU00001",
@@ -44,26 +44,52 @@ if old not in text:
     raise SystemExit('expected registry hook not found; upstream changed')
 registry.write_text(text.replace(old, new, 1), encoding='utf-8')
 
-# UMTX2 initially probes elfldr before the full kernel chain has had a chance
-# to start it. Refresh that state immediately before the autoload decision so
-# a fresh AUTO JAILBREAK can send etaHEN to the newly started elfldr.
-patch_text = umtx_patch.read_text(encoding='utf-8')
-needle = '+    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");\n'
-if needle not in patch_text:
-    raise SystemExit('expected UMTX2 autoload name hook not found; upstream changed')
-insert = needle + '''+    // Goldengames: refresh elfldr state after the kernel chain.\n+    var wkalElfldrReady = await probe_sb_elfldr();\n+    await log("autoload: refreshed elfldr state: " + wkalElfldrReady, LogLevel.INFO);\n'''
-patch_text = patch_text.replace(needle, insert, 1)
-old_if = '+    if (wkalAutoloadName && is_elfldr_running) {\n'
-old_else = '+    } else if (wkalAutoloadName && !is_elfldr_running) {\n'
-if old_if not in patch_text or old_else not in patch_text:
-    raise SystemExit('expected UMTX2 autoload condition hook not found; upstream changed')
-patch_text = patch_text.replace(old_if, '+    if (wkalAutoloadName && wkalElfldrReady) {\n', 1)
-patch_text = patch_text.replace(old_else, '+    } else if (wkalAutoloadName && !wkalElfldrReady) {\n', 1)
-umtx_patch.write_text(patch_text, encoding='utf-8')
+# Keep upstream patches/umtx2-autoload.patch byte-for-byte intact so git apply
+# remains valid.  Instead, add a Goldengames post-patch edit to the upstream
+# preparation script.  That edit runs only AFTER WKAL's patch has applied to
+# frontend/autoloader/umtx2/main.js.
+apply_text = umtx_apply.read_text(encoding='utf-8')
+marker = '# 4. Sanity check: the patched main.js must carry our integration markers, the\n'
+if marker not in apply_text:
+    raise SystemExit('UMTX2 post-patch insertion point not found; upstream changed')
+post_patch = r'''# Goldengames: the first elfldr probe in UMTX2 happens before the full kernel
+# chain starts elfldr.  Refresh it immediately before WKAL autoload so a fresh
+# AUTO JAILBREAK can send etaHEN 2.5B to port 9021.
+python3 - "$DEST/main.js" <<'PY'
+from pathlib import Path
+import sys
+
+p = Path(sys.argv[1])
+s = p.read_text(encoding='utf-8')
+old = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");
+    if (wkalAutoloadName && is_elfldr_running) {
+''' + "'''" + r'''
+new = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");
+    // Goldengames: refresh elfldr after the kernel chain before etaHEN autoload.
+    var wkalElfldrReady = await probe_sb_elfldr();
+    await log("autoload: refreshed elfldr state: " + wkalElfldrReady, LogLevel.INFO);
+    if (wkalAutoloadName && wkalElfldrReady) {
+''' + "'''" + r'''
+if old not in s:
+    raise SystemExit('Goldengames UMTX2 autoload hook not found after upstream patch')
+s = s.replace(old, new, 1)
+old_fail = '    } else if (wkalAutoloadName && !is_elfldr_running) {'
+new_fail = '    } else if (wkalAutoloadName && !wkalElfldrReady) {'
+if old_fail not in s:
+    raise SystemExit('Goldengames UMTX2 failure hook not found after upstream patch')
+s = s.replace(old_fail, new_fail, 1)
+p.write_text(s, encoding='utf-8')
+print('umtx2: Goldengames refreshed-elfldr etaHEN autoload fix applied.')
+PY
+
+'''
+if 'Goldengames refreshed-elfldr etaHEN autoload fix applied' not in apply_text:
+    apply_text = apply_text.replace(marker, post_patch + marker, 1)
+umtx_apply.write_text(apply_text, encoding='utf-8')
 
 print('Goldengames build patches applied:')
 print('  native WKAL_TITLE_ID: GGAU00001')
 print('  param.json titleId: GGAU00001')
 print('  titleName: Goldengames PS5 Autoloader')
 print('  AppCache autoload variants: payload.elf, etaHEN 2.5B, Kstuff 1.10')
-print('  UMTX2 autoload: refresh elfldr state before sending etaHEN')
+print('  UMTX2 autoload: post-patch elfldr refresh before sending etaHEN')
