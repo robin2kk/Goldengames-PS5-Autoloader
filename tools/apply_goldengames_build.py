@@ -24,7 +24,6 @@ param.write_text('''{
     }
 }\n''', encoding='utf-8')
 
-# IMPORTANT: param.json and the native installer MUST use the same title ID.
 wkali_text = wkali_h.read_text(encoding='utf-8')
 old_title = '#define WKAL_TITLE_ID "WKAL00001"'
 new_title = '#define WKAL_TITLE_ID "GGAU00001"'
@@ -32,7 +31,6 @@ if old_title not in wkali_text and new_title not in wkali_text:
     raise SystemExit('WKAL_TITLE_ID definition not found; upstream changed')
 wkali_h.write_text(wkali_text.replace(old_title, new_title, 1), encoding='utf-8')
 
-# Brand installer notifications too, so test builds are easy to distinguish.
 installer_text = installer_c.read_text(encoding='utf-8')
 installer_text = installer_text.replace('Updating WebKit Autoloader App...', 'Updating Goldengames PS5 Autoloader...')
 installer_text = installer_text.replace('Installing WebKit Autoloader App...', 'Installing Goldengames PS5 Autoloader...')
@@ -46,24 +44,21 @@ if old not in text:
     raise SystemExit('expected registry hook not found; upstream changed')
 registry.write_text(text.replace(old, new, 1), encoding='utf-8')
 
-# Critical UMTX2 fix for Goldengames AUTO JAILBREAK:
-# upstream probes elfldr near the beginning of main() and stores the result in
-# is_elfldr_running. On a fresh jailbreak that value is false, then the kernel
-# chain starts elfldr later, but the upstream autoload block still tests the
-# stale false value. Result: the kernel/kstuff stage succeeds, while etaHEN is
-# never sent. Re-probe immediately before autoload so etaHEN is dispatched to
-# the elfldr that the chain just started.
+# UMTX2 initially probes elfldr before the full kernel chain has had a chance
+# to start it. Refresh that state immediately before the autoload decision so
+# a fresh AUTO JAILBREAK can send etaHEN to the newly started elfldr.
 patch_text = umtx_patch.read_text(encoding='utf-8')
-old_probe = '''+    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");\r\n+    if (wkalAutoloadName && is_elfldr_running) {\r\n'''
-new_probe = '''+    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");\r\n+    // Goldengames: refresh elfldr state here. The initial probe happened before\r\n+    // the full kernel chain spawned elfldr, so that cached boolean is stale on\r\n+    // a fresh jailbreak and would incorrectly suppress etaHEN autoload.\r\n+    var wkalElfldrReady = await probe_sb_elfldr();\r\n+    await log("autoload: refreshed elfldr state: " + wkalElfldrReady, LogLevel.INFO);\r\n+    if (wkalAutoloadName && wkalElfldrReady) {\r\n'''
-if old_probe not in patch_text:
-    raise SystemExit('expected UMTX2 autoload probe hook not found; upstream changed')
-patch_text = patch_text.replace(old_probe, new_probe, 1)
-patch_text = patch_text.replace(
-    '+    } else if (wkalAutoloadName && !is_elfldr_running) {\\r\\n',
-    '+    } else if (wkalAutoloadName && !wkalElfldrReady) {\\r\\n',
-    1
-)
+needle = '+    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");\n'
+if needle not in patch_text:
+    raise SystemExit('expected UMTX2 autoload name hook not found; upstream changed')
+insert = needle + '''+    // Goldengames: refresh elfldr state after the kernel chain.\n+    var wkalElfldrReady = await probe_sb_elfldr();\n+    await log("autoload: refreshed elfldr state: " + wkalElfldrReady, LogLevel.INFO);\n'''
+patch_text = patch_text.replace(needle, insert, 1)
+old_if = '+    if (wkalAutoloadName && is_elfldr_running) {\n'
+old_else = '+    } else if (wkalAutoloadName && !is_elfldr_running) {\n'
+if old_if not in patch_text or old_else not in patch_text:
+    raise SystemExit('expected UMTX2 autoload condition hook not found; upstream changed')
+patch_text = patch_text.replace(old_if, '+    if (wkalAutoloadName && wkalElfldrReady) {\n', 1)
+patch_text = patch_text.replace(old_else, '+    } else if (wkalAutoloadName && !wkalElfldrReady) {\n', 1)
 umtx_patch.write_text(patch_text, encoding='utf-8')
 
 print('Goldengames build patches applied:')
