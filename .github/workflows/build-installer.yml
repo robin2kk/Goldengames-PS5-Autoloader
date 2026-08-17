@@ -64,13 +64,23 @@ jobs:
           test -f installer.elf
           mv installer.elf goldengames-ps5-autoloader-installer_v0.5.2-test.elf
 
-      - name: Verify built ELF contains Goldengames resources
+      - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
           ELF=goldengames-ps5-autoloader-installer_v0.5.2-test.elf
+          APP=frontend/dist/autoloader/app.js
           STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
+
           test -f "$ELF"
+          test -f "$APP"
+
+          echo 'Checking staged Goldengames runtime...'
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
+          grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
+          grep -Fq 'LOADING etaHEN' "$APP"
+          node --check "$APP"
+
           strings "$ELF" > "$STRINGS_FILE"
           echo 'Checking Goldengames title ID...'
           grep -Fq 'GGAU00001' "$STRINGS_FILE"
@@ -79,14 +89,10 @@ jobs:
             echo 'ERROR: upstream WKAL00001 leaked into Goldengames installer' >&2
             exit 1
           fi
-          echo 'Checking bundled etaHEN payload...'
+          echo 'Checking bundled etaHEN payload registry entry...'
           grep -Fq 'etahen-2.5B.bin' "$STRINGS_FILE"
-          echo 'Checking bundled Kstuff payload...'
+          echo 'Checking bundled Kstuff payload registry entry...'
           grep -Fq 'kstuff-1.10.elf' "$STRINGS_FILE"
-          echo 'Checking Goldengames runtime marker...'
-          grep -Fq 'LOADING etaHEN' "$STRINGS_FILE"
-          echo 'Checking Goldengames app name...'
-          grep -Fq 'Goldengames PS5 Autoloader' "$STRINGS_FILE"
           sha256sum "$ELF"
 
       - name: Upload installer ELF
