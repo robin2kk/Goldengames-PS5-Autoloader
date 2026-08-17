@@ -18,6 +18,16 @@ jobs:
       - name: Apply Goldengames registry and app identity
         run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
 
+      - name: Verify patched runtime auto-starts etaHEN
+        run: |
+          set -euo pipefail
+          APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
+          grep -Fq "Selected payload: ' + selectedPayload" "$APP"
+          grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
+          grep -Fq "LOADING etaHEN" "$APP"
+          node --check "$APP"
+
       - name: Download exact official payloads
         run: |
           set -euo pipefail
@@ -41,7 +51,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v0.5.1-test
+          CUSTOM_VERSION: goldengames-v0.5.2-test
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" \
@@ -50,13 +60,13 @@ jobs:
             -e CUSTOM_VERSION \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.1-test.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.2-test.elf
 
       - name: Verify built ELF contains Goldengames resources
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v0.5.1-test.elf
+          ELF=goldengames-ps5-autoloader-installer_v0.5.2-test.elf
           test -f "$ELF"
           strings "$ELF" | grep -Fq 'GGAU00001'
           if strings "$ELF" | grep -Fq 'WKAL00001'; then
@@ -65,12 +75,13 @@ jobs:
           fi
           strings "$ELF" | grep -Fq 'etahen-2.5B.bin'
           strings "$ELF" | grep -Fq 'kstuff-1.10.elf'
+          strings "$ELF" | grep -Fq 'LOADING etaHEN'
           strings "$ELF" | grep -Fq 'Goldengames PS5 Autoloader'
           sha256sum "$ELF"
 
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v0.5.1-test
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.1-test.elf
+          name: goldengames-ps5-autoloader-installer-v0.5.2-test
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.2-test.elf
           if-no-files-found: error
