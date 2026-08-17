@@ -50,7 +50,7 @@
   function buildExploitUrl(mode, payload) {
     var encoded = encodeURIComponent(payload);
     if (mode === 'umtx2') {
-      return 'umtx2/index.html?autoload=' + encoded + '&v=1';
+      return 'umtx2/index.html?autoload=' + encoded + '&v=2';
     }
     return 'slopkit/slopkit/poops.html?go=1&auto=1&production=1&trigger=netcontrol&attempts=8&only=ps0_preflight,ps1_prepare,ps3_stage0,ps4_validate,ps5_stage1,ps6_stage2,ps8_stage3,ps9_stage4,ps10_stage5&log=debug&payload=1&autoload=' + encoded + '&v=final';
   }
@@ -107,11 +107,15 @@
     log('Firmware detected: ' + fw, 'success');
     log('Exploit selected: ' + exploitValue.textContent, 'info');
     log('Payload selected: ' + item.file, 'info');
+    if (autoMode && key === 'etahen') {
+      log('AUTO target locked: etaHEN 2.5B only. External Kstuff is not requested.', 'success');
+    }
     progress(15, 'Starting exploit...');
 
     try {
       sessionStorage.removeItem('slopkit-poops:next');
       sessionStorage.removeItem('slopkit-poops:latch');
+      sessionStorage.setItem('wkal_autoload', item.file);
     } catch (e) {}
 
     exploit.hidden = true;
@@ -121,14 +125,30 @@
 
   window.addEventListener('message', function (event) {
     var data = event.data || {};
-    if (data.type === 'autoload-result' || data.type === 'ps5-autoload') {
+
+    if (data.type === 'goldengames-diag') {
+      if (data.stage === 'autoload-route') {
+        log('UMTX2 route: ' + data.payload + ' -> port ' + data.port + ' (' + data.loader + ')', 'info');
+        progress(70, 'etaHEN route selected: port ' + data.port);
+      } else if (data.stage === 'autoload-dispatch') {
+        log('Dispatching etaHEN to port ' + data.port + '...', 'info');
+        progress(80, 'Sending etaHEN 2.5B...');
+      }
+      return;
+    }
+
+    var isAutoloadResult = data.type === 'autoload-result' ||
+      data.type === 'ps5-autoload' ||
+      (data.type === 'wkal' && data.kind === 'autoload');
+
+    if (isAutoloadResult) {
       if (data.ok) {
-        log('Payload loaded successfully.', 'success');
-        progress(100, 'Payload loaded.');
-        statusValue.textContent = 'LOADED';
+        log('etaHEN payload sent successfully' + (data.bytes ? ' (' + data.bytes + ' bytes).' : '.'), 'success');
+        progress(100, 'etaHEN sent successfully.');
+        statusValue.textContent = 'ETAHEN SENT';
       } else {
-        log('Autoload failed: ' + (data.why || 'unknown error'), 'error');
-        progress(0, 'Autoload failed.');
+        log('etaHEN autoload failed: ' + (data.why || 'unknown error'), 'error');
+        progress(0, 'etaHEN autoload failed.');
         statusValue.textContent = 'FAILED';
       }
     }
