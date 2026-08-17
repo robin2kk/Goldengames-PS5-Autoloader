@@ -22,13 +22,13 @@ jobs:
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
-          UMTX_PATCH=work/ps5-webkit-autoloader/patches/umtx2-autoload.patch
+          UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
           grep -Fq "Selected payload: ' + selectedPayload" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq "LOADING etaHEN" "$APP"
-          grep -Fq "var wkalElfldrReady = await probe_sb_elfldr();" "$UMTX_PATCH"
-          grep -Fq "if (wkalAutoloadName && wkalElfldrReady)" "$UMTX_PATCH"
+          grep -Fq "var wkalElfldrReady = await probe_sb_elfldr();" "$UMTX_APPLY"
+          grep -Fq "if (wkalAutoloadName && wkalElfldrReady)" "$UMTX_APPLY"
           node --check "$APP"
 
       - name: Download exact official payloads
@@ -90,6 +90,7 @@ jobs:
           echo 'Checking UMTX2 refreshes elfldr state before etaHEN autoload...'
           grep -Fq 'var wkalElfldrReady = await probe_sb_elfldr();' "$UMTX_MAIN"
           grep -Fq 'if (wkalAutoloadName && wkalElfldrReady)' "$UMTX_MAIN"
+          grep -Fq 'else if (wkalAutoloadName && !wkalElfldrReady)' "$UMTX_MAIN"
 
           strings "$ELF" > "$STRINGS_FILE"
           echo 'Checking Goldengames title ID...'
