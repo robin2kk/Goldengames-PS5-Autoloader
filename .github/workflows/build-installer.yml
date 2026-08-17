@@ -69,13 +69,14 @@ jobs:
         run: |
           set -euo pipefail
           ELF=goldengames-ps5-autoloader-installer_v0.5.2-test.elf
-          APP=frontend/dist/autoloader/app.js
+          VERSION="$(cat frontend/dist/VERSION)"
+          APP="frontend/dist/app/${VERSION}/app.js"
           STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
 
           test -f "$ELF"
           test -f "$APP"
 
-          echo 'Checking staged Goldengames runtime...'
+          echo "Checking staged Goldengames runtime at $APP..."
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq 'LOADING etaHEN' "$APP"
