@@ -69,16 +69,24 @@ jobs:
         run: |
           set -euo pipefail
           ELF=goldengames-ps5-autoloader-installer_v0.5.2-test.elf
+          STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
           test -f "$ELF"
-          strings "$ELF" | grep -Fq 'GGAU00001'
-          if strings "$ELF" | grep -Fq 'WKAL00001'; then
+          strings "$ELF" > "$STRINGS_FILE"
+          echo 'Checking Goldengames title ID...'
+          grep -Fq 'GGAU00001' "$STRINGS_FILE"
+          echo 'Checking upstream title ID is absent...'
+          if grep -Fq 'WKAL00001' "$STRINGS_FILE"; then
             echo 'ERROR: upstream WKAL00001 leaked into Goldengames installer' >&2
             exit 1
           fi
-          strings "$ELF" | grep -Fq 'etahen-2.5B.bin'
-          strings "$ELF" | grep -Fq 'kstuff-1.10.elf'
-          strings "$ELF" | grep -Fq 'LOADING etaHEN'
-          strings "$ELF" | grep -Fq 'Goldengames PS5 Autoloader'
+          echo 'Checking bundled etaHEN payload...'
+          grep -Fq 'etahen-2.5B.bin' "$STRINGS_FILE"
+          echo 'Checking bundled Kstuff payload...'
+          grep -Fq 'kstuff-1.10.elf' "$STRINGS_FILE"
+          echo 'Checking Goldengames runtime marker...'
+          grep -Fq 'LOADING etaHEN' "$STRINGS_FILE"
+          echo 'Checking Goldengames app name...'
+          grep -Fq 'Goldengames PS5 Autoloader' "$STRINGS_FILE"
           sha256sum "$ELF"
 
       - name: Upload installer ELF
