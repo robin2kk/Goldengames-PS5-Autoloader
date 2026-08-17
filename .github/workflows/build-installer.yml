@@ -27,8 +27,9 @@ jobs:
           grep -Fq "Selected payload: ' + selectedPayload" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq "LOADING etaHEN" "$APP"
-          grep -Fq "var wkalElfldrReady = await probe_sb_elfldr();" "$UMTX_APPLY"
-          grep -Fq "if (wkalAutoloadName && wkalElfldrReady)" "$UMTX_APPLY"
+          grep -Fq "var wkalAutoloadPort = wkOnly ? 9021 : 9020;" "$UMTX_APPLY"
+          grep -Fq "var wkalAutoloadReady = wkOnly ? is_elfldr_running : true;" "$UMTX_APPLY"
+          grep -Fq "toPort: wkalAutoloadPort" "$UMTX_APPLY"
           node --check "$APP"
 
       - name: Download exact official payloads
@@ -54,7 +55,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v0.5.3-test
+          CUSTOM_VERSION: goldengames-v0.5.4-test
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
@@ -65,13 +66,13 @@ jobs:
             -e GITHUB_TOKEN \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.3-test.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.4-test.elf
 
       - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v0.5.3-test.elf
+          ELF=goldengames-ps5-autoloader-installer_v0.5.4-test.elf
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
@@ -87,10 +88,13 @@ jobs:
           grep -Fq 'LOADING etaHEN' "$APP"
           node --check "$APP"
 
-          echo 'Checking UMTX2 refreshes elfldr state before etaHEN autoload...'
-          grep -Fq 'var wkalElfldrReady = await probe_sb_elfldr();' "$UMTX_MAIN"
-          grep -Fq 'if (wkalAutoloadName && wkalElfldrReady)' "$UMTX_MAIN"
-          grep -Fq 'else if (wkalAutoloadName && !wkalElfldrReady)' "$UMTX_MAIN"
+          echo 'Checking UMTX2 uses its full-chain exploit elfldr on port 9020...'
+          grep -Fq 'var wkalAutoloadPort = wkOnly ? 9021 : 9020;' "$UMTX_MAIN"
+          grep -Fq 'var wkalAutoloadReady = wkOnly ? is_elfldr_running : true;' "$UMTX_MAIN"
+          grep -Fq 'var wkalLoaderName = wkOnly ? "SB elfldr" : "UMTX2 exploit elfldr";' "$UMTX_MAIN"
+          grep -Fq 'toPort: wkalAutoloadPort' "$UMTX_MAIN"
+          grep -Fq 'stage: "autoload-route"' "$UMTX_MAIN"
+          grep -Fq 'stage: "autoload-dispatch"' "$UMTX_MAIN"
 
           strings "$ELF" > "$STRINGS_FILE"
           echo 'Checking Goldengames title ID...'
@@ -102,13 +106,13 @@ jobs:
           fi
           echo 'Checking bundled etaHEN payload registry entry...'
           grep -Fq 'etahen-2.5B.bin' "$STRINGS_FILE"
-          echo 'Checking bundled Kstuff payload registry entry...'
+          echo 'Checking bundled Kstuff payload registry entry (manual tile only)...'
           grep -Fq 'kstuff-1.10.elf' "$STRINGS_FILE"
           sha256sum "$ELF"
 
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v0.5.3-test
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.3-test.elf
+          name: goldengames-ps5-autoloader-installer-v0.5.4-test
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.4-test.elf
           if-no-files-found: error
