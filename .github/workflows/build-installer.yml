@@ -22,10 +22,13 @@ jobs:
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          UMTX_PATCH=work/ps5-webkit-autoloader/patches/umtx2-autoload.patch
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
           grep -Fq "Selected payload: ' + selectedPayload" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq "LOADING etaHEN" "$APP"
+          grep -Fq "var wkalElfldrReady = await probe_sb_elfldr();" "$UMTX_PATCH"
+          grep -Fq "if (wkalAutoloadName && wkalElfldrReady)" "$UMTX_PATCH"
           node --check "$APP"
 
       - name: Download exact official payloads
@@ -51,7 +54,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v0.5.2-test
+          CUSTOM_VERSION: goldengames-v0.5.3-test
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
@@ -62,25 +65,31 @@ jobs:
             -e GITHUB_TOKEN \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.2-test.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.3-test.elf
 
       - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v0.5.2-test.elf
+          ELF=goldengames-ps5-autoloader-installer_v0.5.3-test.elf
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
+          UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
           STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
 
           test -f "$ELF"
           test -f "$APP"
+          test -f "$UMTX_MAIN"
 
           echo "Checking staged Goldengames runtime at $APP..."
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq 'LOADING etaHEN' "$APP"
           node --check "$APP"
+
+          echo 'Checking UMTX2 refreshes elfldr state before etaHEN autoload...'
+          grep -Fq 'var wkalElfldrReady = await probe_sb_elfldr();' "$UMTX_MAIN"
+          grep -Fq 'if (wkalAutoloadName && wkalElfldrReady)' "$UMTX_MAIN"
 
           strings "$ELF" > "$STRINGS_FILE"
           echo 'Checking Goldengames title ID...'
@@ -99,6 +108,6 @@ jobs:
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v0.5.2-test
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.2-test.elf
+          name: goldengames-ps5-autoloader-installer-v0.5.3-test
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.3-test.elf
           if-no-files-found: error
