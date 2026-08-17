@@ -60,7 +60,28 @@
     setTimeout(function () {
       splash.hidden = true;
       dashboard.hidden = false;
+      scheduleAutoJailbreak();
     }, 350);
+  }
+
+  function scheduleAutoJailbreak() {
+    var fw = firmware();
+    var mode = fw ? exploitForFirmware(fw) : null;
+    var alreadyStarted = false;
+
+    try {
+      alreadyStarted = sessionStorage.getItem('goldengames:auto-started') === '1';
+    } catch (e) {}
+
+    if (!mode || alreadyStarted) return;
+
+    statusValue.textContent = 'AUTO START';
+    setTimeout(function () {
+      try {
+        sessionStorage.setItem('goldengames:auto-started', '1');
+      } catch (e) {}
+      startPayload('etahen', true);
+    }, 900);
   }
 
   function startPayload(key, autoMode) {
