@@ -44,20 +44,43 @@ if old not in text:
     raise SystemExit('expected registry hook not found; upstream changed')
 registry.write_text(text.replace(old, new, 1), encoding='utf-8')
 
-# Keep upstream patches/umtx2-autoload.patch intact. The PS5 diagnostic run
-# showed the loader actually listening on 127.0.0.1:9021 immediately before
-# etaHEN autoload. Route to that observed loader and instrument fetch/send.
+# Keep upstream patches/umtx2-autoload.patch intact. Goldengames applies its
+# runtime additions after the official patch: sender-only reuse, diagnostics,
+# and etaHEN/payload delivery through the observed elfldr port 9021.
 apply_text = umtx_apply.read_text(encoding='utf-8')
 marker = '# 4. Sanity check: the patched main.js must carry our integration markers, the\n'
 if marker not in apply_text:
     raise SystemExit('UMTX2 post-patch insertion point not found; upstream changed')
-post_patch = r'''# Goldengames diagnostic etaHEN autoload routing.
+post_patch = r'''# Goldengames sender-only mode + etaHEN autoload diagnostics.
 python3 - "$DEST/main.js" <<'PY'
 from pathlib import Path
 import sys
 
 p = Path(sys.argv[1])
 s = p.read_text(encoding='utf-8')
+
+sender_old = ''' + "'''" + r'''    if (!wkOnly && is_elfldr_running) {
+        // WKAL: always run the full chain in the autoloader, never skip it.
+        await log("elfldr is already running, continuing with the full chain", LogLevel.INFO);
+    }
+''' + "'''" + r'''
+sender_new = ''' + "'''" + r'''    var goldengamesSenderOnly = false;
+    try { goldengamesSenderOnly = sessionStorage.getItem("goldengames_sender_only") === "1"; } catch (e) { }
+
+    if (goldengamesSenderOnly && is_elfldr_running) {
+        wkOnly = true;
+        await log("Goldengames: jailbreak already active; sender-only mode enabled.", LogLevel.SUCCESS);
+    } else if (goldengamesSenderOnly && !is_elfldr_running) {
+        await log("Goldengames: sender-only requested but elfldr is unavailable; falling back to full jailbreak.", LogLevel.WARN);
+    } else if (!wkOnly && is_elfldr_running) {
+        // Fresh AUTO JAILBREAK deliberately runs the full chain.
+        await log("elfldr is already running, continuing with the full chain", LogLevel.INFO);
+    }
+''' + "'''" + r'''
+if sender_old not in s:
+    raise SystemExit('Goldengames UMTX2 sender-only hook not found after upstream patch')
+s = s.replace(sender_old, sender_new, 1)
+
 old = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");
     if (wkalAutoloadName && is_elfldr_running) {
         await log("autoload: waiting 4 s for elfldr to bind 9021...", LogLevel.LOG);
@@ -89,16 +112,16 @@ new = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.
             try { window.parent.postMessage({ type: "goldengames-diag", stage: "autoload-dispatch", payload: wkalAutoloadName, port: 9021 }, "*"); } catch (e) { }
             window.dispatchEvent(new CustomEvent(MAINLOOP_EXECUTE_PAYLOAD_REQUEST, {
                 detail: {
-                    displayTitle: "etaHEN 2.5B",
+                    displayTitle: wkalAutoloadName,
                     fileName: wkalAutoloadName,
                     wkalBase: "../payloads/",
                     toPort: 9021,
                     wkalAutoload: true
                 }
             }));
-        }, 1500);
+        }, goldengamesSenderOnly ? 500 : 1500);
     } else if (wkalAutoloadName) {
-        await log("Goldengames diag: elfldr 9021 not ready; etaHEN not sent", LogLevel.ERROR);
+        await log("Goldengames diag: elfldr 9021 not ready; payload not sent", LogLevel.ERROR);
         try { window.parent.postMessage({ type: "wkal", kind: "autoload", ok: false, why: "elfldr 9021 not ready" }, "*"); } catch (e) { }
     }
 ''' + "'''" + r'''
@@ -132,11 +155,11 @@ if send_old not in s:
 s = s.replace(send_old, send_new, 1)
 
 p.write_text(s, encoding='utf-8')
-print('umtx2: Goldengames etaHEN 9021 diagnostics applied.')
+print('umtx2: Goldengames sender-only mode and 9021 diagnostics applied.')
 PY
 
 '''
-if 'Goldengames etaHEN 9021 diagnostics applied' not in apply_text:
+if 'Goldengames sender-only mode and 9021 diagnostics applied' not in apply_text:
     apply_text = apply_text.replace(marker, post_patch + marker, 1)
 umtx_apply.write_text(apply_text, encoding='utf-8')
 
@@ -145,4 +168,5 @@ print('  native WKAL_TITLE_ID: GGAU00001')
 print('  param.json titleId: GGAU00001')
 print('  titleName: Goldengames PS5 Autoloader')
 print('  AppCache autoload variants: payload.elf, etaHEN 2.5B, Kstuff 1.10')
-print('  UMTX2 etaHEN diagnostic route: verified elfldr on port 9021')
+print('  UMTX2 manual mode: reuses active elfldr without rerunning kernel exploit')
+print('  UMTX2 payload route: verified elfldr on port 9021')
