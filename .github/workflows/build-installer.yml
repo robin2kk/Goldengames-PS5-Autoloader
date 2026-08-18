@@ -27,6 +27,12 @@ jobs:
           STYLE=work/ps5-webkit-autoloader/frontend/autoloader/style.css
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
+          grep -Fq "var liveJailbreakState = false;" "$APP"
+          grep -Fq "return liveJailbreakState === true;" "$APP"
+          if grep -Fq "localStorage.setItem(JAILBREAK_STATE_KEY" "$APP"; then
+            echo 'ERROR: persistent jailbreak state must not survive fresh app launches' >&2
+            exit 1
+          fi
           grep -Fq "goldengames_sender_only" "$APP"
           grep -Fq "JAILBROKEN" "$APP"
           grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
@@ -34,7 +40,7 @@ jobs:
           grep -Fq "var wkalAutoloadPort = 9021;" "$UMTX_APPLY"
           grep -Fq "payload bytes loaded" "$UMTX_APPLY"
           grep -Fq "send completed to port" "$UMTX_APPLY"
-          grep -Fq "v1.0.0-rc1" "$INDEX"
+          grep -Fq "v1.0.0-rc2" "$INDEX"
           grep -Fq 'content:"🔓"' "$STYLE"
           node --check "$APP"
 
@@ -61,7 +67,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v1.0.0-rc1
+          CUSTOM_VERSION: goldengames-v1.0.0-rc2
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
@@ -69,13 +75,13 @@ jobs:
             -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc1.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc2.elf
 
       - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc1.elf
+          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc2.elf
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
@@ -91,10 +97,12 @@ jobs:
 
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
+          grep -Fq "var liveJailbreakState = false;" "$APP"
+          grep -Fq "return liveJailbreakState === true;" "$APP"
           grep -Fq "goldengames_sender_only" "$APP"
           grep -Fq "JAILBROKEN" "$APP"
           grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
-          grep -Fq "v1.0.0-rc1" "$INDEX"
+          grep -Fq "v1.0.0-rc2" "$INDEX"
           grep -Fq 'content:"🔓"' "$STYLE"
           node --check "$APP"
 
@@ -121,6 +129,6 @@ jobs:
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v1.0.0-rc1
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc1.elf
+          name: goldengames-ps5-autoloader-installer-v1.0.0-rc2
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc2.elf
           if-no-files-found: error
