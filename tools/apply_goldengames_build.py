@@ -106,24 +106,19 @@ if old not in s:
     raise SystemExit('Goldengames UMTX2 autoload block not found after upstream patch')
 s = s.replace(old, new, 1)
 
-fetch_old = ''' + "'''" + r'''        const response = await fetch(base + filename);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch the binary file. Status: ${response.status}`);
-        }
-        const data = await response.arrayBuffer();
-''' + "'''" + r'''
-fetch_new = ''' + "'''" + r'''        const response = await fetch(base + filename);
-        await log("Goldengames diag: fetch " + base + filename + " -> HTTP " + response.status, LogLevel.INFO);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch the binary file. Status: ${response.status}`);
-        }
-        const data = await response.arrayBuffer();
-        await log("Goldengames diag: payload bytes loaded = " + data.byteLength, LogLevel.INFO);
+fetch_anchor = '        const response = await fetch(base + filename);\n'
+fetch_diag = '        await log("Goldengames diag: fetch " + base + filename + " -> HTTP " + response.status, LogLevel.INFO);\n'
+if fetch_anchor not in s:
+    raise SystemExit('Goldengames payload fetch diagnostic response hook not found')
+s = s.replace(fetch_anchor, fetch_anchor + fetch_diag, 1)
+
+data_anchor = '        const data = await response.arrayBuffer();\n'
+data_diag = ''' + "'''" + r'''        await log("Goldengames diag: payload bytes loaded = " + data.byteLength, LogLevel.INFO);
         try { window.parent.postMessage({ type: "goldengames-diag", stage: "payload-fetched", file: filename, bytes: data.byteLength }, "*"); } catch (e) { }
 ''' + "'''" + r'''
-if fetch_old not in s:
-    raise SystemExit('Goldengames payload fetch diagnostic hook not found')
-s = s.replace(fetch_old, fetch_new, 1)
+if data_anchor not in s:
+    raise SystemExit('Goldengames payload fetch diagnostic data hook not found')
+s = s.replace(data_anchor, data_anchor + data_diag, 1)
 
 send_old = '                        await send_buffer_to_port(elf_store, total_sz, payload_info.toPort);\n'
 send_new = ''' + "'''" + r'''                        await log("Goldengames diag: sending " + total_sz + " bytes to port " + payload_info.toPort, LogLevel.INFO);
