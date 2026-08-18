@@ -39,27 +39,19 @@ installer_c.write_text(installer_text, encoding='utf-8')
 
 text = registry.read_text(encoding='utf-8')
 old = '''    lines.append(slopkit_iframe_url(app_dir))\n    lines.append(umtx2_iframe_url(app_dir))\n'''
-new = '''    # Goldengames supports choosing the autoload payload from the dashboard.\n    # AppCache matches the iframe URL including its query string, so cache all\n    # supported autoload variants rather than only upstream payload.elf.\n    for payload_name in ("payload.elf", "etahen-2.5B.bin", "kstuff-1.10.elf"):\n        lines.append(slopkit_iframe_url(app_dir).replace("autoload=payload.elf", "autoload=" + payload_name))\n        lines.append(umtx2_iframe_url(app_dir).replace("autoload=payload.elf", "autoload=" + payload_name))\n'''
+new = '''    # Goldengames supports choosing the autoload payload from the dashboard.\n    for payload_name in ("payload.elf", "etahen-2.5B.bin", "kstuff-1.10.elf"):\n        lines.append(slopkit_iframe_url(app_dir).replace("autoload=payload.elf", "autoload=" + payload_name))\n        lines.append(umtx2_iframe_url(app_dir).replace("autoload=payload.elf", "autoload=" + payload_name))\n'''
 if old not in text:
     raise SystemExit('expected registry hook not found; upstream changed')
 registry.write_text(text.replace(old, new, 1), encoding='utf-8')
 
-# Keep upstream patches/umtx2-autoload.patch byte-for-byte intact so git apply
-# remains valid. Add a Goldengames post-patch edit only after WKAL has prepared
-# frontend/autoloader/umtx2/main.js.
-#
-# Important routing detail from the pinned UMTX2 source:
-#   - the full kernel chain creates its own exploit elfldr on port 9020;
-#   - probe_sb_elfldr() refers to the separate SB/John elfldr on port 9021.
-# A fresh AUTO JAILBREAK therefore must send etaHEN to 9020. Waiting for 9021
-# after the full UMTX2 chain was the reason etaHEN never followed the jailbreak.
+# Keep upstream patches/umtx2-autoload.patch intact. The PS5 diagnostic run
+# showed the loader actually listening on 127.0.0.1:9021 immediately before
+# etaHEN autoload. Route to that observed loader and instrument fetch/send.
 apply_text = umtx_apply.read_text(encoding='utf-8')
 marker = '# 4. Sanity check: the patched main.js must carry our integration markers, the\n'
 if marker not in apply_text:
     raise SystemExit('UMTX2 post-patch insertion point not found; upstream changed')
-post_patch = r'''# Goldengames: route autoload through the loader that actually exists for the
-# selected UMTX2 mode. Full-chain UMTX2 owns port 9020; WebKit-only mode can
-# use an already-running SB/John elfldr on port 9021.
+post_patch = r'''# Goldengames diagnostic etaHEN autoload routing.
 python3 - "$DEST/main.js" <<'PY'
 from pathlib import Path
 import sys
@@ -86,39 +78,70 @@ old = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.
     }
 ''' + "'''" + r'''
 new = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.search).get("autoload") || sessionStorage.getItem("wkal_autoload");
-    var wkalAutoloadPort = wkOnly ? 9021 : 9020;
-    var wkalAutoloadReady = wkOnly ? is_elfldr_running : true;
-    var wkalLoaderName = wkOnly ? "SB elfldr" : "UMTX2 exploit elfldr";
+    var wkalAutoloadPort = 9021;
+    var wkalAutoloadReady = await probe_sb_elfldr();
 
+    await log("Goldengames diag: elfldr probe 9021 = " + wkalAutoloadReady, LogLevel.INFO);
     if (wkalAutoloadName && wkalAutoloadReady) {
-        await log("autoload: routing " + wkalAutoloadName + " to " + wkalLoaderName + " on port " + wkalAutoloadPort, LogLevel.INFO);
-        try { window.parent.postMessage({ type: "goldengames-diag", stage: "autoload-route", payload: wkalAutoloadName, port: wkalAutoloadPort, loader: wkalLoaderName }, "*"); } catch (e) { }
+        await log("Goldengames diag: routing " + wkalAutoloadName + " to elfldr port 9021", LogLevel.INFO);
+        try { window.parent.postMessage({ type: "goldengames-diag", stage: "elfldr-ready", payload: wkalAutoloadName, port: 9021 }, "*"); } catch (e) { }
         setTimeout(function () {
-            try { window.parent.postMessage({ type: "goldengames-diag", stage: "autoload-dispatch", payload: wkalAutoloadName, port: wkalAutoloadPort }, "*"); } catch (e) { }
+            try { window.parent.postMessage({ type: "goldengames-diag", stage: "autoload-dispatch", payload: wkalAutoloadName, port: 9021 }, "*"); } catch (e) { }
             window.dispatchEvent(new CustomEvent(MAINLOOP_EXECUTE_PAYLOAD_REQUEST, {
                 detail: {
-                    displayTitle: "Autoload",
+                    displayTitle: "etaHEN 2.5B",
                     fileName: wkalAutoloadName,
                     wkalBase: "../payloads/",
-                    toPort: wkalAutoloadPort,
+                    toPort: 9021,
                     wkalAutoload: true
                 }
             }));
         }, 1500);
-    } else if (wkalAutoloadName && !wkalAutoloadReady) {
-        await log("autoload failed: SB elfldr is not running on port 9021", LogLevel.ERROR);
-        try { window.parent.postMessage({ type: "wkal", kind: "autoload", ok: false, why: "SB elfldr is not running on port 9021" }, "*"); } catch (e) { }
+    } else if (wkalAutoloadName) {
+        await log("Goldengames diag: elfldr 9021 not ready; etaHEN not sent", LogLevel.ERROR);
+        try { window.parent.postMessage({ type: "wkal", kind: "autoload", ok: false, why: "elfldr 9021 not ready" }, "*"); } catch (e) { }
     }
 ''' + "'''" + r'''
 if old not in s:
     raise SystemExit('Goldengames UMTX2 autoload block not found after upstream patch')
 s = s.replace(old, new, 1)
+
+fetch_old = ''' + "'''" + r'''        const response = await fetch(base + filename);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch the binary file. Status: ${response.status}`);
+        }
+        const data = await response.arrayBuffer();
+''' + "'''" + r'''
+fetch_new = ''' + "'''" + r'''        const response = await fetch(base + filename);
+        await log("Goldengames diag: fetch " + base + filename + " -> HTTP " + response.status, LogLevel.INFO);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch the binary file. Status: ${response.status}`);
+        }
+        const data = await response.arrayBuffer();
+        await log("Goldengames diag: payload bytes loaded = " + data.byteLength, LogLevel.INFO);
+        try { window.parent.postMessage({ type: "goldengames-diag", stage: "payload-fetched", file: filename, bytes: data.byteLength }, "*"); } catch (e) { }
+''' + "'''" + r'''
+if fetch_old not in s:
+    raise SystemExit('Goldengames payload fetch diagnostic hook not found')
+s = s.replace(fetch_old, fetch_new, 1)
+
+send_old = '                        await send_buffer_to_port(elf_store, total_sz, payload_info.toPort);\n'
+send_new = ''' + "'''" + r'''                        await log("Goldengames diag: sending " + total_sz + " bytes to port " + payload_info.toPort, LogLevel.INFO);
+                        try { window.parent.postMessage({ type: "goldengames-diag", stage: "send-start", bytes: total_sz, port: payload_info.toPort }, "*"); } catch (e) { }
+                        await send_buffer_to_port(elf_store, total_sz, payload_info.toPort);
+                        await log("Goldengames diag: send completed to port " + payload_info.toPort, LogLevel.INFO);
+                        try { window.parent.postMessage({ type: "goldengames-diag", stage: "send-complete", bytes: total_sz, port: payload_info.toPort }, "*"); } catch (e) { }
+''' + "'''" + r'''
+if send_old not in s:
+    raise SystemExit('Goldengames payload send diagnostic hook not found')
+s = s.replace(send_old, send_new, 1)
+
 p.write_text(s, encoding='utf-8')
-print('umtx2: Goldengames loader-aware etaHEN autoload routing applied (9020 full chain / 9021 wkOnly).')
+print('umtx2: Goldengames etaHEN 9021 diagnostics applied.')
 PY
 
 '''
-if 'Goldengames loader-aware etaHEN autoload routing applied' not in apply_text:
+if 'Goldengames etaHEN 9021 diagnostics applied' not in apply_text:
     apply_text = apply_text.replace(marker, post_patch + marker, 1)
 umtx_apply.write_text(apply_text, encoding='utf-8')
 
@@ -127,4 +150,4 @@ print('  native WKAL_TITLE_ID: GGAU00001')
 print('  param.json titleId: GGAU00001')
 print('  titleName: Goldengames PS5 Autoloader')
 print('  AppCache autoload variants: payload.elf, etaHEN 2.5B, Kstuff 1.10')
-print('  UMTX2 autoload route: full chain -> exploit elfldr 9020; wkOnly -> SB elfldr 9021')
+print('  UMTX2 etaHEN diagnostic route: verified elfldr on port 9021')
