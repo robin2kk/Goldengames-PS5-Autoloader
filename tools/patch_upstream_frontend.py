@@ -11,7 +11,56 @@ text = app.read_text(encoding='utf-8')
 
 # Add Goldengames dashboard references immediately after the upstream iframe ref.
 needle = "  var exploitEl = document.getElementById('exploit');\n"
-insert = needle + "  var dashboardEl = document.getElementById('dashboard');\n  var firmwareValueEl = document.getElementById('firmwareValue');\n  var exploitValueEl = document.getElementById('exploitValue');\n  var statusValueEl = document.getElementById('statusValue');\n  var runTitleEl = document.getElementById('runTitle');\n  var runSubtitleEl = document.getElementById('runSubtitle');\n  var selectedPayload = 'payload.elf';\n  var selectedLabel = 'Payload Manager';\n"
+insert = needle + """  var dashboardEl = document.getElementById('dashboard');
+  var firmwareValueEl = document.getElementById('firmwareValue');
+  var exploitValueEl = document.getElementById('exploitValue');
+  var statusValueEl = document.getElementById('statusValue');
+  var runTitleEl = document.getElementById('runTitle');
+  var runSubtitleEl = document.getElementById('runSubtitle');
+  var backButtonEl = document.getElementById('backButton');
+  var notificationEl = document.getElementById('notification');
+  var notificationTitleEl = document.getElementById('notificationTitle');
+  var notificationTextEl = document.getElementById('notificationText');
+  var selectedPayload = 'payload.elf';
+  var selectedLabel = 'Payload Manager';
+  var selectedManual = false;
+  var JAILBREAK_STATE_KEY = 'goldengames:jailbroken-v1';
+
+  function hasJailbreakState() {
+    try { return localStorage.getItem(JAILBREAK_STATE_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  function setJailbreakState(active) {
+    try {
+      if (active) localStorage.setItem(JAILBREAK_STATE_KEY, '1');
+      else localStorage.removeItem(JAILBREAK_STATE_KEY);
+    } catch (e) { }
+  }
+
+  function showGoldengamesNotification(title, message) {
+    if (!notificationEl) return;
+    if (notificationTitleEl) notificationTitleEl.textContent = title;
+    if (notificationTextEl) notificationTextEl.textContent = message;
+    notificationEl.hidden = false;
+    setTimeout(function () { notificationEl.hidden = true; }, 5500);
+  }
+
+  function returnToGoldengamesMenu() {
+    try { exploitEl.src = 'about:blank'; } catch (e) { }
+    loaderEl.hidden = true;
+    if (dashboardEl) dashboardEl.hidden = false;
+    if (backButtonEl) backButtonEl.disabled = true;
+    chainStarted = false;
+    finished = false;
+    selectedManual = false;
+    try {
+      sessionStorage.removeItem('goldengames_sender_only');
+      sessionStorage.removeItem('wkal_autoload');
+      sessionStorage.removeItem('on_load_autorun');
+    } catch (e) { }
+    if (statusValueEl) statusValueEl.textContent = hasJailbreakState() ? 'JAILBROKEN' : 'READY';
+  }
+"""
 if needle not in text:
     raise SystemExit('upstream exploit element hook not found')
 text = text.replace(needle, insert, 1)
@@ -32,41 +81,48 @@ text = text.replace(old_slop, new_slop, 1)
 
 # Rename upstream start() so Goldengames can choose the payload first.
 text = text.replace('  function start() {\n', '  function runSelectedPayload() {\n', 1)
-text = text.replace("    uiLog('WebKit Autoloader by PLK', 'success');", "    uiLog('Goldengames PS5 Autoloader', 'success');\n    uiLog('Selected payload: ' + selectedPayload, 'success');", 1)
+text = text.replace("    uiLog('WebKit Autoloader by PLK', 'success');", "    uiLog('Goldengames PS5 Autoloader', 'success');\n    uiLog('Selected payload: ' + selectedPayload, 'success');\n    if (selectedManual) uiLog('Manual sender mode: existing jailbreak detected; kernel exploit will be skipped.', 'success');", 1)
 text = text.replace("    EXPLOIT_URL = picked === 'umtx2' ? UMTX2_URL : SLOPKIT_URL;", "    EXPLOIT_URL = picked === 'umtx2' ? getUmtx2Url() : getSlopkitUrl();", 1)
 text = text.replace("        sessionStorage.setItem('wkal_autoload', 'payload.elf');", "        sessionStorage.setItem('wkal_autoload', selectedPayload);", 1)
 
-# Make the result visible in the Goldengames status box too.
+# Make the result visible in the Goldengames status box and leave the menu
+# available for sender-only manual payload launches after the jailbreak.
 text = text.replace(
     "    if (data.ok) {\n      uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');",
-    "    if (data.ok) {\n      if (statusValueEl) statusValueEl.textContent = 'LOADED';\n      uiLog(selectedLabel + ' loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');",
+    "    if (data.ok) {\n      if (selectedPayload === 'etahen-2.5B.bin') {\n        setJailbreakState(true);\n        if (statusValueEl) statusValueEl.textContent = 'JAILBROKEN';\n        showGoldengamesNotification('etaHEN 2.5B LAUNCHED', 'Jailbreak ready · Manual Payload Mode enabled');\n      } else {\n        if (statusValueEl) statusValueEl.textContent = 'PAYLOAD SENT';\n        showGoldengamesNotification(selectedLabel + ' SENT', 'Payload delivered to elfldr successfully');\n      }\n      uiLog(selectedLabel + ' loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');",
+    1
+)
+text = text.replace(
+    "      updateProgress(100, 'Autoload finished.');",
+    "      updateProgress(100, selectedPayload === 'etahen-2.5B.bin' ? 'etaHEN 2.5B launched successfully.' : 'Payload sent successfully.');\n      if (backButtonEl) backButtonEl.disabled = false;\n      setTimeout(returnToGoldengamesMenu, 2600);",
     1
 )
 text = text.replace(
     "    } else {\n      uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');",
-    "    } else {\n      if (statusValueEl) statusValueEl.textContent = 'FAILED';\n      uiLog('[ERROR] ' + selectedLabel + ' autoload failed: ' + (data.why || 'unknown error'), 'error');",
+    "    } else {\n      if (statusValueEl) statusValueEl.textContent = 'FAILED';\n      if (selectedPayload === 'etahen-2.5B.bin') setJailbreakState(false);\n      showGoldengamesNotification('PAYLOAD FAILED', selectedLabel + ': ' + (data.why || 'unknown error'));\n      uiLog('[ERROR] ' + selectedLabel + ' autoload failed: ' + (data.why || 'unknown error'), 'error');",
     1
 )
 
-# Keep the dashboard available as a manual fallback, but auto-start etaHEN on
-# every fresh app launch. This is patched into the real upstream app.js used by
-# the installer build (overlay/frontend/app.js is only a reference copy).
+# Keep the dashboard available as a manual fallback. On a fresh/unmarked app
+# launch etaHEN starts automatically. Once etaHEN has been delivered, reopening
+# the app stays in the dashboard and manual payloads use sender-only mode.
 start_tail = "  window.addEventListener('load', start);\n})();"
-menu_tail = r'''  function choosePayload(payload, label) {
+menu_tail = r'''  function choosePayload(payload, label, forceFullJailbreak) {
     if (chainStarted) return;
     selectedPayload = payload;
     selectedLabel = label;
+    selectedManual = hasJailbreakState() && !forceFullJailbreak;
     if (dashboardEl) dashboardEl.hidden = true;
-    if (statusValueEl) statusValueEl.textContent = 'RUNNING';
+    if (statusValueEl) statusValueEl.textContent = selectedManual ? 'MANUAL SEND' : 'RUNNING';
     if (runTitleEl) runTitleEl.textContent = label;
     var fw = detectFirmware();
-    if (runSubtitleEl) runSubtitleEl.textContent = fw ? ('Firmware ' + fw.str) : 'Firmware unknown';
+    if (runSubtitleEl) runSubtitleEl.textContent = fw ? ('Firmware ' + fw.str + (selectedManual ? ' · Sender-only' : '')) : 'Firmware unknown';
 
-    /* Remove stale autoload state before arming a new payload. runSelectedPayload
-       will then write the exact selected payload for UMTX2. */
     try {
       sessionStorage.removeItem('wkal_autoload');
       sessionStorage.removeItem('on_load_autorun');
+      if (selectedManual) sessionStorage.setItem('goldengames_sender_only', '1');
+      else sessionStorage.removeItem('goldengames_sender_only');
     } catch (e) { }
 
     runSelectedPayload();
@@ -75,22 +131,28 @@ menu_tail = r'''  function choosePayload(payload, label) {
   function initGoldengamesMenu() {
     var fw = detectFirmware();
     var picked = pickExploit();
+    var jailbroken = hasJailbreakState();
     if (firmwareValueEl) firmwareValueEl.textContent = fw ? fw.str : 'Unknown';
     if (exploitValueEl) exploitValueEl.textContent = picked === 'umtx2' ? 'UMTX2' : picked === 'slopkit' ? 'SlopKit' : 'Unsupported';
-    if (statusValueEl) statusValueEl.textContent = picked ? 'AUTO START' : 'UNSUPPORTED';
+    if (statusValueEl) statusValueEl.textContent = picked ? (jailbroken ? 'JAILBROKEN' : 'AUTO START') : 'UNSUPPORTED';
+
+    if (backButtonEl) backButtonEl.addEventListener('click', function () {
+      if (!backButtonEl.disabled) returnToGoldengamesMenu();
+    });
 
     var autoBtn = document.getElementById('autoJailbreak');
     if (autoBtn) autoBtn.addEventListener('click', function () {
-      choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B');
+      setJailbreakState(false);
+      choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true);
     });
 
     var tiles = document.querySelectorAll('[data-payload]');
     for (var i = 0; i < tiles.length; i++) {
       tiles[i].addEventListener('click', function () {
         var key = this.getAttribute('data-payload');
-        if (key === 'etahen') choosePayload('etahen-2.5B.bin', 'etaHEN 2.5B');
-        else if (key === 'kstuff') choosePayload('kstuff-1.10.elf', 'Kstuff Lite 1.10');
-        else choosePayload('payload.elf', 'Payload Manager');
+        if (key === 'etahen') choosePayload('etahen-2.5B.bin', 'etaHEN 2.5B', false);
+        else if (key === 'kstuff') choosePayload('kstuff-1.10.elf', 'Kstuff Lite 1.10', false);
+        else choosePayload('payload.elf', 'Payload Manager', false);
       });
     }
 
@@ -100,12 +162,16 @@ menu_tail = r'''  function choosePayload(payload, label) {
         splashEl.hidden = true;
         if (dashboardEl) dashboardEl.hidden = false;
 
-        /* AUTO JAILBREAK means no button press: on supported firmware arm
-           etaHEN immediately after the dashboard becomes visible. */
+        if (jailbroken) {
+          showGoldengamesNotification('JAILBREAK ACTIVE', 'Auto Jailbreak skipped · Manual Payload Mode ready');
+          return;
+        }
+
+        /* AUTO JAILBREAK means no button press on a fresh/unmarked session. */
         if (picked && !chainStarted) {
           if (statusValueEl) statusValueEl.textContent = 'LOADING etaHEN';
           setTimeout(function () {
-            choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B');
+            choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true);
           }, 650);
         }
       }, 350);
@@ -119,4 +185,4 @@ if start_tail not in text:
 text = text.replace(start_tail, menu_tail, 1)
 
 app.write_text(text, encoding='utf-8')
-print('Patched upstream app.js: Goldengames auto-starts etaHEN and preserves manual payload fallback.')
+print('Patched upstream app.js: etaHEN notifications, jailbreak state, and manual sender-only mode enabled.')
