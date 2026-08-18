@@ -18,16 +18,22 @@ jobs:
       - name: Apply Goldengames registry and app identity
         run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
 
-      - name: Verify patched runtime auto-starts etaHEN
+      - name: Verify patched runtime auto-starts etaHEN and preserves manual mode
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
-          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
+          INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
+          grep -Fq "goldengames_sender_only" "$APP"
+          grep -Fq "JAILBROKEN" "$APP"
+          grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
+          grep -Fq "goldengamesSenderOnly" "$UMTX_APPLY"
           grep -Fq "var wkalAutoloadPort = 9021;" "$UMTX_APPLY"
           grep -Fq "payload bytes loaded" "$UMTX_APPLY"
           grep -Fq "send completed to port" "$UMTX_APPLY"
+          grep -Fq "v0.5.6-test" "$INDEX"
           node --check "$APP"
 
       - name: Download exact official payloads
@@ -53,7 +59,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v0.5.5-test
+          CUSTOM_VERSION: goldengames-v0.5.6-test
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
@@ -61,27 +67,35 @@ jobs:
             -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.5-test.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v0.5.6-test.elf
 
       - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v0.5.5-test.elf
+          ELF=goldengames-ps5-autoloader-installer_v0.5.6-test.elf
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
+          INDEX="frontend/dist/app/${VERSION}/index.html"
           STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
 
           test -f "$ELF"
           test -f "$APP"
           test -f "$UMTX_MAIN"
+          test -f "$INDEX"
 
-          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B')" "$APP"
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
+          grep -Fq "goldengames_sender_only" "$APP"
+          grep -Fq "JAILBROKEN" "$APP"
+          grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
+          grep -Fq "v0.5.6-test" "$INDEX"
           node --check "$APP"
 
-          echo 'Checking etaHEN diagnostic routing to observed elfldr 9021...'
+          echo 'Checking manual sender mode and payload routing to elfldr 9021...'
+          grep -Fq 'var goldengamesSenderOnly = false;' "$UMTX_MAIN"
+          grep -Fq 'jailbreak already active; sender-only mode enabled' "$UMTX_MAIN"
           grep -Fq 'var wkalAutoloadPort = 9021;' "$UMTX_MAIN"
           grep -Fq 'var wkalAutoloadReady = await probe_sb_elfldr();' "$UMTX_MAIN"
           grep -Fq 'Goldengames diag: payload bytes loaded = ' "$UMTX_MAIN"
@@ -102,6 +116,6 @@ jobs:
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v0.5.5-test
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.5-test.elf
+          name: goldengames-ps5-autoloader-installer-v0.5.6-test
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v0.5.6-test.elf
           if-no-files-found: error
