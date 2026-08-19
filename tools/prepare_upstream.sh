@@ -33,6 +33,7 @@ check_pin third_party/ps5-elfldr "$expected_elfldr"
 # Goldengames autoloader dashboard.
 cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
+cp "$ROOT/overlay/frontend/rc5.css" frontend/autoloader/rc5.css
 cp "$ROOT/overlay/frontend/jb-icon.css" frontend/autoloader/jb-icon.css
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/autoloader/jb-icon.svg
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
