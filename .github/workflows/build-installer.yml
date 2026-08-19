@@ -18,27 +18,34 @@ jobs:
       - name: Apply Goldengames registry and app identity
         run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
 
-      - name: Enable RC5 manual payloads and reopen mode
+      - name: Enable RC6 manual payloads with RC3 session logic
         run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
 
-      - name: Verify patched runtime and RC5 dashboard
+      - name: Verify patched runtime and RC6 dashboard
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
           STYLE=work/ps5-webkit-autoloader/frontend/autoloader/style.css
-          RC5_STYLE=work/ps5-webkit-autoloader/frontend/autoloader/rc5.css
+          COMPACT_STYLE=work/ps5-webkit-autoloader/frontend/autoloader/rc5.css
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
           grep -Fq "choosePayload('pldmgr_v0.5.1.elf', 'Payload Manager 0.5.1', false)" "$APP"
           grep -Fq "choosePayload('websrv-ps5.elf', 'WebSrv PS5', false)" "$APP"
           grep -Fq "choosePayload('shadowmountplus_v1.7alpha8.elf', 'ShadowMountPlus 1.7 alpha8', false)" "$APP"
-          grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v3'" "$APP"
-          grep -Fq "JAILBREAK_REOPEN_KEY = 'goldengames:jailbreak-reopen-v1'" "$APP"
-          grep -Fq "JAILBREAK_REOPEN_MS = 90 * 1000" "$APP"
-          grep -Fq "pagehide" "$APP"
-          grep -Fq "if (jailbroken) liveJailbreakState = true" "$APP"
+          grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2'" "$APP"
+          grep -Fq "PROCESS_EPOCH_TOLERANCE_MS = 5000" "$APP"
+          grep -Fq "processEpoch: currentProcessEpoch()" "$APP"
+          grep -Fq "Existing live session detected · Auto Jailbreak skipped" "$APP"
+          if grep -Fq "goldengames:jailbreak-reopen-v1" "$APP"; then
+            echo 'ERROR: RC5 reopen-ticket logic leaked into RC6' >&2
+            exit 1
+          fi
+          if grep -Fq "addEventListener('pagehide'" "$APP" || grep -Fq "addEventListener('beforeunload'" "$APP"; then
+            echo 'ERROR: RC5 unload hooks leaked into RC6' >&2
+            exit 1
+          fi
           grep -Fq "goldengames_sender_only" "$APP"
           grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
           grep -Fq "goldengamesSenderOnly" "$UMTX_APPLY"
@@ -46,10 +53,10 @@ jobs:
           grep -Fq "payload bytes loaded" "$UMTX_APPLY"
           grep -Fq "ShadowMountPlus" "$INDEX"
           grep -Fq "rc5.css" "$INDEX"
-          grep -Fq "v1.0.0-rc5" "$INDEX"
-          test -s "$RC5_STYLE"
-          grep -Fq '.grid{grid-template-columns:repeat(3,1fr)' "$RC5_STYLE"
-          grep -Fq '.shadowmount{color:' "$RC5_STYLE"
+          grep -Fq "v1.0.0-rc6" "$INDEX"
+          test -s "$COMPACT_STYLE"
+          grep -Fq '.grid{grid-template-columns:repeat(3,1fr)' "$COMPACT_STYLE"
+          grep -Fq '.shadowmount{color:' "$COMPACT_STYLE"
           if grep -Fq 'content:"🔓"' "$STYLE"; then
             echo 'ERROR: unsupported lock emoji must not be used in the PS5 UI' >&2
             exit 1
@@ -91,7 +98,7 @@ jobs:
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v1.0.0-rc5
+          CUSTOM_VERSION: goldengames-v1.0.0-rc6
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
@@ -99,37 +106,41 @@ jobs:
             -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc5.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc6.elf
 
       - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc5.elf
+          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc6.elf
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
           INDEX="frontend/dist/app/${VERSION}/index.html"
-          RC5_STYLE="frontend/dist/app/${VERSION}/rc5.css"
+          COMPACT_STYLE="frontend/dist/app/${VERSION}/rc5.css"
           STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
 
           test -f "$ELF"
           test -f "$APP"
           test -f "$UMTX_MAIN"
           test -f "$INDEX"
-          test -f "$RC5_STYLE"
+          test -f "$COMPACT_STYLE"
 
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
           grep -Fq "choosePayload('pldmgr_v0.5.1.elf', 'Payload Manager 0.5.1', false)" "$APP"
           grep -Fq "choosePayload('websrv-ps5.elf', 'WebSrv PS5', false)" "$APP"
           grep -Fq "choosePayload('shadowmountplus_v1.7alpha8.elf', 'ShadowMountPlus 1.7 alpha8', false)" "$APP"
-          grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v3'" "$APP"
-          grep -Fq "JAILBREAK_REOPEN_KEY = 'goldengames:jailbreak-reopen-v1'" "$APP"
-          grep -Fq "JAILBREAK_REOPEN_MS = 90 * 1000" "$APP"
+          grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2'" "$APP"
+          grep -Fq "PROCESS_EPOCH_TOLERANCE_MS = 5000" "$APP"
+          grep -Fq "processEpoch: currentProcessEpoch()" "$APP"
+          if grep -Fq "goldengames:jailbreak-reopen-v1" "$APP"; then
+            echo 'ERROR: RC5 reopen-ticket logic leaked into built RC6' >&2
+            exit 1
+          fi
           grep -Fq "ShadowMountPlus" "$INDEX"
-          grep -Fq "v1.0.0-rc5" "$INDEX"
-          grep -Fq '.shadowmount{color:' "$RC5_STYLE"
+          grep -Fq "v1.0.0-rc6" "$INDEX"
+          grep -Fq '.shadowmount{color:' "$COMPACT_STYLE"
           node --check "$APP"
 
           echo 'Checking manual sender mode and payload routing to elfldr 9021...'
@@ -159,6 +170,6 @@ jobs:
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v1.0.0-rc5
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc5.elf
+          name: goldengames-ps5-autoloader-installer-v1.0.0-rc6
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc6.elf
           if-no-files-found: error
