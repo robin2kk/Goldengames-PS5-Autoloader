@@ -18,7 +18,10 @@ jobs:
       - name: Apply Goldengames registry and app identity
         run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
 
-      - name: Verify patched runtime auto-starts etaHEN and preserves manual mode
+      - name: Enable release manual payloads
+        run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
+
+      - name: Verify patched runtime auto-starts etaHEN 2.5B and exposes manual payloads
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
@@ -26,6 +29,9 @@ jobs:
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
           STYLE=work/ps5-webkit-autoloader/frontend/autoloader/style.css
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
+          grep -Fq "choosePayload('pldmgr_v0.5.1.elf', 'Payload Manager 0.5.1', false)" "$APP"
+          grep -Fq "choosePayload('websrv-ps5.elf', 'WebSrv PS5', false)" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2'" "$APP"
           grep -Fq "PROCESS_EPOCH_TOLERANCE_MS = 5000" "$APP"
@@ -38,7 +44,10 @@ jobs:
           grep -Fq "var wkalAutoloadPort = 9021;" "$UMTX_APPLY"
           grep -Fq "payload bytes loaded" "$UMTX_APPLY"
           grep -Fq "send completed to port" "$UMTX_APPLY"
-          grep -Fq "v1.0.0-rc3" "$INDEX"
+          grep -Fq "etaHEN" "$INDEX"
+          grep -Fq "2.6B" "$INDEX"
+          grep -Fq "Payload Manager" "$INDEX"
+          grep -Fq "WebSrv PS5" "$INDEX"
           grep -Fq '.heroIcon:before{content:""' "$STYLE"
           grep -Fq '.heroIcon:after{content:""' "$STYLE"
           if grep -Fq 'content:"🔓"' "$STYLE"; then
@@ -47,14 +56,20 @@ jobs:
           fi
           node --check "$APP"
 
-      - name: Download exact official payloads
+      - name: Download exact pinned payloads
         run: |
           set -euo pipefail
           mkdir -p payloads
           curl -fL --retry 3 -o payloads/etahen-2.5B.bin \
             https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/etahen-2.6B.bin \
+            https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
           curl -fL --retry 3 -o payloads/kstuff-1.10.elf \
             https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          curl -fL --retry 3 -o payloads/pldmgr_v0.5.1.elf \
+            https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.5.1/pldmgr_v0.5.1.elf
+          curl -fL --retry 3 -o payloads/websrv-ps5.elf \
+            https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
 
       - name: Verify exact payload hashes
         run: python3 tools/verify_payloads.py
@@ -63,14 +78,17 @@ jobs:
         run: |
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
           cp payloads/etahen-2.5B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/etahen-2.5B.bin
+          cp payloads/etahen-2.6B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/etahen-2.6B.bin
           cp payloads/kstuff-1.10.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/kstuff-1.10.elf
+          cp payloads/pldmgr_v0.5.1.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/pldmgr_v0.5.1.elf
+          cp payloads/websrv-ps5.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/websrv-ps5.elf
 
       - name: Build installer via upstream Docker SDK
         working-directory: work/ps5-webkit-autoloader
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: goldengames-v1.0.0-rc3
+          CUSTOM_VERSION: goldengames-v1.0.0-rc4
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
@@ -78,13 +96,13 @@ jobs:
             -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN \
             -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc3.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc4.elf
 
       - name: Verify staged frontend and built ELF
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc3.elf
+          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc4.elf
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
@@ -99,6 +117,9 @@ jobs:
           test -f "$STYLE"
 
           grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
+          grep -Fq "choosePayload('pldmgr_v0.5.1.elf', 'Payload Manager 0.5.1', false)" "$APP"
+          grep -Fq "choosePayload('websrv-ps5.elf', 'WebSrv PS5', false)" "$APP"
           grep -Fq "sessionStorage.setItem('wkal_autoload', selectedPayload)" "$APP"
           grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2'" "$APP"
           grep -Fq "PROCESS_EPOCH_TOLERANCE_MS = 5000" "$APP"
@@ -107,7 +128,9 @@ jobs:
           grep -Fq "goldengames_sender_only" "$APP"
           grep -Fq "JAILBROKEN" "$APP"
           grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
-          grep -Fq "v1.0.0-rc3" "$INDEX"
+          grep -Fq "2.6B" "$INDEX"
+          grep -Fq "Payload Manager" "$INDEX"
+          grep -Fq "WebSrv PS5" "$INDEX"
           grep -Fq '.heroIcon:before{content:""' "$STYLE"
           grep -Fq '.heroIcon:after{content:""' "$STYLE"
           node --check "$APP"
@@ -129,12 +152,15 @@ jobs:
             exit 1
           fi
           grep -Fq 'etahen-2.5B.bin' "$STRINGS_FILE"
+          grep -Fq 'etahen-2.6B.bin' "$STRINGS_FILE"
           grep -Fq 'kstuff-1.10.elf' "$STRINGS_FILE"
+          grep -Fq 'pldmgr_v0.5.1.elf' "$STRINGS_FILE"
+          grep -Fq 'websrv-ps5.elf' "$STRINGS_FILE"
           sha256sum "$ELF"
 
       - name: Upload installer ELF
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-installer-v1.0.0-rc3
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc3.elf
+          name: goldengames-ps5-autoloader-installer-v1.0.0-rc4
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc4.elf
           if-no-files-found: error
