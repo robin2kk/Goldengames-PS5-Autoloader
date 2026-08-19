@@ -3,6 +3,8 @@ name: Build Goldengames Installer ELF v1.0.1 from RC7
 on:
   push:
     branches: [agent/import-v0.5]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
