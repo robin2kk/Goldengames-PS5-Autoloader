@@ -34,6 +34,8 @@ check_pin third_party/ps5-elfldr "$expected_elfldr"
 # shell, then patch upstream's tested start() flow to wait for a menu choice.
 cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
+cp "$ROOT/overlay/frontend/jb-icon.css" frontend/autoloader/jb-icon.css
+cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/autoloader/jb-icon.svg
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
 cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
 
@@ -77,6 +79,7 @@ mkdir -p frontend/autoloader/payloads
 
 echo "Goldengames overlay staged at: $UPSTREAM"
 echo "Functional launcher base: upstream v0.3.0 app.js + Goldengames menu patch"
+echo "Auto Jailbreak emblem: Goldengames JB yellow/blue SVG"
 echo "Homescreen icon: Goldengames overlay/assets/icon.svg"
 echo "GitHub release metadata: authenticated in Actions when GITHUB_TOKEN is available"
 echo "Next: place the exact pinned payloads in frontend/autoloader/payloads and run the upstream build."
