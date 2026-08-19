@@ -25,18 +25,38 @@ insert = needle + """  var dashboardEl = document.getElementById('dashboard');
   var selectedLabel = 'Payload Manager';
   var selectedManual = false;
   var liveJailbreakState = false;
+  var JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v1';
+  var JAILBREAK_LEASE_MS = 12 * 60 * 60 * 1000;
 
-  /* Never persist the jailbreak flag across document/app launches. The PS5
-     browser can restore WebStorage after reboot, which made RC1 incorrectly
-     skip Auto Jailbreak. A successful etaHEN delivery marks only this live
-     dashboard instance; returning to the menu keeps manual sender mode, while
-     opening the app again starts a fresh Auto Jailbreak as expected. */
+  /* RC3 keeps a short-lived lease after etaHEN succeeds. This solves the PS5
+     app-reopen case where sessionStorage is lost even though etaHEN/elfldr are
+     still alive. The lease deliberately expires instead of becoming a forever
+     flag; pressing AUTO JAILBREAK always clears it and forces a full run. */
+  function getJailbreakLease() {
+    try {
+      var raw = localStorage.getItem(JAILBREAK_LEASE_KEY);
+      if (!raw) return false;
+      var stamp = parseInt(raw, 10);
+      if (!stamp || (Date.now() - stamp) < 0 || (Date.now() - stamp) > JAILBREAK_LEASE_MS) {
+        localStorage.removeItem(JAILBREAK_LEASE_KEY);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function hasJailbreakState() {
-    return liveJailbreakState === true;
+    return liveJailbreakState === true || getJailbreakLease();
   }
 
   function setJailbreakState(active) {
     liveJailbreakState = active === true;
+    try {
+      if (active) localStorage.setItem(JAILBREAK_LEASE_KEY, String(Date.now()));
+      else localStorage.removeItem(JAILBREAK_LEASE_KEY);
+    } catch (e) { }
   }
 
   function showGoldengamesNotification(title, message) {
@@ -156,9 +176,12 @@ menu_tail = r'''  function choosePayload(payload, label, forceFullJailbreak) {
         splashEl.hidden = true;
         if (dashboardEl) dashboardEl.hidden = false;
 
-        /* Fresh document = fresh Auto Jailbreak. liveJailbreakState can only
-           become true after etaHEN succeeds in this same page instance. */
-        if (picked && !chainStarted && !hasJailbreakState()) {
+        if (jailbroken) {
+          showGoldengamesNotification('JAILBREAK ACTIVE', 'Auto Jailbreak skipped · Press AUTO JAILBREAK after a console reboot');
+          return;
+        }
+
+        if (picked && !chainStarted) {
           if (statusValueEl) statusValueEl.textContent = 'LOADING etaHEN';
           setTimeout(function () {
             choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true);
@@ -175,4 +198,4 @@ if start_tail not in text:
 text = text.replace(start_tail, menu_tail, 1)
 
 app.write_text(text, encoding='utf-8')
-print('Patched upstream app.js: fresh-launch auto jailbreak + live-page manual sender mode enabled.')
+print('Patched upstream app.js: RC3 reopen-safe jailbreak lease + manual sender mode enabled.')
