@@ -39,22 +39,15 @@ cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/autoloader/jb-icon.svg
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
 cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
 
-# Goldengames native ELF installer browser screen. Keep upstream installer logic,
-# but replace the presentation with the PS1-inspired Goldengames experience.
+# Goldengames native ELF installer browser screen.
 cp "$ROOT/overlay/installer-page/index.html" frontend/installer-page/index.html
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/installer-page/jb-icon.svg
-
-# Replace the upstream PS5 homescreen icon with the Goldengames icon. The
-# upstream Makefile converts assets/icon.svg to the final icon0.png embedded
-# by the installer, so this keeps the build reproducible from source.
 cp "$ROOT/overlay/assets/icon.svg" assets/icon.svg
 
 python3 "$ROOT/tools/patch_upstream_frontend.py" "$UPSTREAM"
+python3 "$ROOT/tools/rc7_session_fix.py" "$UPSTREAM"
 
-# Upstream v0.3.0 downloads pinned elfldr/unified-autoloader release metadata
-# through the GitHub API. Anonymous API calls can hit the shared runner rate
-# limit, so teach the pinned downloader to use GITHUB_TOKEN when Actions passes
-# it into the Docker build container. The token is never printed or persisted.
+# Upstream v0.3.0 downloads pinned dependency metadata through GitHub API.
 python3 - "$UPSTREAM/tools/download_deps.sh" <<'PY'
 from pathlib import Path
 import sys
@@ -83,9 +76,10 @@ PY
 mkdir -p frontend/autoloader/payloads
 
 echo "Goldengames overlay staged at: $UPSTREAM"
-echo "Functional launcher base: upstream v0.3.0 app.js + Goldengames menu patch"
+echo "Functional launcher base: upstream v0.3.0 app.js + Goldengames menu patch + RC7 session safety"
 echo "Auto Jailbreak emblem: Goldengames JB yellow/blue SVG"
 echo "Installer screen: Goldengames animated PS1-inspired UI"
 echo "Homescreen icon: Goldengames overlay/assets/icon.svg"
-echo "GitHub release metadata: authenticated in Actions when GITHUB_TOKEN is available"
+echo "RC7: app reopen never automatically replays kernel exploit after successful etaHEN marker"
+echo "RC7: manual sender verifies elfldr on 9021 and falls back to full chain if unavailable"
 echo "Next: place the exact pinned payloads in frontend/autoloader/payloads and run the upstream build."
