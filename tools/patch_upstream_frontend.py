@@ -9,7 +9,6 @@ root = Path(sys.argv[1]).resolve()
 app = root / 'frontend' / 'autoloader' / 'app.js'
 text = app.read_text(encoding='utf-8')
 
-# Add Goldengames dashboard references immediately after the upstream iframe ref.
 needle = "  var exploitEl = document.getElementById('exploit');\n"
 insert = needle + """  var dashboardEl = document.getElementById('dashboard');
   var firmwareValueEl = document.getElementById('firmwareValue');
@@ -25,24 +24,40 @@ insert = needle + """  var dashboardEl = document.getElementById('dashboard');
   var selectedLabel = 'Payload Manager';
   var selectedManual = false;
   var liveJailbreakState = false;
-  var JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v1';
+  var JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2';
   var JAILBREAK_LEASE_MS = 12 * 60 * 60 * 1000;
+  var PROCESS_EPOCH_TOLERANCE_MS = 5000;
 
-  /* RC3 keeps a short-lived lease after etaHEN succeeds. This solves the PS5
-     app-reopen case where sessionStorage is lost even though etaHEN/elfldr are
-     still alive. The lease deliberately expires instead of becoming a forever
-     flag; pressing AUTO JAILBREAK always clears it and forces a full run. */
+  function currentProcessEpoch() {
+    try {
+      if (window.performance && typeof window.performance.now === 'function') {
+        return Math.round(Date.now() - window.performance.now());
+      }
+    } catch (e) { }
+    return 0;
+  }
+
+  /* A saved etaHEN marker is valid only while the same browser process appears
+     to still be alive. Date.now()-performance.now() approximates the process
+     epoch: it remains stable across page/app reopen in one live browser process
+     but changes after a console/browser restart. This prevents a stale localStorage
+     marker from falsely showing JAILBROKEN after reboot. */
   function getJailbreakLease() {
     try {
       var raw = localStorage.getItem(JAILBREAK_LEASE_KEY);
       if (!raw) return false;
-      var stamp = parseInt(raw, 10);
-      if (!stamp || (Date.now() - stamp) < 0 || (Date.now() - stamp) > JAILBREAK_LEASE_MS) {
+      var data = JSON.parse(raw);
+      var stamp = parseInt(data.stamp, 10);
+      var savedEpoch = parseInt(data.processEpoch, 10);
+      var age = Date.now() - stamp;
+      var nowEpoch = currentProcessEpoch();
+      if (!stamp || age < 0 || age > JAILBREAK_LEASE_MS || !savedEpoch || !nowEpoch || Math.abs(nowEpoch - savedEpoch) > PROCESS_EPOCH_TOLERANCE_MS) {
         localStorage.removeItem(JAILBREAK_LEASE_KEY);
         return false;
       }
       return true;
     } catch (e) {
+      try { localStorage.removeItem(JAILBREAK_LEASE_KEY); } catch (ignore) { }
       return false;
     }
   }
@@ -54,8 +69,14 @@ insert = needle + """  var dashboardEl = document.getElementById('dashboard');
   function setJailbreakState(active) {
     liveJailbreakState = active === true;
     try {
-      if (active) localStorage.setItem(JAILBREAK_LEASE_KEY, String(Date.now()));
-      else localStorage.removeItem(JAILBREAK_LEASE_KEY);
+      if (active) {
+        localStorage.setItem(JAILBREAK_LEASE_KEY, JSON.stringify({
+          stamp: Date.now(),
+          processEpoch: currentProcessEpoch()
+        }));
+      } else {
+        localStorage.removeItem(JAILBREAK_LEASE_KEY);
+      }
     } catch (e) { }
   }
 
@@ -177,7 +198,7 @@ menu_tail = r'''  function choosePayload(payload, label, forceFullJailbreak) {
         if (dashboardEl) dashboardEl.hidden = false;
 
         if (jailbroken) {
-          showGoldengamesNotification('JAILBREAK ACTIVE', 'Auto Jailbreak skipped · Press AUTO JAILBREAK after a console reboot');
+          showGoldengamesNotification('JAILBREAK ACTIVE', 'Existing live session detected · Auto Jailbreak skipped');
           return;
         }
 
@@ -198,4 +219,4 @@ if start_tail not in text:
 text = text.replace(start_tail, menu_tail, 1)
 
 app.write_text(text, encoding='utf-8')
-print('Patched upstream app.js: RC3 reopen-safe jailbreak lease + manual sender mode enabled.')
+print('Patched upstream app.js: reboot-safe live-session detection + manual sender mode enabled.')
