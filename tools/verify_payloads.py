@@ -8,7 +8,13 @@ args = parser.parse_args()
 
 ROOT = Path(__file__).resolve().parents[1]
 PINS = json.loads((ROOT / 'dependency-pins.json').read_text())
-FILES = ('etahen-2.5B.bin', 'kstuff-1.10.elf')
+FILES = (
+    'etahen-2.5B.bin',
+    'etahen-2.6B.bin',
+    'kstuff-1.10.elf',
+    'pldmgr_v0.5.1.elf',
+    'websrv-ps5.elf',
+)
 
 ok = True
 for name in FILES:
