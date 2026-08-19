@@ -14,6 +14,7 @@ FILES = (
     'kstuff-1.10.elf',
     'pldmgr_v0.5.1.elf',
     'websrv-ps5.elf',
+    'shadowmountplus_v1.7alpha8.elf',
 )
 
 ok = True
