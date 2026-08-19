@@ -1,0 +1,84 @@
+name: Build Goldengames Installer ELF v1.0.0
+
+on:
+  push:
+    branches: [agent/import-v0.5]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare upstream and stable session patches
+        run: bash tools/prepare_upstream.sh
+      - name: Apply Goldengames native integration
+        run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
+      - name: Enable manual payloads
+        run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
+      - name: Verify official v1.0.0 dashboard and session safety
+        run: |
+          set -euo pipefail
+          APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
+          grep -Fq 'RC7 safety rule' "$APP"
+          grep -Fq "'SESSION READY'" "$APP"
+          grep -Fq 'sender will verify elfldr 9021' "$APP"
+          grep -Fq '<title>Goldengames PS5 Autoloader v1.0.0</title>' "$INDEX"
+          grep -Fq '<strong>v1.0.0</strong>' "$INDEX"
+          if grep -Fq 'v1.0.0-rc7' "$INDEX"; then
+            echo 'ERROR: RC7 label leaked into official dashboard' >&2
+            exit 1
+          fi
+          node --check "$APP"
+      - name: Download exact pinned payloads
+        run: |
+          set -euo pipefail
+          mkdir -p payloads
+          curl -fL --retry 3 -o payloads/etahen-2.5B.bin https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/etahen-2.6B.bin https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
+          curl -fL --retry 3 -o payloads/kstuff-1.10.elf https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          curl -fL --retry 3 -o payloads/pldmgr_v0.5.1.elf https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.5.1/pldmgr_v0.5.1.elf
+          curl -fL --retry 3 -o payloads/websrv-ps5.elf https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o payloads/shadowmountplus_v1.7alpha8.elf https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/payloads/ps5_game_dump/ShadowMountPlus/1.7alpha8/shadowmountplus_v1.7alpha8.elf
+          python3 tools/verify_payloads.py
+      - name: Stage payloads
+        run: |
+          mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
+          cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
+      - name: Build official v1.0.0 installer
+        working-directory: work/ps5-webkit-autoloader
+        env:
+          BUILD_TYPE: release
+          FORCE_EXPLOIT: auto
+          CUSTOM_VERSION: goldengames-v1.0.0
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0.elf
+          sha256sum goldengames-ps5-autoloader-installer_v1.0.0.elf
+      - name: Verify built official v1.0.0
+        working-directory: work/ps5-webkit-autoloader
+        run: |
+          set -euo pipefail
+          VERSION="$(cat frontend/dist/VERSION)"
+          APP="frontend/dist/app/${VERSION}/app.js"
+          UMTX="frontend/dist/app/${VERSION}/umtx2/main.js"
+          INDEX="frontend/dist/app/${VERSION}/index.html"
+          grep -Fq 'RC7 safety rule' "$APP"
+          grep -Fq 'var wkalAutoloadReady = await probe_sb_elfldr();' "$UMTX"
+          grep -Fq 'goldengamesSenderOnly' "$UMTX"
+          grep -Fq 'toPort: 9021' "$UMTX"
+          grep -Fq '<title>Goldengames PS5 Autoloader v1.0.0</title>' "$INDEX"
+          if grep -Fq 'v1.0.0-rc7' "$INDEX"; then
+            echo 'ERROR: RC label found in official build' >&2
+            exit 1
+          fi
+      - name: Upload official v1.0.0 installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-ps5-autoloader-installer-v1.0.0
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0.elf
+          if-no-files-found: error
