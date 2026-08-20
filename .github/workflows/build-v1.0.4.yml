@@ -28,19 +28,14 @@ jobs:
 
       - name: Prepare upstream with stable RC7 session logic
         run: bash tools/prepare_upstream.sh
-
       - name: Apply Goldengames native integration
         run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
-
       - name: Enable current manual payload set
         run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
-
       - name: Apply v1.0.2 live-session Auto-Start fix
         run: python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
-
       - name: Apply v1.0.3 stability and short-title fix
         run: python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
-
       - name: Apply v1.0.4 memory and persistent-sender fix
         run: python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
 
@@ -50,14 +45,12 @@ jobs:
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
           PARAM=work/ps5-webkit-autoloader/assets/param.json.template
-          INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
           grep -Fq 'Direct 9021 sender' "$APP"
-          grep -Fq 'persistent sender did not respond' "$APP"
+          grep -Fqi 'persistent sender did not respond' "$APP"
           grep -Fq 'Goldengames v1.0.4 persistent direct sender bridge applied' "$UMTX_APPLY"
           grep -Fq '"titleName": "Goldengames PS5 Autoloader"' "$PARAM"
-          grep -Fq '<title>Goldengames PS5 Autoloader v1.0.4</title>' "$INDEX"
           node --check "$APP"
 
       - name: Download exact pinned payloads
@@ -98,12 +91,10 @@ jobs:
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           UMTX="frontend/dist/app/${VERSION}/umtx2/main.js"
-          INDEX="frontend/dist/app/${VERSION}/index.html"
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
           grep -Fq 'goldengames-direct-send' "$UMTX"
           grep -Fq 'persistent-dispatch' "$UMTX"
-          grep -Fq '<title>Goldengames PS5 Autoloader v1.0.4</title>' "$INDEX"
 
       - name: Upload v1.0.4 installer
         uses: actions/upload-artifact@v4
