@@ -1,0 +1,113 @@
+name: Build Goldengames Installer ELF v1.0.4 Memory Stability Fix
+
+on:
+  push:
+    branches: [agent/import-v0.5]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare v1.0.4 dashboard labels
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('overlay/frontend/index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('Goldengames PS5 Autoloader v1.0.0', 'Goldengames PS5 Autoloader v1.0.4')
+          s = s.replace('<strong>v1.0.0</strong>', '<strong>v1.0.4</strong>')
+          s = s.replace('Goldengames v1.0.0 &bull;', 'Goldengames v1.0.4 &bull;')
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Prepare upstream with stable RC7 session logic
+        run: bash tools/prepare_upstream.sh
+
+      - name: Apply Goldengames native integration
+        run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
+
+      - name: Enable current manual payload set
+        run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
+
+      - name: Apply v1.0.2 live-session Auto-Start fix
+        run: python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
+
+      - name: Apply v1.0.3 stability and short-title fix
+        run: python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
+
+      - name: Apply v1.0.4 memory and persistent-sender fix
+        run: python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
+
+      - name: Verify v1.0.4 logic before build
+        run: |
+          set -euo pipefail
+          APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
+          PARAM=work/ps5-webkit-autoloader/assets/param.json.template
+          INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
+          grep -Fq 'persistentSenderReady' "$APP"
+          grep -Fq 'sendViaPersistentUmtx' "$APP"
+          grep -Fq 'Direct 9021 sender' "$APP"
+          grep -Fq 'persistent sender did not respond' "$APP"
+          grep -Fq 'Goldengames v1.0.4 persistent direct sender bridge applied' "$UMTX_APPLY"
+          grep -Fq '"titleName": "Goldengames PS5 Autoloader"' "$PARAM"
+          grep -Fq '<title>Goldengames PS5 Autoloader v1.0.4</title>' "$INDEX"
+          node --check "$APP"
+
+      - name: Download exact pinned payloads
+        run: |
+          set -euo pipefail
+          mkdir -p payloads
+          curl -fL --retry 3 -o payloads/etahen-2.5B.bin https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/etahen-2.6B.bin https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
+          curl -fL --retry 3 -o payloads/kstuff-1.10.elf https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          curl -fL --retry 3 -o payloads/pldmgr_v0.5.1.elf https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.5.1/pldmgr_v0.5.1.elf
+          curl -fL --retry 3 -o payloads/websrv-ps5.elf https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o payloads/shadowmountplus_v1.7alpha8.elf https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/payloads/ps5_game_dump/ShadowMountPlus/1.7alpha8/shadowmountplus_v1.7alpha8.elf
+          python3 tools/verify_payloads.py
+
+      - name: Stage payloads
+        run: |
+          mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
+          cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
+
+      - name: Build v1.0.4 test installer
+        working-directory: work/ps5-webkit-autoloader
+        env:
+          BUILD_TYPE: dev
+          FORCE_EXPLOIT: auto
+          CUSTOM_VERSION: v1.0.4
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.4.elf
+          sha256sum goldengames-ps5-autoloader-installer_v1.0.4.elf
+
+      - name: Verify built v1.0.4 runtime
+        working-directory: work/ps5-webkit-autoloader
+        run: |
+          set -euo pipefail
+          VERSION="$(cat frontend/dist/VERSION)"
+          APP="frontend/dist/app/${VERSION}/app.js"
+          UMTX="frontend/dist/app/${VERSION}/umtx2/main.js"
+          INDEX="frontend/dist/app/${VERSION}/index.html"
+          grep -Fq 'persistentSenderReady' "$APP"
+          grep -Fq 'sendViaPersistentUmtx' "$APP"
+          grep -Fq 'goldengames-direct-send' "$UMTX"
+          grep -Fq 'persistent-dispatch' "$UMTX"
+          grep -Fq '<title>Goldengames PS5 Autoloader v1.0.4</title>' "$INDEX"
+
+      - name: Upload v1.0.4 installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-ps5-autoloader-installer-v1.0.4-memory-stability-fix
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.4.elf
+          if-no-files-found: error
