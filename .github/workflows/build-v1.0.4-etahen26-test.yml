@@ -1,0 +1,88 @@
+name: Build Goldengames v1.0.4 etaHEN 2.6B AutoJB Test
+
+on:
+  push:
+    branches: [test-v1.0.4-etahen-2.6B]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare test dashboard labels
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('overlay/frontend/index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('Goldengames PS5 Autoloader v1.0.0', 'Goldengames PS5 Autoloader v1.0.4 2.6B TEST')
+          s = s.replace('<strong>v1.0.0</strong>', '<strong>v1.0.4 2.6B TEST</strong>')
+          s = s.replace('Goldengames v1.0.0 &bull;', 'Goldengames v1.0.4 2.6B TEST &bull;')
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Prepare upstream with stable RC7 session logic
+        run: bash tools/prepare_upstream.sh
+      - name: Apply Goldengames native integration
+        run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
+      - name: Enable current manual payload set
+        run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
+      - name: Apply v1.0.2 Auto-Start fix
+        run: python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
+      - name: Apply v1.0.3 stability fix
+        run: python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
+      - name: Apply v1.0.4 memory/persistent-sender fix
+        run: python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
+      - name: Switch Auto Jailbreak only to etaHEN 2.6B
+        run: python3 tools/v104_etahen26_autojb_test.py work/ps5-webkit-autoloader
+
+      - name: Verify isolated 2.6B test change
+        run: |
+          set -euo pipefail
+          APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', true)" "$APP"
+          grep -Fq "selectedPayload === 'etahen-2.6B.bin'" "$APP"
+          grep -Fq 'persistentSenderReady' "$APP"
+          grep -Fq 'sendViaPersistentUmtx' "$APP"
+          node --check "$APP"
+
+      - name: Download exact pinned payloads
+        run: |
+          set -euo pipefail
+          mkdir -p payloads
+          curl -fL --retry 3 -o payloads/etahen-2.5B.bin https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/etahen-2.6B.bin https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
+          curl -fL --retry 3 -o payloads/kstuff-1.10.elf https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          curl -fL --retry 3 -o payloads/pldmgr_v0.5.1.elf https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.5.1/pldmgr_v0.5.1.elf
+          curl -fL --retry 3 -o payloads/websrv-ps5.elf https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o payloads/shadowmountplus_v1.7alpha8.elf https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/payloads/ps5_game_dump/ShadowMountPlus/1.7alpha8/shadowmountplus_v1.7alpha8.elf
+          python3 tools/verify_payloads.py
+
+      - name: Stage payloads
+        run: |
+          mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
+          cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
+
+      - name: Build 2.6B AutoJB test installer
+        working-directory: work/ps5-webkit-autoloader
+        env:
+          BUILD_TYPE: dev
+          FORCE_EXPLOIT: auto
+          CUSTOM_VERSION: v1.0.4-etahen26-test
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader_v1.0.4-etahen26-autojb-test.elf
+          sha256sum goldengames-ps5-autoloader_v1.0.4-etahen26-autojb-test.elf
+
+      - name: Upload 2.6B AutoJB test installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-v1.0.4-etahen-2.6B-autojb-test
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader_v1.0.4-etahen26-autojb-test.elf
+          if-no-files-found: error
