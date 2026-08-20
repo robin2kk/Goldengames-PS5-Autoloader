@@ -14,6 +14,7 @@ jobs:
       - name: Prepare test dashboard labels
         run: |
           set -euo pipefail
+          echo "Goldengames etaHEN 2.6B AutoJB isolated test build"
           python3 - <<'PY'
           from pathlib import Path
           p = Path('overlay/frontend/index.html')
