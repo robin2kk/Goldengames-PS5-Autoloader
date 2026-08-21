@@ -6,34 +6,47 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rc5.css" />
   <link rel="stylesheet" href="jb-icon.css" />
+  <link rel="stylesheet" href="test2.css" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <title>Goldengames PS5 Autoloader v1.0.0</title>
+  <title>GOLDENGAME PS5 JAILBREAK v1.0.5</title>
 </head>
 <body>
   <div id="splash" aria-hidden="false">
-    <img class="logo" src="logo.svg" alt="Goldengames" />
-    <h1><span>GOLDEN</span>GAMES</h1><p>PS5 AUTOLOADER</p>
+    <img class="logo" src="jb-icon.svg" alt="AJ" />
+    <h1><span>GOLDENGAME</span></h1><p>PS5 JAILBREAK</p>
   </div>
-  <div id="notification" class="notification" hidden><strong id="notificationTitle">etaHEN 2.5B</strong><span id="notificationText">Payload launched successfully.</span></div>
+  <div id="notification" class="notification" hidden><strong id="notificationTitle">etaHEN 2.6B</strong><span id="notificationText">Payload launched successfully.</span></div>
   <iframe id="exploit" title="exploit" hidden></iframe>
   <main id="dashboard" hidden>
     <section class="shell">
-      <header class="topbar"><div class="brand"><img src="logo.svg" alt="" /><div><h1><span>GOLDEN</span>GAMES</h1><p>PS5 AUTOLOADER</p></div></div><div class="statusbox"><div><span>Firmware</span><strong id="firmwareValue">Detecting...</strong></div><div class="divider"></div><div><span>Exploit</span><strong id="exploitValue">Auto</strong></div><div class="divider"></div><div><span>Status</span><strong id="statusValue" class="ready">READY</strong></div></div></header>
-      <button id="autoJailbreak" class="heroButton" type="button"><span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span><span class="heroCopy"><b>AUTO JAILBREAK</b><small>Starts automatically with etaHEN 2.5B</small><em>RECOMMENDED</em></span><span class="arrow">&#8250;</span></button>
+      <header class="topbar">
+        <div class="brand"><img src="jb-icon.svg" alt="AJ" /><div><h1><span>GOLDENGAME</span></h1><p>PS5 JAILBREAK · v1.0.5</p></div></div>
+        <div class="statusbox"><div><span>Firmware</span><strong id="firmwareValue">Detecting...</strong></div><div class="divider"></div><div><span>Exploit</span><strong id="exploitValue">Auto</strong></div><div class="divider"></div><div><span>Status</span><strong id="statusValue" class="ready">READY</strong></div></div>
+      </header>
+      <button id="autoJailbreak" class="heroButton" type="button">
+        <span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>
+        <span class="heroCopy"><b>AUTO JAILBREAK</b><small>Starts automatically with <strong>etaHEN 2.6B</strong></small><em>RECOMMENDED</em></span><span class="arrow">&#8250;</span>
+      </button>
       <div class="grid">
-        <button class="tile etahen" data-payload="etahen" type="button"><span class="tileIcon">EH</span><span><b>etaHEN</b><strong>2.5B</strong><small>Manual retry / launch</small></span><i>&#8250;</i></button>
         <button class="tile etahen" data-payload="etahen26" type="button"><span class="tileIcon">E26</span><span><b>etaHEN</b><strong>2.6B</strong><small>Manual launch</small></span><i>&#8250;</i></button>
+        <button class="tile etahen" data-payload="etahen" type="button"><span class="tileIcon">E25</span><span><b>etaHEN</b><strong>2.5B</strong><small>Manual fallback</small></span><i>&#8250;</i></button>
         <button class="tile kstuff" data-payload="kstuff" type="button"><span class="tileIcon">KS</span><span><b>Kstuff Lite</b><strong>1.10</strong><small>Manual launch</small></span><i>&#8250;</i></button>
         <button class="tile manager" data-payload="pldmgr" type="button"><span class="tileIcon">PM</span><span><b>Payload Manager</b><strong>0.5.1</strong><small>Manual launch</small></span><i>&#8250;</i></button>
         <button class="tile websrv" data-payload="websrv" type="button"><span class="tileIcon">WS</span><span><b>WebSrv PS5</b><strong>0.34</strong><small>Manual launch</small></span><i>&#8250;</i></button>
         <button class="tile shadowmount" data-payload="shadowmount" type="button"><span class="tileIcon">SM</span><span><b>ShadowMountPlus</b><strong>1.7 alpha8</strong><small>Manual launch</small></span><i>&#8250;</i></button>
       </div>
-      <div class="bottomBar"><div><span class="infoDot">i</span><p>Goldengames PS5 Autoloader<br><strong>v1.0.0</strong></p></div><div class="community">Built for the <strong>PS5 Community</strong></div><div class="miniBrand"><img src="logo.svg" alt="" /><b>GOLDENGAMES</b></div></div>
-      <p class="tip">Auto Jailbreak uses etaHEN 2.5B. Reopening Goldengames keeps the active session and manual payload mode verifies elfldr before sending.</p>
+      <div class="bottomBar"><div><span class="infoDot">i</span><p>GOLDENGAME PS5 JAILBREAK<br><strong>v1.0.5</strong></p></div><div class="community">Built for the <strong>PS5 Community</strong></div><div class="miniBrand"><img src="jb-icon.svg" alt="AJ" /><b>PLAY · MODIFY · FREEDOM</b></div></div>
+      <p class="tip">Auto Jailbreak uses etaHEN 2.6B. Manual payload mode remains available after a successful jailbreak.</p>
     </section>
   </main>
-  <main id="loader" hidden><div class="loaderHeader"><button id="backButton" type="button" disabled>&larr; Menu</button><div><strong id="runTitle">Starting...</strong><span id="runSubtitle"></span></div></div><div id="logWrapper"><div id="logContainer"></div></div><div id="progressContainer"><div id="progressBar"></div><div id="progressLabel">Loading...</div></div></main>
-  <footer id="footer">Goldengames v1.0.0 &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
+  <main id="loader" hidden>
+    <div class="loaderHeader"><button id="backButton" type="button" disabled>&larr; Menu</button><div><strong id="runTitle">Preparing Auto Jailbreak...</strong><span id="runSubtitle">Checking firmware and exploit route</span></div></div>
+    <div class="visualStages" aria-hidden="true"><span>PREPARE</span><span>EXPLOIT</span><span>etaHEN 2.6B</span><span>COMPLETE</span></div>
+    <div id="logWrapper"><div id="logContainer"></div></div>
+    <div id="progressContainer"><div id="progressBar"></div><div id="progressLabel">Preparing jailbreak...</div></div>
+    <div class="loaderBrand">GOLDENGAME PS5 JAILBREAK v1.0.5 · <b>AJ</b> · Technical logs hidden during normal operation</div>
+  </main>
+  <footer id="footer">GOLDENGAME PS5 JAILBREAK v1.0.5 &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
   <script src="app.js"></script>
 </body>
 </html>
