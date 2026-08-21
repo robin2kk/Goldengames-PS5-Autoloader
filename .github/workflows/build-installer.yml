@@ -1,0 +1,175 @@
+name: Build Goldengames Installer ELF
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Goldengames overlay
+        uses: actions/checkout@v4
+
+      - name: Prepare exact upstream v0.3.0 tree
+        run: bash tools/prepare_upstream.sh
+
+      - name: Apply Goldengames registry and app identity
+        run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
+
+      - name: Enable RC6 manual payloads with RC3 session logic
+        run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
+
+      - name: Verify patched runtime and RC6 dashboard
+        run: |
+          set -euo pipefail
+          APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
+          INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
+          STYLE=work/ps5-webkit-autoloader/frontend/autoloader/style.css
+          COMPACT_STYLE=work/ps5-webkit-autoloader/frontend/autoloader/rc5.css
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
+          grep -Fq "choosePayload('pldmgr_v0.5.1.elf', 'Payload Manager 0.5.1', false)" "$APP"
+          grep -Fq "choosePayload('websrv-ps5.elf', 'WebSrv PS5', false)" "$APP"
+          grep -Fq "choosePayload('shadowmountplus_v1.7alpha8.elf', 'ShadowMountPlus 1.7 alpha8', false)" "$APP"
+          grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2'" "$APP"
+          grep -Fq "PROCESS_EPOCH_TOLERANCE_MS = 5000" "$APP"
+          grep -Fq "processEpoch: currentProcessEpoch()" "$APP"
+          grep -Fq "Existing live session detected · Auto Jailbreak skipped" "$APP"
+          if grep -Fq "goldengames:jailbreak-reopen-v1" "$APP"; then
+            echo 'ERROR: RC5 reopen-ticket logic leaked into RC6' >&2
+            exit 1
+          fi
+          if grep -Fq "addEventListener('pagehide'" "$APP" || grep -Fq "addEventListener('beforeunload'" "$APP"; then
+            echo 'ERROR: RC5 unload hooks leaked into RC6' >&2
+            exit 1
+          fi
+          grep -Fq "goldengames_sender_only" "$APP"
+          grep -Fq "etaHEN 2.5B LAUNCHED" "$APP"
+          grep -Fq "goldengamesSenderOnly" "$UMTX_APPLY"
+          grep -Fq "var wkalAutoloadPort = 9021;" "$UMTX_APPLY"
+          grep -Fq "payload bytes loaded" "$UMTX_APPLY"
+          grep -Fq "ShadowMountPlus" "$INDEX"
+          grep -Fq "rc5.css" "$INDEX"
+          grep -Fq "v1.0.0-rc6" "$INDEX"
+          test -s "$COMPACT_STYLE"
+          grep -Fq '.grid{grid-template-columns:repeat(3,1fr)' "$COMPACT_STYLE"
+          grep -Fq '.shadowmount{color:' "$COMPACT_STYLE"
+          if grep -Fq 'content:"🔓"' "$STYLE"; then
+            echo 'ERROR: unsupported lock emoji must not be used in the PS5 UI' >&2
+            exit 1
+          fi
+          node --check "$APP"
+
+      - name: Download exact pinned payloads
+        run: |
+          set -euo pipefail
+          mkdir -p payloads
+          curl -fL --retry 3 -o payloads/etahen-2.5B.bin \
+            https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/etahen-2.6B.bin \
+            https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
+          curl -fL --retry 3 -o payloads/kstuff-1.10.elf \
+            https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          curl -fL --retry 3 -o payloads/pldmgr_v0.5.1.elf \
+            https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.5.1/pldmgr_v0.5.1.elf
+          curl -fL --retry 3 -o payloads/websrv-ps5.elf \
+            https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o payloads/shadowmountplus_v1.7alpha8.elf \
+            https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/payloads/ps5_game_dump/ShadowMountPlus/1.7alpha8/shadowmountplus_v1.7alpha8.elf
+
+      - name: Verify exact payload hashes
+        run: python3 tools/verify_payloads.py
+
+      - name: Stage verified payloads into Goldengames frontend
+        run: |
+          mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
+          cp payloads/etahen-2.5B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/etahen-2.5B.bin
+          cp payloads/etahen-2.6B.bin work/ps5-webkit-autoloader/frontend/autoloader/payloads/etahen-2.6B.bin
+          cp payloads/kstuff-1.10.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/kstuff-1.10.elf
+          cp payloads/pldmgr_v0.5.1.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/pldmgr_v0.5.1.elf
+          cp payloads/websrv-ps5.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/websrv-ps5.elf
+          cp payloads/shadowmountplus_v1.7alpha8.elf work/ps5-webkit-autoloader/frontend/autoloader/payloads/shadowmountplus_v1.7alpha8.elf
+
+      - name: Build installer via upstream Docker SDK
+        working-directory: work/ps5-webkit-autoloader
+        env:
+          BUILD_TYPE: dev
+          FORCE_EXPLOIT: auto
+          CUSTOM_VERSION: goldengames-v1.0.0-rc6
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" \
+            -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN \
+            -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.0-rc6.elf
+
+      - name: Verify staged frontend and built ELF
+        working-directory: work/ps5-webkit-autoloader
+        run: |
+          set -euo pipefail
+          ELF=goldengames-ps5-autoloader-installer_v1.0.0-rc6.elf
+          VERSION="$(cat frontend/dist/VERSION)"
+          APP="frontend/dist/app/${VERSION}/app.js"
+          UMTX_MAIN="frontend/dist/app/${VERSION}/umtx2/main.js"
+          INDEX="frontend/dist/app/${VERSION}/index.html"
+          COMPACT_STYLE="frontend/dist/app/${VERSION}/rc5.css"
+          STRINGS_FILE="$RUNNER_TEMP/goldengames-installer.strings"
+
+          test -f "$ELF"
+          test -f "$APP"
+          test -f "$UMTX_MAIN"
+          test -f "$INDEX"
+          test -f "$COMPACT_STYLE"
+
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'AUTO JAILBREAK · etaHEN 2.5B', true)" "$APP"
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
+          grep -Fq "choosePayload('pldmgr_v0.5.1.elf', 'Payload Manager 0.5.1', false)" "$APP"
+          grep -Fq "choosePayload('websrv-ps5.elf', 'WebSrv PS5', false)" "$APP"
+          grep -Fq "choosePayload('shadowmountplus_v1.7alpha8.elf', 'ShadowMountPlus 1.7 alpha8', false)" "$APP"
+          grep -Fq "JAILBREAK_LEASE_KEY = 'goldengames:jailbreak-lease-v2'" "$APP"
+          grep -Fq "PROCESS_EPOCH_TOLERANCE_MS = 5000" "$APP"
+          grep -Fq "processEpoch: currentProcessEpoch()" "$APP"
+          if grep -Fq "goldengames:jailbreak-reopen-v1" "$APP"; then
+            echo 'ERROR: RC5 reopen-ticket logic leaked into built RC6' >&2
+            exit 1
+          fi
+          grep -Fq "ShadowMountPlus" "$INDEX"
+          grep -Fq "v1.0.0-rc6" "$INDEX"
+          grep -Fq '.shadowmount{color:' "$COMPACT_STYLE"
+          node --check "$APP"
+
+          echo 'Checking manual sender mode and payload routing to elfldr 9021...'
+          grep -Fq 'var goldengamesSenderOnly = false;' "$UMTX_MAIN"
+          grep -Fq 'jailbreak already active; sender-only mode enabled' "$UMTX_MAIN"
+          grep -Fq 'var wkalAutoloadPort = 9021;' "$UMTX_MAIN"
+          grep -Fq 'var wkalAutoloadReady = await probe_sb_elfldr();' "$UMTX_MAIN"
+          grep -Fq 'Goldengames diag: payload bytes loaded = ' "$UMTX_MAIN"
+          grep -Fq 'Goldengames diag: sending ' "$UMTX_MAIN"
+          grep -Fq 'Goldengames diag: send completed to port ' "$UMTX_MAIN"
+          grep -Fq 'toPort: 9021' "$UMTX_MAIN"
+
+          strings "$ELF" > "$STRINGS_FILE"
+          grep -Fq 'GGAU00001' "$STRINGS_FILE"
+          if grep -Fq 'WKAL00001' "$STRINGS_FILE"; then
+            echo 'ERROR: upstream WKAL00001 leaked into Goldengames installer' >&2
+            exit 1
+          fi
+          grep -Fq 'etahen-2.5B.bin' "$STRINGS_FILE"
+          grep -Fq 'etahen-2.6B.bin' "$STRINGS_FILE"
+          grep -Fq 'kstuff-1.10.elf' "$STRINGS_FILE"
+          grep -Fq 'pldmgr_v0.5.1.elf' "$STRINGS_FILE"
+          grep -Fq 'websrv-ps5.elf' "$STRINGS_FILE"
+          grep -Fq 'shadowmountplus_v1.7alpha8.elf' "$STRINGS_FILE"
+          sha256sum "$ELF"
+
+      - name: Upload installer ELF
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-ps5-autoloader-installer-v1.0.0-rc6
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.0-rc6.elf
+          if-no-files-found: error

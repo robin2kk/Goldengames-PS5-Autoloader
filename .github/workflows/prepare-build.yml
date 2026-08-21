@@ -1,0 +1,36 @@
+name: Prepare Goldengames Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Goldengames overlay
+        uses: actions/checkout@v4
+
+      - name: Prepare exact upstream v0.3.0 tree
+        run: bash tools/prepare_upstream.sh
+
+      - name: Verify payload pins when binaries are present
+        run: python3 tools/verify_payloads.py --allow-missing
+
+      - name: Validate Goldengames frontend
+        run: |
+          test -f overlay/frontend/index.html
+          test -f overlay/frontend/app.js
+          test -f overlay/frontend/style.css
+          grep -q "AUTO JAILBREAK" overlay/frontend/index.html
+          grep -q "etahen-2.5B.bin" overlay/frontend/app.js
+          grep -q "kstuff-1.10.elf" overlay/frontend/app.js
+          node --check overlay/frontend/app.js
+
+      - name: Upload prepared source tree
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-prepared-source
+          path: work/ps5-webkit-autoloader
+          if-no-files-found: error
