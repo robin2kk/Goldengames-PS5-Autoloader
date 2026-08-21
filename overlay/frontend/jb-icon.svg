@@ -1,66 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="JB Auto Jailbreak">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
-      <stop offset="0" stop-color="#102b58"/>
-      <stop offset="0.62" stop-color="#061b37"/>
-      <stop offset="1" stop-color="#020814"/>
-    </radialGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fff55e"/>
-      <stop offset="0.25" stop-color="#ffd500"/>
-      <stop offset="0.68" stop-color="#f1a800"/>
-      <stop offset="1" stop-color="#b66a00"/>
-    </linearGradient>
-    <linearGradient id="blue" x1="0" y1="0" x2="0.1" y2="1">
-      <stop offset="0" stop-color="#43f3ff"/>
-      <stop offset="0.28" stop-color="#15bfff"/>
-      <stop offset="0.7" stop-color="#1266ff"/>
-      <stop offset="1" stop-color="#082cb5"/>
-    </linearGradient>
-    <linearGradient id="rimGold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fff35b"/>
-      <stop offset="0.55" stop-color="#ffb900"/>
-      <stop offset="1" stop-color="#d77c00"/>
-    </linearGradient>
-    <linearGradient id="rimBlue" x1="1" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4ff6ff"/>
-      <stop offset="0.55" stop-color="#1598ff"/>
-      <stop offset="1" stop-color="#1645d9"/>
-    </linearGradient>
-    <pattern id="hex" width="28" height="24" patternUnits="userSpaceOnUse">
-      <path d="M7 1h14l7 11-7 11H7L0 12z" fill="none" stroke="#154684" stroke-width="2" opacity=".44"/>
-    </pattern>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity=".72"/>
-    </filter>
-    <filter id="glowBlue" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="8" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="glowGold" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="7" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <circle cx="256" cy="256" r="244" fill="#020914" stroke="#05162d" stroke-width="8"/>
-  <path d="M256 15a241 241 0 0 0-236 194" fill="none" stroke="url(#rimGold)" stroke-width="18" stroke-linecap="round" filter="url(#glowGold)"/>
-  <path d="M20 303A241 241 0 0 0 256 497" fill="none" stroke="url(#rimGold)" stroke-width="18" stroke-linecap="round"/>
-  <path d="M256 15a241 241 0 0 1 236 194" fill="none" stroke="url(#rimBlue)" stroke-width="18" stroke-linecap="round" filter="url(#glowBlue)"/>
-  <path d="M492 303A241 241 0 0 1 256 497" fill="none" stroke="url(#rimBlue)" stroke-width="18" stroke-linecap="round"/>
-
-  <circle cx="256" cy="256" r="211" fill="url(#bg)" stroke="#1c4c86" stroke-width="7"/>
-  <circle cx="256" cy="256" r="194" fill="url(#hex)" opacity=".92"/>
-  <circle cx="256" cy="256" r="192" fill="none" stroke="#07111f" stroke-width="6"/>
-
-  <g filter="url(#shadow)">
-    <path d="M93 119h160v54h-44v178c0 74-34 105-91 105-34 0-63-13-83-37l38-44c14 14 27 21 44 21 21 0 31-13 31-43V173H93z" fill="#1e2531" stroke="#07101e" stroke-width="20" stroke-linejoin="round"/>
-    <path d="M93 119h160v54h-44v178c0 74-34 105-91 105-34 0-63-13-83-37l38-44c14 14 27 21 44 21 21 0 31-13 31-43V173H93z" fill="url(#gold)" stroke="#ffe83e" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M247 119h121c63 0 99 27 99 74 0 31-16 54-45 66 37 11 58 38 58 76 0 57-43 91-116 91H247zm67 55v59h42c30 0 44-10 44-30 0-19-14-29-44-29zm0 112v83h51c33 0 49-14 49-42 0-27-17-41-49-41z" fill="#131f37" stroke="#07101e" stroke-width="20" stroke-linejoin="round"/>
-    <path d="M247 119h121c63 0 99 27 99 74 0 31-16 54-45 66 37 11 58 38 58 76 0 57-43 91-116 91H247zm67 55v59h42c30 0 44-10 44-30 0-19-14-29-44-29zm0 112v83h51c33 0 49-14 49-42 0-27-17-41-49-41z" fill="url(#blue)" stroke="#65f4ff" stroke-width="4" stroke-linejoin="round"/>
-  </g>
-
-  <path d="M84 105h173" stroke="#fff" stroke-width="5" opacity=".46" stroke-linecap="round"/>
-  <path d="M270 105h123" stroke="#fff" stroke-width="5" opacity=".36" stroke-linecap="round"/>
-  <circle cx="256" cy="256" r="222" fill="none" stroke="#fff" stroke-width="2" opacity=".18"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AJ Auto Jailbreak">
+<defs>
+  <radialGradient id="bg" cx="50%" cy="42%" r="70%"><stop offset="0" stop-color="#142b5e"/><stop offset=".68" stop-color="#07152e"/><stop offset="1" stop-color="#020713"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff46a"/><stop offset=".28" stop-color="#ffd400"/><stop offset=".75" stop-color="#f0a000"/><stop offset="1" stop-color="#a85a00"/></linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#59efff"/><stop offset=".32" stop-color="#17baff"/><stop offset=".72" stop-color="#1668ff"/><stop offset="1" stop-color="#092ab5"/></linearGradient>
+  <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd500"/><stop offset=".34" stop-color="#ff453c"/><stop offset=".68" stop-color="#176cff"/><stop offset="1" stop-color="#16d889"/></linearGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#000" flood-opacity=".75"/></filter>
+</defs>
+<circle cx="256" cy="256" r="242" fill="#020713" stroke="#101a34" stroke-width="8"/>
+<circle cx="256" cy="256" r="226" fill="none" stroke="url(#ring)" stroke-width="18"/>
+<circle cx="256" cy="256" r="204" fill="url(#bg)" stroke="#294b84" stroke-width="5"/>
+<g opacity=".16" fill="none" stroke="#7b6cff" stroke-width="5"><rect x="72" y="112" width="52" height="52" transform="rotate(-10 98 138)"/><path d="M407 118l39 67h-78z"/><path d="M74 344l58 58m0-58l-58 58"/><circle cx="407" cy="380" r="34"/></g>
+<!-- crown -->
+<g filter="url(#shadow)"><path d="M150 118l25-42 34 31 47-58 45 58 36-31 25 42-8 28H158z" fill="url(#gold)" stroke="#fff06a" stroke-width="5"/><circle cx="175" cy="75" r="9" fill="#ffd500"/><circle cx="256" cy="47" r="10" fill="#ffd500"/><circle cx="337" cy="75" r="9" fill="#ffd500"/></g>
+<!-- AJ letters use PS5 WebKit-supported system font; heavy fallback stack keeps shape stable offline -->
+<g filter="url(#shadow)" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-style="italic" text-anchor="middle"><text x="188" y="354" font-size="245" fill="url(#gold)" stroke="#6b3d00" stroke-width="7">A</text><text x="329" y="354" font-size="245" fill="url(#blue)" stroke="#062a78" stroke-width="7">J</text></g>
+<path d="M76 389c98 55 254 61 361-5" fill="none" stroke="#ff323a" stroke-width="14" stroke-linecap="round"/><path d="M93 407c103 50 237 48 330 0" fill="none" stroke="#146cff" stroke-width="12" stroke-linecap="round"/>
+<circle cx="256" cy="256" r="216" fill="none" stroke="#fff" stroke-width="2" opacity=".2"/>
 </svg>
