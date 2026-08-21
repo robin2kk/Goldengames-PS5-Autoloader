@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="rc5.css" />
   <link rel="stylesheet" href="jb-icon.css" />
   <link rel="stylesheet" href="test2.css" />
+  <link rel="stylesheet" href="test3.css" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title>GOLDENGAME PS5 JAILBREAK v1.0.5</title>
 </head>
@@ -19,13 +20,16 @@
   <iframe id="exploit" title="exploit" hidden></iframe>
   <main id="dashboard" hidden>
     <section class="shell">
+      <div class="psSymbols dashboardSymbols" aria-hidden="true"><span class="psSquare">□</span><span class="psTriangle">△</span><span class="psCross">×</span><span class="psCircle">○</span></div>
       <header class="topbar">
         <div class="brand"><img src="jb-icon.svg" alt="AJ" /><div><h1><span>GOLDENGAME</span></h1><p>PS5 JAILBREAK · v1.0.5</p></div></div>
         <div class="statusbox"><div><span>Firmware</span><strong id="firmwareValue">Detecting...</strong></div><div class="divider"></div><div><span>Exploit</span><strong id="exploitValue">Auto</strong></div><div class="divider"></div><div><span>Status</span><strong id="statusValue" class="ready">READY</strong></div></div>
       </header>
       <button id="autoJailbreak" class="heroButton" type="button">
         <span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>
-        <span class="heroCopy"><b>AUTO JAILBREAK</b><small>Starts automatically with <strong>etaHEN 2.6B</strong></small><em>RECOMMENDED</em></span><span class="arrow">&#8250;</span>
+        <span class="heroCopy"><b>AUTO JAILBREAK</b><small>Starts automatically with <strong>etaHEN 2.6B</strong></small><em>RECOMMENDED</em></span>
+        <span class="psSymbols heroSymbols" aria-hidden="true"><span class="psSquare">□</span><span class="psTriangle">△</span><span class="psCross">×</span><span class="psCircle">○</span></span>
+        <span class="arrow">&#8250;</span>
       </button>
       <div class="grid">
         <button class="tile etahen" data-payload="etahen26" type="button"><span class="tileIcon">E26</span><span><b>etaHEN</b><strong>2.6B</strong><small>Manual launch</small></span><i>&#8250;</i></button>
@@ -40,10 +44,15 @@
     </section>
   </main>
   <main id="loader" hidden>
+    <div class="psSymbols loaderSymbols" aria-hidden="true"><span class="psSquare">□</span><span class="psTriangle">△</span><span class="psCross">×</span><span class="psCircle">○</span></div>
     <div class="loaderHeader"><button id="backButton" type="button" disabled>&larr; Menu</button><div><strong id="runTitle">Preparing Auto Jailbreak...</strong><span id="runSubtitle">Checking firmware and exploit route</span></div></div>
     <div class="visualStages" aria-hidden="true"><span>PREPARE</span><span>EXPLOIT</span><span>etaHEN 2.6B</span><span>COMPLETE</span></div>
     <div id="logWrapper"><div id="logContainer"></div></div>
-    <div id="progressContainer"><div id="progressBar"></div><div id="progressLabel">Preparing jailbreak...</div></div>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+      <div id="progressLabel">Preparing jailbreak...</div>
+      <div class="retroTrack" aria-hidden="true"><div class="retroCoins"><i></i><i></i><i></i><i></i></div><div class="retroRunner"></div></div>
+    </div>
     <div class="loaderBrand">GOLDENGAME PS5 JAILBREAK v1.0.5 · <b>AJ</b> · Technical logs hidden during normal operation</div>
   </main>
   <footer id="footer">GOLDENGAME PS5 JAILBREAK v1.0.5 &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
