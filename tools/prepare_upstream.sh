@@ -35,6 +35,7 @@ cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
 cp "$ROOT/overlay/frontend/rc5.css" frontend/autoloader/rc5.css
 cp "$ROOT/overlay/frontend/test2.css" frontend/autoloader/test2.css
+cp "$ROOT/overlay/frontend/test3.css" frontend/autoloader/test3.css
 cp "$ROOT/overlay/frontend/jb-icon.css" frontend/autoloader/jb-icon.css
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/autoloader/jb-icon.svg
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
@@ -78,9 +79,9 @@ mkdir -p frontend/autoloader/payloads
 
 echo "Goldengame overlay staged at: $UPSTREAM"
 echo "Functional launcher base: upstream v0.3.1 + Goldengame menu patch + RC7 session safety"
-echo "Auto Jailbreak target for v1.0.5 test2: etaHEN 2.6B"
+echo "Auto Jailbreak target for v1.0.5 test3: etaHEN 2.6B"
 echo "Auto Jailbreak emblem: Goldengame AJ PS1-inspired SVG"
-echo "Jailbreak progress: clean visual progress UI; technical console hidden"
-echo "Installer screen: AJ PS1-inspired progress UI; technical logs hidden"
+echo "Jailbreak progress: retro runner animation + colored PS symbols; technical console hidden"
+echo "Installer screen: matching retro runner progress UI; technical logs hidden"
 echo "RC7: app reopen never automatically replays kernel exploit after successful etaHEN marker"
 echo "RC7: manual sender verifies elfldr on 9021 and falls back to full chain if unavailable"
