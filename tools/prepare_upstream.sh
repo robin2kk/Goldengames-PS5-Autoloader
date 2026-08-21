@@ -12,7 +12,7 @@ git clone --branch v0.3.1 --depth 1 https://github.com/itsPLK/ps5-webkit-autoloa
 cd "$UPSTREAM"
 git submodule update --init --recursive
 
-# Verify the exact v0.3.1 dependency revisions before applying Goldengames.
+# Verify the exact v0.3.1 dependency revisions before applying Goldengame.
 expected_umtx2="a080beb74d9e4bc34f3563798b716bd86b2d6ee0"
 expected_slopkit="6153152be0b6a69e7e7931ff1b68523b7fde1429"
 expected_unified="955249d4c895ab1e9b7ae74e809da48e56a3f37c"
@@ -30,16 +30,17 @@ check_pin third_party/slopkit "$expected_slopkit"
 check_pin third_party/ps5-unified-autoloader "$expected_unified"
 check_pin third_party/ps5-elfldr "$expected_elfldr"
 
-# Goldengames autoloader dashboard.
+# Goldengame PS5 Jailbreak dashboard.
 cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
 cp "$ROOT/overlay/frontend/rc5.css" frontend/autoloader/rc5.css
+cp "$ROOT/overlay/frontend/test2.css" frontend/autoloader/test2.css
 cp "$ROOT/overlay/frontend/jb-icon.css" frontend/autoloader/jb-icon.css
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/autoloader/jb-icon.svg
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
 cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
 
-# Goldengames native ELF installer browser screen.
+# Goldengame native ELF installer browser screen.
 cp "$ROOT/overlay/installer-page/index.html" frontend/installer-page/index.html
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/installer-page/jb-icon.svg
 cp "$ROOT/overlay/assets/icon.svg" assets/icon.svg
@@ -75,12 +76,11 @@ PY
 
 mkdir -p frontend/autoloader/payloads
 
-echo "Goldengames overlay staged at: $UPSTREAM"
-echo "Functional launcher base: upstream v0.3.1 + Goldengames menu patch + RC7 session safety"
-echo "Auto Jailbreak target for v1.0.5: etaHEN 2.6B"
-echo "Auto Jailbreak emblem: Goldengames JB yellow/blue SVG"
-echo "Installer screen: Goldengames animated PS1-inspired UI"
-echo "Homescreen icon: Goldengames overlay/assets/icon.svg"
+echo "Goldengame overlay staged at: $UPSTREAM"
+echo "Functional launcher base: upstream v0.3.1 + Goldengame menu patch + RC7 session safety"
+echo "Auto Jailbreak target for v1.0.5 test2: etaHEN 2.6B"
+echo "Auto Jailbreak emblem: Goldengame AJ PS1-inspired SVG"
+echo "Jailbreak progress: clean visual progress UI; technical console hidden"
+echo "Installer screen: AJ PS1-inspired progress UI; technical logs hidden"
 echo "RC7: app reopen never automatically replays kernel exploit after successful etaHEN marker"
 echo "RC7: manual sender verifies elfldr on 9021 and falls back to full chain if unavailable"
-echo "Next: stage exact pinned payloads, apply v1.0.5 etaHEN 2.6B routing, and build."
