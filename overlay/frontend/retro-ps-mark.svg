@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" role="img" aria-label="Retro console mark">
+<defs>
+ <linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5660"/><stop offset="1" stop-color="#cf001b"/></linearGradient>
+ <linearGradient id="b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#19d6ff"/><stop offset="1" stop-color="#1357ff"/></linearGradient>
+ <filter id="s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000" flood-opacity=".55"/></filter>
+</defs>
+<g filter="url(#s)">
+ <path d="M175 28h72c45 0 72 26 72 63 0 27-15 47-43 58l-40 15V82h-61z" fill="url(#r)"/>
+ <path d="M175 28h48v171l-48 25z" fill="#f21e36"/>
+ <path d="M66 191c54-31 106-48 165-50 45-2 89 6 124 24-38 9-74 22-110 40-60 30-109 45-159 50-29 3-48-3-48-16 0-15 11-31 28-48z" fill="#ffd223"/>
+ <path d="M95 206c48-23 93-35 141-37 38-2 75 4 104 16-32 9-64 21-96 36-51 24-92 37-133 40-25 2-41-3-41-13 0-11 8-25 25-42z" fill="#35d77a"/>
+ <path d="M121 218c44-18 86-28 127-29 34-1 66 4 91 14-28 9-55 19-82 31-44 20-80 31-116 34-22 2-36-2-36-10 0-9 6-21 16-40z" fill="url(#b)"/>
+ <path d="M148 229c34-13 66-20 99-21 27-1 52 3 73 11-21 7-43 15-64 24-35 15-64 24-92 26-17 1-28-2-28-8 0-7 4-16 12-32z" fill="#e255ff"/>
+</g>
+</svg>
