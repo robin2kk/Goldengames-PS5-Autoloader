@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Goldengames GG">
+<defs>
+  <radialGradient id="disc" cx="50%" cy="42%" r="68%"><stop offset="0" stop-color="#18284d"/><stop offset=".58" stop-color="#070d1b"/><stop offset="1" stop-color="#02040a"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6a0"/><stop offset=".18" stop-color="#ffe34d"/><stop offset=".55" stop-color="#f7b400"/><stop offset="1" stop-color="#b86b00"/></linearGradient>
+  <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#bfc8da"/><stop offset="1" stop-color="#626f87"/></linearGradient>
+  <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17c9ff"/><stop offset=".25" stop-color="#1d73ff"/><stop offset=".52" stop-color="#e052ff"/><stop offset=".76" stop-color="#ff4856"/><stop offset="1" stop-color="#ffd323"/></linearGradient>
+  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#000" flood-opacity=".75"/></filter>
+</defs>
+<circle cx="256" cy="278" r="207" fill="url(#disc)" stroke="#1b2740" stroke-width="8"/>
+<circle cx="256" cy="278" r="222" fill="none" stroke="url(#ring)" stroke-width="15" filter="url(#glow)"/>
+<path d="M151 83l35 34 30-64 40 51 45-58 27 70 43-38 25 83H125z" fill="url(#gold)" stroke="#6b3b00" stroke-width="8" stroke-linejoin="round" filter="url(#shadow)"/>
+<circle cx="184" cy="110" r="12" fill="#2a183d"/><circle cx="256" cy="91" r="12" fill="#122f4a"/><circle cx="329" cy="109" r="12" fill="#2a183d"/>
+<g filter="url(#shadow)" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="210" letter-spacing="-34">
+  <text x="70" y="352" fill="#2a1700" stroke="#02040a" stroke-width="18">GG</text>
+  <text x="70" y="352" fill="url(#gold)" stroke="#fff0a1" stroke-width="3">GG</text>
+</g>
+<circle cx="257" cy="280" r="53" fill="#071022" stroke="url(#silver)" stroke-width="7"/>
+<path d="M242 248l48 32-48 32z" fill="#24d9ff" stroke="#fff" stroke-width="4" filter="url(#glow)"/>
+<path d="M95 412c102 42 220 42 322 0" fill="none" stroke="url(#ring)" stroke-width="11" stroke-linecap="round" opacity=".95"/>
+</svg>
