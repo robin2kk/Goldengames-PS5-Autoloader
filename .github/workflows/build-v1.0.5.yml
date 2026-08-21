@@ -1,4 +1,4 @@
-name: Build Goldengame PS5 Jailbreak v1.0.5 Test3 etaHEN 2.6B
+name: Build Goldengames PS5 Autoloader v1.0.5 Test4 etaHEN 2.6B
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepare upstream v0.3.1 with Goldengame test3 overlay
+      - name: Prepare upstream v0.3.1 with Goldengames Test4 overlay
         run: bash tools/prepare_upstream.sh
 
       - name: Apply Goldengames native integration
@@ -34,12 +34,12 @@ jobs:
       - name: Switch v1.0.5 Auto Jailbreak to etaHEN 2.6B
         run: python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
 
-      - name: Verify v1.0.5 test3 logic and retro visual integration
+      - name: Verify v1.0.5 Test4 logic and approved visual integration
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
-          THEME=work/ps5-webkit-autoloader/frontend/autoloader/test3.css
+          THEME=work/ps5-webkit-autoloader/frontend/autoloader/test4.css
           INSTALLER=work/ps5-webkit-autoloader/frontend/installer-page/index.html
           UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
           PARAM=work/ps5-webkit-autoloader/assets/param.json.template
@@ -54,16 +54,23 @@ jobs:
           grep -Fqi 'persistent sender did not respond' "$APP"
           grep -Fq 'Goldengames v1.0.4 persistent direct sender bridge applied' "$UMTX_APPLY"
           grep -Fq '"titleName": "Goldengames PS5 Autoloader"' "$PARAM"
-          grep -Fq 'GOLDENGAME PS5 JAILBREAK' "$INDEX"
+          grep -Fq 'GOLDENGAMES PS5 AUTOLOADER' "$INDEX"
+          grep -Fq 'gg-logo.svg' "$INDEX"
+          grep -Fq 'retro-ps-mark.svg' "$INDEX"
+          grep -Fq 'retro-ship.svg' "$INDEX"
+          grep -Fq 'test4.css' "$INDEX"
           grep -Fq 'Starts automatically with <strong>etaHEN 2.6B</strong>' "$INDEX"
-          grep -Fq 'test3.css' "$INDEX"
-          grep -Fq 'retroTrack' "$INDEX"
-          grep -Fq 'psSquare' "$INDEX"
-          grep -Fq '@keyframes retroRun' "$THEME"
-          grep -Fq -- '--ps-square:#e65ae8' "$THEME"
-          grep -Fq 'RETRO LOADING' "$INSTALLER"
-          grep -Fq 'runner' "$INSTALLER"
-          grep -Fq 'sq">□' "$INSTALLER"
+          grep -Fq 'readyBanner' "$INDEX"
+          grep -Fq 'heroShipTrail' "$INDEX"
+          grep -Fq 'GOLDENGAMES PS5 AUTOLOADER' "$THEME"
+          grep -Fq '@keyframes shipRun' "$THEME"
+          grep -Fq 'Goldengames PS5 Autoloader' "$INSTALLER"
+          grep -Fq '/gg-logo.svg' "$INSTALLER"
+          grep -Fq '/retro-ship.svg' "$INSTALLER"
+          grep -Fq 'READY TO PLAY' "$INSTALLER"
+          test -f work/ps5-webkit-autoloader/frontend/autoloader/gg-logo.svg
+          test -f work/ps5-webkit-autoloader/frontend/autoloader/retro-ps-mark.svg
+          test -f work/ps5-webkit-autoloader/frontend/autoloader/retro-ship.svg
           node --check "$APP"
 
       - name: Download exact pinned payloads
@@ -91,43 +98,46 @@ jobs:
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
           cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
 
-      - name: Build v1.0.5 test3 installer
+      - name: Build v1.0.5 Test4 installer
         working-directory: work/ps5-webkit-autoloader
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: v1.0.5-test3
+          CUSTOM_VERSION: v1.0.5-test4
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test3.elf
-          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test3.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.5-test4.elf
+          sha256sum goldengames-ps5-autoloader-installer_v1.0.5-test4.elf
 
-      - name: Verify built v1.0.5 test3 runtime
+      - name: Verify built v1.0.5 Test4 runtime
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           INDEX="frontend/dist/app/${VERSION}/index.html"
-          THEME="frontend/dist/app/${VERSION}/test3.css"
+          THEME="frontend/dist/app/${VERSION}/test4.css"
           UMTX="frontend/dist/app/${VERSION}/umtx2/main.js"
           test -f "$APP"; test -f "$INDEX"; test -f "$THEME"
+          test -f "frontend/dist/app/${VERSION}/gg-logo.svg"
+          test -f "frontend/dist/app/${VERSION}/retro-ps-mark.svg"
+          test -f "frontend/dist/app/${VERSION}/retro-ship.svg"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
           grep -Fq 'goldengames-direct-send' "$UMTX"
           grep -Fq 'persistent-dispatch' "$UMTX"
-          grep -Fq 'GOLDENGAME PS5 JAILBREAK' "$INDEX"
-          grep -Fq 'test3.css' "$INDEX"
-          grep -Fq 'retroTrack' "$INDEX"
+          grep -Fq 'GOLDENGAMES PS5 AUTOLOADER' "$INDEX"
+          grep -Fq 'test4.css' "$INDEX"
+          grep -Fq 'heroShipTrail' "$INDEX"
           if grep -Fq 'AUTO JAILBREAK · etaHEN 2.5B' "$APP"; then echo 'ERROR: built runtime contains stale 2.5B auto route' >&2; exit 1; fi
 
-      - name: Upload v1.0.5 test3 installer
+      - name: Upload v1.0.5 Test4 installer
         uses: actions/upload-artifact@v4
         with:
-          name: goldengame-ps5-jailbreak-v1.0.5-test3-retro-aj-etahen-2.6B
-          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test3.elf
+          name: goldengames-ps5-autoloader-v1.0.5-test4-exact-retro-gg-etahen-2.6B
+          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.5-test4.elf
           if-no-files-found: error
