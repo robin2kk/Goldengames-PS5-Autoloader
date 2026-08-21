@@ -8,14 +8,14 @@ UPSTREAM="${WORK}/ps5-webkit-autoloader"
 rm -rf "$WORK"
 mkdir -p "$WORK"
 
-git clone --branch v0.3.0 --depth 1 https://github.com/itsPLK/ps5-webkit-autoloader.git "$UPSTREAM"
+git clone --branch v0.3.1 --depth 1 https://github.com/itsPLK/ps5-webkit-autoloader.git "$UPSTREAM"
 cd "$UPSTREAM"
 git submodule update --init --recursive
 
-# Verify the exact v0.3.0 dependency revisions before applying Goldengames.
+# Verify the exact v0.3.1 dependency revisions before applying Goldengames.
 expected_umtx2="a080beb74d9e4bc34f3563798b716bd86b2d6ee0"
 expected_slopkit="6153152be0b6a69e7e7931ff1b68523b7fde1429"
-expected_unified="78a6f0274f1581e233b69dd7dd4fd3b948a6d15c"
+expected_unified="955249d4c895ab1e9b7ae74e809da48e56a3f37c"
 expected_elfldr="148b71c2fb9155d2550ef6a14eb03433e23acaeb"
 
 check_pin() {
@@ -47,7 +47,7 @@ cp "$ROOT/overlay/assets/icon.svg" assets/icon.svg
 python3 "$ROOT/tools/patch_upstream_frontend.py" "$UPSTREAM"
 python3 "$ROOT/tools/rc7_session_fix.py" "$UPSTREAM"
 
-# Upstream v0.3.0 downloads pinned dependency metadata through GitHub API.
+# Upstream v0.3.1 downloads pinned dependency metadata through GitHub API.
 python3 - "$UPSTREAM/tools/download_deps.sh" <<'PY'
 from pathlib import Path
 import sys
@@ -76,10 +76,11 @@ PY
 mkdir -p frontend/autoloader/payloads
 
 echo "Goldengames overlay staged at: $UPSTREAM"
-echo "Functional launcher base: upstream v0.3.0 app.js + Goldengames menu patch + RC7 session safety"
+echo "Functional launcher base: upstream v0.3.1 + Goldengames menu patch + RC7 session safety"
+echo "Auto Jailbreak target for v1.0.5: etaHEN 2.6B"
 echo "Auto Jailbreak emblem: Goldengames JB yellow/blue SVG"
 echo "Installer screen: Goldengames animated PS1-inspired UI"
 echo "Homescreen icon: Goldengames overlay/assets/icon.svg"
 echo "RC7: app reopen never automatically replays kernel exploit after successful etaHEN marker"
 echo "RC7: manual sender verifies elfldr on 9021 and falls back to full chain if unavailable"
-echo "Next: place the exact pinned payloads in frontend/autoloader/payloads and run the upstream build."
+echo "Next: stage exact pinned payloads, apply v1.0.5 etaHEN 2.6B routing, and build."
