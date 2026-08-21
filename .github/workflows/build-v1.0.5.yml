@@ -3,6 +3,8 @@ name: Build Goldengames Installer ELF v1.0.5 etaHEN 2.6B Upstream 0.3.1
 on:
   push:
     branches: [v1.0.5-dev]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -82,7 +84,7 @@ jobs:
           curl -fL --retry 3 -o payloads/shadowmountplus_v1.7alpha8.elf https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/payloads/ps5_game_dump/ShadowMountPlus/1.7alpha8/shadowmountplus_v1.7alpha8.elf
           python3 tools/verify_payloads.py
 
-      - name: Verify etaHEN 2.6B matches user-tested binary
+      - name: Verify etaHEN 2.6B exact binary
         run: |
           set -euo pipefail
           EXPECTED=512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126
