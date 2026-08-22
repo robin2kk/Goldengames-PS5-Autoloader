@@ -48,6 +48,7 @@ cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
 
 # Matching native ELF installer browser screen.
 cp "$ROOT/overlay/installer-page/index.html" frontend/installer-page/index.html
+cp "$ROOT/overlay/installer-page/test5-installer.css" frontend/installer-page/test5-installer.css
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/installer-page/jb-icon.svg
 cp "$ROOT/overlay/frontend/gg-logo.svg" frontend/installer-page/gg-logo.svg
 cp "$ROOT/overlay/frontend/retro-ps-mark.svg" frontend/installer-page/retro-ps-mark.svg
