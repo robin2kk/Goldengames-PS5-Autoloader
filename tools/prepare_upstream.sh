@@ -30,13 +30,14 @@ check_pin third_party/slopkit "$expected_slopkit"
 check_pin third_party/ps5-unified-autoloader "$expected_unified"
 check_pin third_party/ps5-elfldr "$expected_elfldr"
 
-# Goldengames PS5 Autoloader Test4 dashboard — approved GG retro reference.
+# Goldengames PS5 Autoloader Test5 dashboard — full-screen approved mockup composition.
 cp "$ROOT/overlay/frontend/index.html" frontend/autoloader/index.html
 cp "$ROOT/overlay/frontend/style.css" frontend/autoloader/style.css
 cp "$ROOT/overlay/frontend/rc5.css" frontend/autoloader/rc5.css
 cp "$ROOT/overlay/frontend/test2.css" frontend/autoloader/test2.css
 cp "$ROOT/overlay/frontend/test3.css" frontend/autoloader/test3.css
 cp "$ROOT/overlay/frontend/test4.css" frontend/autoloader/test4.css
+cp "$ROOT/overlay/frontend/test5.css" frontend/autoloader/test5.css
 cp "$ROOT/overlay/frontend/jb-icon.css" frontend/autoloader/jb-icon.css
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/autoloader/jb-icon.svg
 cp "$ROOT/overlay/frontend/gg-logo.svg" frontend/autoloader/gg-logo.svg
@@ -45,7 +46,7 @@ cp "$ROOT/overlay/frontend/retro-ship.svg" frontend/autoloader/retro-ship.svg
 cp "$ROOT/overlay/frontend/logo.svg" frontend/autoloader/logo.svg
 cp "$ROOT/overlay/frontend/favicon.svg" frontend/autoloader/favicon.svg
 
-# Matching Test4 native ELF installer browser screen.
+# Matching native ELF installer browser screen.
 cp "$ROOT/overlay/installer-page/index.html" frontend/installer-page/index.html
 cp "$ROOT/overlay/frontend/jb-icon.svg" frontend/installer-page/jb-icon.svg
 cp "$ROOT/overlay/frontend/gg-logo.svg" frontend/installer-page/gg-logo.svg
@@ -84,13 +85,13 @@ PY
 
 mkdir -p frontend/autoloader/payloads
 
-echo "Goldengames Test4 overlay staged at: $UPSTREAM"
+echo "Goldengames Test5 overlay staged at: $UPSTREAM"
 echo "Functional launcher base: upstream v0.3.1 + Goldengames menu patch + RC7 session safety"
-echo "Auto Jailbreak target for v1.0.5 Test4: etaHEN 2.6B"
+echo "Auto Jailbreak target for v1.0.5 Test5: etaHEN 2.6B"
 echo "Main identity: crowned GG + GOLDENGAMES PS5 AUTOLOADER"
 echo "Auto Jailbreak identity: AJ"
-echo "Visual target: approved dark-blue PS1-retro mockup with large colored symbols and retro console mark"
-echo "Jailbreak progress: pixel ship animation + stage checkpoints; technical console hidden"
-echo "Installer screen: same GG retro visual language; technical logs hidden"
+echo "Visual target: approved full-screen dark-blue retro mockup with 2x2 colored symbols and retro console mark"
+echo "Jailbreak progress: larger pixel ship animation + stage checkpoints; technical console hidden"
+echo "Installer screen: matching full-screen GG retro visual language; technical logs hidden"
 echo "RC7: app reopen never automatically replays kernel exploit after successful etaHEN marker"
 echo "RC7: manual sender verifies elfldr on 9021 and falls back to full chain if unavailable"
