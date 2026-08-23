@@ -1,12 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <defs>
- <radialGradient id="bg" cx="50%" cy="45%" r="68%"><stop offset="0" stop-color="#0d2348"/><stop offset=".62" stop-color="#061126"/><stop offset="1" stop-color="#020712"/></radialGradient>
- <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff2a0"/><stop offset=".28" stop-color="#ffd12a"/><stop offset=".62" stop-color="#e49a00"/><stop offset="1" stop-color="#8d4d00"/></linearGradient>
+ <radialGradient id="bg" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#102b58"/><stop offset=".58" stop-color="#061126"/><stop offset="1" stop-color="#020712"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6bd"/><stop offset=".25" stop-color="#ffd64a"/><stop offset=".58" stop-color="#e6a400"/><stop offset="1" stop-color="#8f5200"/></linearGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00eaff"/><stop offset="1" stop-color="#0067ff"/></linearGradient>
  <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<rect width="512" height="512" rx="104" fill="url(#bg)"/>
-<circle cx="256" cy="256" r="218" fill="none" stroke="#087bff" stroke-width="7" opacity=".85"/>
-<circle cx="256" cy="256" r="205" fill="none" stroke="#00d9ff" stroke-width="2" opacity=".6"/>
-<path d="M96 126 L184 216 L256 147 L328 216 L416 126 L365 354 L307 354 L340 194 L256 270 L172 194 L205 354 L147 354 Z" fill="url(#gold)" stroke="#ffd95d" stroke-width="5" filter="url(#glow)"/>
-<path d="M150 394h212" stroke="#00bfff" stroke-width="3" opacity=".6"/>
+<rect x="4" y="4" width="504" height="504" rx="86" fill="url(#bg)" stroke="#087cff" stroke-width="8"/>
+<circle cx="256" cy="256" r="225" fill="none" stroke="url(#blue)" stroke-width="7" opacity=".95"/>
+<circle cx="256" cy="256" r="208" fill="none" stroke="#00d9ff" stroke-width="2" opacity=".62"/>
+<path d="M66 112 L174 220 L256 137 L338 220 L446 112 L390 390 L319 390 L357 190 L256 286 L155 190 L193 390 L122 390 Z" fill="url(#gold)" stroke="#ffe87b" stroke-width="6" filter="url(#glow)"/>
+<g fill="none" stroke-width="5" opacity=".9" filter="url(#glow)">
+ <path d="M145 444l17-28 17 28z" stroke="#00e5c8"/>
+ <circle cx="224" cy="430" r="14" stroke="#ff3b30"/>
+ <path d="M286 416l28 28m0-28l-28 28" stroke="#147cff"/>
+ <rect x="354" y="416" width="28" height="28" stroke="#d44cff"/>
+</g>
 </svg>
