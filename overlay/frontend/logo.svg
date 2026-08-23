@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0aa7ef"/><stop offset="1" stop-color="#0b5fd7"/></linearGradient></defs><rect width="256" height="256" rx="52" fill="#07111f"/><circle cx="128" cy="128" r="92" fill="url(#g)"/><path d="M179 90c-13-19-31-29-54-29-38 0-68 30-68 67s30 68 68 68c22 0 42-9 56-24v-51h-61v25h32v14c-8 6-17 9-27 9-23 0-41-18-41-41s18-41 41-41c13 0 24 5 32 15z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+ <radialGradient id="bg" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#102b58"/><stop offset=".58" stop-color="#061126"/><stop offset="1" stop-color="#020712"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6bd"/><stop offset=".25" stop-color="#ffd64a"/><stop offset=".58" stop-color="#e6a400"/><stop offset="1" stop-color="#8f5200"/></linearGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00eaff"/><stop offset="1" stop-color="#0067ff"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect x="4" y="4" width="504" height="504" rx="86" fill="url(#bg)" stroke="#087cff" stroke-width="8"/>
+<circle cx="256" cy="256" r="225" fill="none" stroke="url(#blue)" stroke-width="7" opacity=".95"/>
+<circle cx="256" cy="256" r="208" fill="none" stroke="#00d9ff" stroke-width="2" opacity=".62"/>
+<path d="M66 112 L174 220 L256 137 L338 220 L446 112 L390 390 L319 390 L357 190 L256 286 L155 190 L193 390 L122 390 Z" fill="url(#gold)" stroke="#ffe87b" stroke-width="6" filter="url(#glow)"/>
+<g fill="none" stroke-width="5" opacity=".9" filter="url(#glow)">
+ <path d="M145 444l17-28 17 28z" stroke="#00e5c8"/>
+ <circle cx="224" cy="430" r="14" stroke="#ff3b30"/>
+ <path d="M286 416l28 28m0-28l-28 28" stroke="#147cff"/>
+ <rect x="354" y="416" width="28" height="28" stroke="#d44cff"/>
+</g>
+</svg>
