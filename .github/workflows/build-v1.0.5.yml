@@ -1,0 +1,148 @@
+name: Build Goldengame v1.0.5 Test2 Exact + App Icon Only
+
+on:
+  push:
+    branches: [v1.0.5-dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact proven Test2 source
+        uses: actions/checkout@v4
+        with:
+          ref: 04dc5d5068f7e17a3383ca7a687d9ed0e6d837e3
+
+      - name: Replace only the PS5 application icon
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/robin2kk/Goldengames-PS5-Autoloader/v1.0.5-dev/overlay/assets/icon.svg \
+            -o overlay/assets/icon.svg
+          test -s overlay/assets/icon.svg
+          grep -Fq 'GOLDENGAMES' overlay/assets/icon.svg
+          grep -Fq 'PS5 AUTOLOADER' overlay/assets/icon.svg
+          grep -Fq 'JAILBREAK' overlay/assets/icon.svg
+
+      - name: Prepare upstream v0.3.1 with exact Test2 overlay
+        run: bash tools/prepare_upstream.sh
+
+      - name: Apply Goldengames native integration
+        run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
+
+      - name: Enable current manual payload set
+        run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
+
+      - name: Apply v1.0.2 live-session Auto-Start fix
+        run: python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
+
+      - name: Apply v1.0.3 stability and short-title fix
+        run: python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
+
+      - name: Apply v1.0.4 memory and persistent-sender fix
+        run: python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
+
+      - name: Switch v1.0.5 Auto Jailbreak to etaHEN 2.6B
+        run: python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
+
+      - name: Verify exact proven Test2 logic
+        run: |
+          set -euo pipefail
+          APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
+          INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
+          THEME=work/ps5-webkit-autoloader/frontend/autoloader/test2.css
+          INSTALLER=work/ps5-webkit-autoloader/frontend/installer-page/index.html
+          UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
+          PARAM=work/ps5-webkit-autoloader/assets/param.json.template
+          ICON=work/ps5-webkit-autoloader/assets/icon.svg
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
+          test "$(grep -Fc "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP")" -ge 2
+          if grep -Fq 'AUTO JAILBREAK · etaHEN 2.5B' "$APP"; then echo 'ERROR: stale etaHEN 2.5B auto route remains' >&2; exit 1; fi
+          grep -Fq "choosePayload('etahen-2.5B.bin', 'etaHEN 2.5B', false)" "$APP"
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
+          grep -Fq 'persistentSenderReady' "$APP"
+          grep -Fq 'sendViaPersistentUmtx' "$APP"
+          grep -Fq 'Direct 9021 sender' "$APP"
+          grep -Fqi 'persistent sender did not respond' "$APP"
+          grep -Fq 'Goldengames v1.0.4 persistent direct sender bridge applied' "$UMTX_APPLY"
+          grep -Fq '"titleName": "Goldengames PS5 Autoloader"' "$PARAM"
+          grep -Fq 'GOLDENGAME PS5 JAILBREAK' "$INDEX"
+          grep -Fq 'Starts automatically with <strong>etaHEN 2.6B</strong>' "$INDEX"
+          grep -Fq 'test2.css' "$INDEX"
+          grep -Fq '#logWrapper' "$THEME"
+          grep -Fq 'Technical logs hidden during normal operation' "$INDEX"
+          grep -Fq 'GOLDENGAME PS5 JAILBREAK' "$INSTALLER"
+          grep -Fq 'Technical logs remain active internally but are hidden' "$INSTALLER"
+          test -s "$ICON"
+          grep -Fq 'GOLDENGAMES' "$ICON"
+          grep -Fq 'PS5 AUTOLOADER' "$ICON"
+          grep -Fq 'JAILBREAK' "$ICON"
+          node --check "$APP"
+
+      - name: Download exact pinned payloads
+        run: |
+          set -euo pipefail
+          mkdir -p payloads
+          curl -fL --retry 3 -o payloads/etahen-2.5B.bin https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o payloads/etahen-2.6B.bin https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
+          curl -fL --retry 3 -o payloads/kstuff-1.10.elf https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          curl -fL --retry 3 -o payloads/pldmgr_v0.5.1.elf https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.5.1/pldmgr_v0.5.1.elf
+          curl -fL --retry 3 -o payloads/websrv-ps5.elf https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o payloads/shadowmountplus_v1.7alpha8.elf https://nexgen999.github.io/PS5-Super-PLDMGR-Auto-Updater/payloads/ps5_game_dump/ShadowMountPlus/1.7alpha8/shadowmountplus_v1.7alpha8.elf
+          python3 tools/verify_payloads.py
+
+      - name: Verify etaHEN 2.6B exact binary
+        run: |
+          set -euo pipefail
+          EXPECTED=512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126
+          ACTUAL="$(sha256sum payloads/etahen-2.6B.bin | awk '{print $1}')"
+          test "$ACTUAL" = "$EXPECTED"
+          echo "etaHEN 2.6B exact SHA-256 verified: $ACTUAL"
+
+      - name: Stage payloads
+        run: |
+          mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
+          cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
+
+      - name: Build exact Test2 installer with app icon only change
+        working-directory: work/ps5-webkit-autoloader
+        env:
+          BUILD_TYPE: dev
+          FORCE_EXPLOIT: auto
+          CUSTOM_VERSION: v1.0.5-test2-app-icon-only
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test2-app-icon-only.elf
+          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test2-app-icon-only.elf
+
+      - name: Verify built runtime is still Test2
+        working-directory: work/ps5-webkit-autoloader
+        run: |
+          set -euo pipefail
+          VERSION="$(cat frontend/dist/VERSION)"
+          APP="frontend/dist/app/${VERSION}/app.js"
+          INDEX="frontend/dist/app/${VERSION}/index.html"
+          THEME="frontend/dist/app/${VERSION}/test2.css"
+          UMTX="frontend/dist/app/${VERSION}/umtx2/main.js"
+          test -f "$APP"; test -f "$INDEX"; test -f "$THEME"
+          grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
+          grep -Fq 'persistentSenderReady' "$APP"
+          grep -Fq 'sendViaPersistentUmtx' "$APP"
+          grep -Fq 'goldengames-direct-send' "$UMTX"
+          grep -Fq 'persistent-dispatch' "$UMTX"
+          grep -Fq 'GOLDENGAME PS5 JAILBREAK' "$INDEX"
+          grep -Fq 'test2.css' "$INDEX"
+          if grep -Fq 'AUTO JAILBREAK · etaHEN 2.5B' "$APP"; then echo 'ERROR: built runtime contains stale 2.5B auto route' >&2; exit 1; fi
+
+      - name: Upload exact Test2 app-icon-only installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengame-v1.0.5-test2-app-icon-only
+          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-app-icon-only.elf
+          if-no-files-found: error
