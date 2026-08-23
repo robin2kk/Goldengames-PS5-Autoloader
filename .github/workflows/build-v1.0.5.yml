@@ -1,4 +1,4 @@
-name: Build Goldengame v1.0.5 Test2 + Fixed PS5 App Icon
+name: Build Goldengame v1.0.5 Test2 Exact + etaHEN Icon V2
 
 on:
   push:
@@ -55,14 +55,13 @@ jobs:
           python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
           python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
 
-      - name: Verify Test2 UI and corrected PS5 app icon
+      - name: Verify exact Test2 UI plus cache-busted etaHEN icon
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
           THEME=work/ps5-webkit-autoloader/frontend/autoloader/test2.css
           ICON=work/ps5-webkit-autoloader/frontend/autoloader/etahen26-icon.svg
-          APPICON=work/ps5-webkit-autoloader/assets/icon.svg
           grep -Fq 'test2.css' "$INDEX"
           ! grep -Fq 'test3.css' "$INDEX"
           ! grep -Fq 'test4.css' "$INDEX"
@@ -72,11 +71,6 @@ jobs:
           test -s "$ICON"
           grep -Fq '>etaHEN</text>' "$ICON"
           grep -Fq '>2.6B</text>' "$ICON"
-          test -s "$APPICON"
-          grep -Fq 'viewBox="180 35 440 440"' "$APPICON"
-          grep -Fq '>GOLDENGAMES</text>' "$APPICON"
-          grep -Fq '>PS5 AUTOLOADER</text>' "$APPICON"
-          grep -Fq '>JAILBREAK</text>' "$APPICON"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
@@ -106,21 +100,21 @@ jobs:
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
           cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
 
-      - name: Build Test2 fixed app icon installer
+      - name: Build Test2 etaHEN Icon V2 installer
         working-directory: work/ps5-webkit-autoloader
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: v1.0.5-test2-app-icon-v3
+          CUSTOM_VERSION: v1.0.5-test2-etahen-icon-v2
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test2-app-icon-v3.elf
-          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test2-app-icon-v3.elf
+          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test2-etahen-icon-v2.elf
+          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test2-etahen-icon-v2.elf
 
-      - name: Verify built Test2 runtime
+      - name: Verify built Test2 runtime contains new icon
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
@@ -132,12 +126,14 @@ jobs:
           test -f "$APP"; test -f "$INDEX"; test -f "$THEME"; test -s "$ICON"
           grep -Fq 'src="etahen26-icon.svg"' "$INDEX"
           grep -Fq 'url("etahen26-icon.svg")' "$THEME"
+          grep -Fq '>etaHEN</text>' "$ICON"
+          grep -Fq '>2.6B</text>' "$ICON"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
 
-      - name: Upload Test2 fixed app icon installer
+      - name: Upload Test2 etaHEN Icon V2 installer
         uses: actions/upload-artifact@v4
         with:
-          name: goldengame-v1.0.5-test2-fixed-ps5-app-icon-v3
-          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-app-icon-v3.elf
+          name: goldengame-v1.0.5-test2-etahen-icon-v2-cache-busted
+          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-etahen-icon-v2.elf
           if-no-files-found: error
