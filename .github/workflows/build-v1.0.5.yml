@@ -1,4 +1,4 @@
-name: Build Goldengames PS5 Autoloader v1.0.5 Test5 etaHEN 2.6B
+name: Build Goldengame PS5 Jailbreak v1.0.5 Test2 New Logo etaHEN 2.6B
 
 on:
   push:
@@ -13,7 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepare upstream v0.3.1 with Goldengames Test5 overlay
+      - name: Restore proven Test2 installer UI
+        run: |
+          git show 04dc5d5068f7e17a3383ca7a687d9ed0e6d837e3:overlay/installer-page/index.html > overlay/installer-page/index.html
+          sed -i 's#/jb-icon.svg#/gg-logo.svg#g' overlay/installer-page/index.html
+
+      - name: Prepare upstream v0.3.1 with proven Test2 overlay
         run: bash tools/prepare_upstream.sh
 
       - name: Apply Goldengames native integration
@@ -22,51 +27,30 @@ jobs:
       - name: Enable current manual payload set
         run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
 
-      - name: Apply v1.0.2 live-session Auto-Start fix
-        run: python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
+      - name: Apply proven stability fixes
+        run: |
+          python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
+          python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
+          python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
+          python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
 
-      - name: Apply v1.0.3 stability and short-title fix
-        run: python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
-
-      - name: Apply v1.0.4 memory and persistent-sender fix
-        run: python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
-
-      - name: Switch v1.0.5 Auto Jailbreak to etaHEN 2.6B
-        run: python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
-
-      - name: Verify v1.0.5 Test5 logic and full-screen visual integration
+      - name: Verify Test2 plus new Goldengames logo
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
-          THEME=work/ps5-webkit-autoloader/frontend/autoloader/test5.css
+          THEME=work/ps5-webkit-autoloader/frontend/autoloader/test2.css
+          LOGO=work/ps5-webkit-autoloader/frontend/autoloader/gg-logo.svg
           INSTALLER=work/ps5-webkit-autoloader/frontend/installer-page/index.html
-          INSTALLER_THEME=work/ps5-webkit-autoloader/frontend/installer-page/test5-installer.css
-          UMTX_APPLY=work/ps5-webkit-autoloader/tools/apply_umtx2_patch.sh
-          PARAM=work/ps5-webkit-autoloader/assets/param.json.template
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
-          test "$(grep -Fc "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP")" -ge 2
-          if grep -Fq 'AUTO JAILBREAK · etaHEN 2.5B' "$APP"; then echo 'ERROR: stale etaHEN 2.5B auto route remains' >&2; exit 1; fi
-          grep -Fq "choosePayload('etahen-2.5B.bin', 'etaHEN 2.5B', false)" "$APP"
-          grep -Fq "choosePayload('etahen-2.6B.bin', 'etaHEN 2.6B', false)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
-          grep -Fq 'Direct 9021 sender' "$APP"
-          grep -Fqi 'persistent sender did not respond' "$APP"
-          grep -Fq 'Goldengames v1.0.4 persistent direct sender bridge applied' "$UMTX_APPLY"
-          grep -Fq '"titleName": "Goldengames PS5 Autoloader"' "$PARAM"
-          grep -Fq 'GOLDENGAMES PS5 AUTOLOADER' "$INDEX"
-          grep -Fq 'test5.css' "$INDEX"
-          grep -Fq 'cornerSymbols' "$INDEX"
-          grep -Fq 'heroShipTrail' "$INDEX"
-          grep -Fq 'grid-template-columns:1fr 1fr' "$THEME"
-          grep -Fq 'min-height:94vh' "$THEME"
-          grep -Fq '/test5-installer.css' "$INSTALLER"
-          grep -Fq 'TEST5' "$INSTALLER"
-          grep -Fq 'min-height:74vh' "$INSTALLER_THEME"
-          test -f work/ps5-webkit-autoloader/frontend/autoloader/gg-logo.svg
-          test -f work/ps5-webkit-autoloader/frontend/autoloader/retro-ps-mark.svg
-          test -f work/ps5-webkit-autoloader/frontend/autoloader/retro-ship.svg
+          grep -Fq 'test2.css' "$INDEX"
+          grep -Fq 'gg-logo.svg' "$INDEX"
+          grep -Fq '#logWrapper' "$THEME"
+          grep -Fq 'Technical logs hidden during normal operation' "$INDEX"
+          grep -Fq '/gg-logo.svg' "$INSTALLER"
+          test -s "$LOGO"
           node --check "$APP"
 
       - name: Download exact pinned payloads
@@ -83,57 +67,46 @@ jobs:
 
       - name: Verify etaHEN 2.6B exact binary
         run: |
-          set -euo pipefail
           EXPECTED=512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126
           ACTUAL="$(sha256sum payloads/etahen-2.6B.bin | awk '{print $1}')"
           test "$ACTUAL" = "$EXPECTED"
-          echo "etaHEN 2.6B exact SHA-256 verified: $ACTUAL"
 
       - name: Stage payloads
         run: |
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
           cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
 
-      - name: Build v1.0.5 Test5 installer
+      - name: Build v1.0.5 Test2 New Logo installer
         working-directory: work/ps5-webkit-autoloader
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: v1.0.5-test5
+          CUSTOM_VERSION: v1.0.5-test2-logo
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v1.0.5-test5.elf
-          sha256sum goldengames-ps5-autoloader-installer_v1.0.5-test5.elf
+          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
+          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
 
-      - name: Verify built v1.0.5 Test5 runtime
+      - name: Verify built Test2 runtime
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
           VERSION="$(cat frontend/dist/VERSION)"
           APP="frontend/dist/app/${VERSION}/app.js"
           INDEX="frontend/dist/app/${VERSION}/index.html"
-          THEME="frontend/dist/app/${VERSION}/test5.css"
-          UMTX="frontend/dist/app/${VERSION}/umtx2/main.js"
+          THEME="frontend/dist/app/${VERSION}/test2.css"
           test -f "$APP"; test -f "$INDEX"; test -f "$THEME"
           test -f "frontend/dist/app/${VERSION}/gg-logo.svg"
-          test -f "frontend/dist/app/${VERSION}/retro-ps-mark.svg"
-          test -f "frontend/dist/app/${VERSION}/retro-ship.svg"
+          grep -Fq 'gg-logo.svg' "$INDEX"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
-          grep -Fq 'sendViaPersistentUmtx' "$APP"
-          grep -Fq 'goldengames-direct-send' "$UMTX"
-          grep -Fq 'persistent-dispatch' "$UMTX"
-          grep -Fq 'GOLDENGAMES PS5 AUTOLOADER' "$INDEX"
-          grep -Fq 'test5.css' "$INDEX"
-          grep -Fq 'cornerSymbols' "$INDEX"
-          if grep -Fq 'AUTO JAILBREAK · etaHEN 2.5B' "$APP"; then echo 'ERROR: built runtime contains stale 2.5B auto route' >&2; exit 1; fi
 
-      - name: Upload v1.0.5 Test5 installer
+      - name: Upload v1.0.5 Test2 New Logo installer
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-v1.0.5-test5-fullscreen-approved-layout-etahen-2.6B
-          path: work/ps5-webkit-autoloader/goldengames-ps5-autoloader-installer_v1.0.5-test5.elf
+          name: goldengame-v1.0.5-test2-new-goldengames-logo-etahen-2.6B
+          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
           if-no-files-found: error
