@@ -25,3 +25,10 @@ body{background:radial-gradient(circle at 72% 22%,rgba(46,38,130,.35),transparen
 #loader .visualStages{display:flex;position:relative;z-index:2;width:min(820px,86vw);margin:1.4rem auto 0;justify-content:space-between;gap:.7rem}.visualStages span{flex:1;padding:.65rem .35rem;text-align:center;border:1px solid #2a416d;border-radius:999px;background:#071127;color:#8fa2c8;font-size:.7rem;font-weight:800;letter-spacing:.04em}.visualStages span:first-child{color:#54c8ff;border-color:#1b8cc4}
 #loader .loaderBrand{position:relative;z-index:2;margin-top:1.6rem;color:#7f8eaf;font-size:.72rem;text-align:center;letter-spacing:.08em}.loaderBrand b{color:#ffd21a}
 @media(max-width:900px){.shell:before{font-size:3.4rem}.loaderHeader strong{font-size:1.45rem}.loaderHeader:before{width:92px;height:92px;font-size:2.5rem}.visualStages{flex-wrap:wrap}.visualStages span{min-width:42%}}
+
+/* Test2 Logo+Retro: presentation-only overrides. No exploit, etaHEN, elfldr or sender logic changes. */
+.loaderHeader:before{content:"";background:transparent url("jb-icon.svg") center/contain no-repeat;border:0;box-shadow:0 0 30px rgba(16,132,255,.28);text-shadow:none;letter-spacing:0}
+#progressContainer:before{content:"▶";position:absolute;z-index:6;left:4%;top:50%;margin-top:-.72rem;font:900 1.45rem/1 monospace;color:#ffd21a;text-shadow:-12px 0 #ff4a43,-24px 0 #2e78ff,-36px 0 #36dd72,0 0 12px #21c8ff;animation:retroJailbreakRunner 2.6s steps(18,end) infinite;pointer-events:none}
+#progressContainer:after{content:"· · · · · · · · · · · · · · ·";position:absolute;z-index:3;left:7%;right:7%;bottom:.42rem;overflow:hidden;white-space:nowrap;color:rgba(77,181,255,.42);font:800 .85rem/1 monospace;letter-spacing:.38em;pointer-events:none;animation:retroJailbreakBlink .7s steps(2,end) infinite}
+@keyframes retroJailbreakRunner{0%{left:4%;transform:translateX(0) scale(1)}48%{left:88%;transform:translateX(-100%) scale(1)}50%{left:88%;transform:translateX(-100%) scaleX(-1)}98%{left:4%;transform:translateX(0) scaleX(-1)}100%{left:4%;transform:translateX(0) scale(1)}}
+@keyframes retroJailbreakBlink{0%,100%{opacity:.25}50%{opacity:1}}
