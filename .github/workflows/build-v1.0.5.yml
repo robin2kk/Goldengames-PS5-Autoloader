@@ -1,4 +1,4 @@
-name: Build Goldengame PS5 Jailbreak v1.0.5 Test2 New Logo etaHEN 2.6B
+name: Build Goldengame v1.0.5 Test2 Exact + New Logo
 
 on:
   push:
@@ -13,43 +13,62 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore proven Test2 installer UI
+      - name: Restore exact proven Test2 visual files
         run: |
-          git show 04dc5d5068f7e17a3383ca7a687d9ed0e6d837e3:overlay/installer-page/index.html > overlay/installer-page/index.html
-          sed -i 's#/jb-icon.svg#/gg-logo.svg#g' overlay/installer-page/index.html
+          set -euo pipefail
+          BASE=04dc5d5068f7e17a3383ca7a687d9ed0e6d837e3
+          curl -fL "https://raw.githubusercontent.com/robin2kk/Goldengames-PS5-Autoloader/${BASE}/overlay/frontend/index.html" -o overlay/frontend/index.html
+          curl -fL "https://raw.githubusercontent.com/robin2kk/Goldengames-PS5-Autoloader/${BASE}/overlay/installer-page/index.html" -o overlay/installer-page/index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('overlay/frontend/index.html')
+          s = p.read_text()
+          s = s.replace('<link rel="icon" type="image/svg+xml" href="favicon.svg" />', '<link rel="icon" type="image/svg+xml" href="gg-logo.svg" />')
+          s = s.replace('<img class="logo" src="jb-icon.svg" alt="AJ" />', '<img class="logo" src="gg-logo.svg" alt="Goldengames" />')
+          s = s.replace('<div class="brand"><img src="jb-icon.svg" alt="AJ" />', '<div class="brand"><img src="gg-logo.svg" alt="Goldengames" />')
+          s = s.replace('<div class="miniBrand"><img src="jb-icon.svg" alt="AJ" />', '<div class="miniBrand"><img src="gg-logo.svg" alt="Goldengames" />')
+          p.write_text(s)
 
-      - name: Prepare upstream v0.3.1 with proven Test2 overlay
+          p = Path('overlay/installer-page/index.html')
+          s = p.read_text().replace('/jb-icon.svg', '/gg-logo.svg')
+          p.write_text(s)
+          PY
+
+      - name: Prepare upstream v0.3.1 with exact Test2 overlay
         run: bash tools/prepare_upstream.sh
 
       - name: Apply Goldengames native integration
         run: python3 tools/apply_goldengames_build.py work/ps5-webkit-autoloader
 
-      - name: Enable current manual payload set
+      - name: Enable manual payload set
         run: python3 tools/enable_release_payloads.py work/ps5-webkit-autoloader
 
-      - name: Apply proven stability fixes
+      - name: Apply proven stability fixes and etaHEN 2.6B
         run: |
           python3 tools/v102_autostart_fix.py work/ps5-webkit-autoloader
           python3 tools/v103_stability_fix.py work/ps5-webkit-autoloader
           python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
           python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
 
-      - name: Verify Test2 plus new Goldengames logo
+      - name: Verify exact Test2 UI plus only new main logo
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
           THEME=work/ps5-webkit-autoloader/frontend/autoloader/test2.css
-          LOGO=work/ps5-webkit-autoloader/frontend/autoloader/gg-logo.svg
           INSTALLER=work/ps5-webkit-autoloader/frontend/installer-page/index.html
+          LOGO=work/ps5-webkit-autoloader/frontend/autoloader/gg-logo.svg
+          grep -Fq 'test2.css' "$INDEX"
+          ! grep -Fq 'test3.css' "$INDEX"
+          ! grep -Fq 'test4.css' "$INDEX"
+          ! grep -Fq 'test5.css' "$INDEX"
+          grep -Fq '<span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>' "$INDEX"
+          grep -Fq 'gg-logo.svg' "$INDEX"
+          grep -Fq '/gg-logo.svg' "$INSTALLER"
+          grep -Fq '#logWrapper' "$THEME"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
-          grep -Fq 'test2.css' "$INDEX"
-          grep -Fq 'gg-logo.svg' "$INDEX"
-          grep -Fq '#logWrapper' "$THEME"
-          grep -Fq 'Technical logs hidden during normal operation' "$INDEX"
-          grep -Fq '/gg-logo.svg' "$INSTALLER"
           test -s "$LOGO"
           node --check "$APP"
 
@@ -67,6 +86,7 @@ jobs:
 
       - name: Verify etaHEN 2.6B exact binary
         run: |
+          set -euo pipefail
           EXPECTED=512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126
           ACTUAL="$(sha256sum payloads/etahen-2.6B.bin | awk '{print $1}')"
           test "$ACTUAL" = "$EXPECTED"
@@ -76,7 +96,7 @@ jobs:
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
           cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
 
-      - name: Build v1.0.5 Test2 New Logo installer
+      - name: Build exact Test2 New Logo installer
         working-directory: work/ps5-webkit-autoloader
         env:
           BUILD_TYPE: dev
@@ -101,12 +121,13 @@ jobs:
           test -f "$APP"; test -f "$INDEX"; test -f "$THEME"
           test -f "frontend/dist/app/${VERSION}/gg-logo.svg"
           grep -Fq 'gg-logo.svg' "$INDEX"
+          grep -Fq '<span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>' "$INDEX"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
 
-      - name: Upload v1.0.5 Test2 New Logo installer
+      - name: Upload exact Test2 New Logo installer
         uses: actions/upload-artifact@v4
         with:
-          name: goldengame-v1.0.5-test2-new-goldengames-logo-etahen-2.6B
+          name: goldengame-v1.0.5-test2-exact-new-logo-etahen-2.6B
           path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
           if-no-files-found: error
