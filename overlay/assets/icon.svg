@@ -1,17 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <defs>
- <radialGradient id="bg" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#0d2348"/><stop offset=".58" stop-color="#061126"/><stop offset="1" stop-color="#020712"/></radialGradient>
- <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff2a0"/><stop offset=".28" stop-color="#ffd12a"/><stop offset=".62" stop-color="#e49a00"/><stop offset="1" stop-color="#8d4d00"/></linearGradient>
- <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00f2ff"/><stop offset="1" stop-color="#0066ff"/></linearGradient>
- <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <radialGradient id="bg" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#102b58"/><stop offset=".58" stop-color="#061126"/><stop offset="1" stop-color="#020712"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6bd"/><stop offset=".25" stop-color="#ffd64a"/><stop offset=".58" stop-color="#e6a400"/><stop offset="1" stop-color="#8f5200"/></linearGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00eaff"/><stop offset="1" stop-color="#0067ff"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<rect x="8" y="8" width="496" height="496" rx="92" fill="url(#bg)" stroke="#078dff" stroke-width="8"/>
-<circle cx="256" cy="222" r="185" fill="none" stroke="#0b6cff" stroke-width="5" opacity=".8"/>
-<circle cx="256" cy="222" r="173" fill="none" stroke="#00d9ff" stroke-width="2" opacity=".55"/>
-<path d="M112 93 L186 170 L256 108 L326 170 L400 93 L358 305 L307 305 L337 151 L256 225 L175 151 L205 305 L154 305 Z" fill="url(#gold)" stroke="#ffd95d" stroke-width="4" filter="url(#glow)"/>
-<path d="M108 338h296" stroke="#00bfff" stroke-width="2" opacity=".65"/>
-<text x="256" y="376" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="38" letter-spacing="2" fill="url(#gold)">GOLDENGAMES</text>
-<text x="256" y="411" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="18" letter-spacing="5" fill="#dcecff">PS5 AUTOLOADER</text>
-<text x="256" y="441" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="16" letter-spacing="5" fill="#ffd400">JAILBREAK</text>
-<g fill="none" stroke-width="4" filter="url(#glow)"><path d="M177 466l12-20 12 20z" stroke="#00e5c8"/><circle cx="235" cy="456" r="10" stroke="#ff3b30"/><path d="M278 446l20 20m0-20l-20 20" stroke="#147cff"/><rect x="333" y="446" width="20" height="20" stroke="#d44cff"/></g>
+<rect x="4" y="4" width="504" height="504" rx="86" fill="url(#bg)" stroke="#087cff" stroke-width="8"/>
+<circle cx="256" cy="256" r="225" fill="none" stroke="url(#blue)" stroke-width="7" opacity=".95"/>
+<circle cx="256" cy="256" r="208" fill="none" stroke="#00d9ff" stroke-width="2" opacity=".62"/>
+<path d="M66 112 L174 220 L256 137 L338 220 L446 112 L390 390 L319 390 L357 190 L256 286 L155 190 L193 390 L122 390 Z" fill="url(#gold)" stroke="#ffe87b" stroke-width="6" filter="url(#glow)"/>
+<g fill="none" stroke-width="5" opacity=".9" filter="url(#glow)">
+ <path d="M145 444l17-28 17 28z" stroke="#00e5c8"/>
+ <circle cx="224" cy="430" r="14" stroke="#ff3b30"/>
+ <path d="M286 416l28 28m0-28l-28 28" stroke="#147cff"/>
+ <rect x="354" y="416" width="28" height="28" stroke="#d44cff"/>
+</g>
 </svg>
