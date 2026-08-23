@@ -1,4 +1,4 @@
-name: Build Goldengame v1.0.5 Test2 Exact + New Logo
+name: Build Goldengame v1.0.5 Test2 Exact + etaHEN Icon V2
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore exact proven Test2 visual files
+      - name: Restore exact proven Test2 visual files and apply cache-busted icon
         run: |
           set -euo pipefail
           BASE=04dc5d5068f7e17a3383ca7a687d9ed0e6d837e3
@@ -27,10 +27,15 @@ jobs:
           s = s.replace('<img class="logo" src="jb-icon.svg" alt="AJ" />', '<img class="logo" src="gg-logo.svg" alt="Goldengames" />')
           s = s.replace('<div class="brand"><img src="jb-icon.svg" alt="AJ" />', '<div class="brand"><img src="gg-logo.svg" alt="Goldengames" />')
           s = s.replace('<div class="miniBrand"><img src="jb-icon.svg" alt="AJ" />', '<div class="miniBrand"><img src="gg-logo.svg" alt="Goldengames" />')
+          s = s.replace('<span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>', '<span class="heroIcon" aria-hidden="true"><img src="etahen26-icon.svg" alt="etaHEN 2.6B" /></span>')
           p.write_text(s)
 
           p = Path('overlay/installer-page/index.html')
           s = p.read_text().replace('/jb-icon.svg', '/gg-logo.svg')
+          p.write_text(s)
+
+          p = Path('overlay/frontend/test2.css')
+          s = p.read_text().replace('url("jb-icon.svg")', 'url("etahen26-icon.svg")')
           p.write_text(s)
           PY
 
@@ -50,26 +55,25 @@ jobs:
           python3 tools/v104_memory_fix.py work/ps5-webkit-autoloader
           python3 tools/v105_etahen26_upstream031.py work/ps5-webkit-autoloader
 
-      - name: Verify exact Test2 UI plus only new main logo
+      - name: Verify exact Test2 UI plus cache-busted etaHEN icon
         run: |
           set -euo pipefail
           APP=work/ps5-webkit-autoloader/frontend/autoloader/app.js
           INDEX=work/ps5-webkit-autoloader/frontend/autoloader/index.html
           THEME=work/ps5-webkit-autoloader/frontend/autoloader/test2.css
-          INSTALLER=work/ps5-webkit-autoloader/frontend/installer-page/index.html
-          LOGO=work/ps5-webkit-autoloader/frontend/autoloader/gg-logo.svg
+          ICON=work/ps5-webkit-autoloader/frontend/autoloader/etahen26-icon.svg
           grep -Fq 'test2.css' "$INDEX"
           ! grep -Fq 'test3.css' "$INDEX"
           ! grep -Fq 'test4.css' "$INDEX"
           ! grep -Fq 'test5.css' "$INDEX"
-          grep -Fq '<span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>' "$INDEX"
-          grep -Fq 'gg-logo.svg' "$INDEX"
-          grep -Fq '/gg-logo.svg' "$INSTALLER"
-          grep -Fq '#logWrapper' "$THEME"
+          grep -Fq 'src="etahen26-icon.svg"' "$INDEX"
+          grep -Fq 'url("etahen26-icon.svg")' "$THEME"
+          test -s "$ICON"
+          grep -Fq '>etaHEN</text>' "$ICON"
+          grep -Fq '>2.6B</text>' "$ICON"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
           grep -Fq 'sendViaPersistentUmtx' "$APP"
-          test -s "$LOGO"
           node --check "$APP"
 
       - name: Download exact pinned payloads
@@ -96,21 +100,21 @@ jobs:
           mkdir -p work/ps5-webkit-autoloader/frontend/autoloader/payloads
           cp payloads/* work/ps5-webkit-autoloader/frontend/autoloader/payloads/
 
-      - name: Build exact Test2 New Logo installer
+      - name: Build Test2 etaHEN Icon V2 installer
         working-directory: work/ps5-webkit-autoloader
         env:
           BUILD_TYPE: dev
           FORCE_EXPLOIT: auto
-          CUSTOM_VERSION: v1.0.5-test2-logo
+          CUSTOM_VERSION: v1.0.5-test2-etahen-icon-v2
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           docker build -t ps5-webkit-autoloader-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -e CUSTOM_VERSION -e GITHUB_TOKEN -v "$PWD":/src -w /src ps5-webkit-autoloader-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
-          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
+          mv installer.elf goldengame-ps5-jailbreak-installer_v1.0.5-test2-etahen-icon-v2.elf
+          sha256sum goldengame-ps5-jailbreak-installer_v1.0.5-test2-etahen-icon-v2.elf
 
-      - name: Verify built Test2 runtime
+      - name: Verify built Test2 runtime contains new icon
         working-directory: work/ps5-webkit-autoloader
         run: |
           set -euo pipefail
@@ -118,16 +122,18 @@ jobs:
           APP="frontend/dist/app/${VERSION}/app.js"
           INDEX="frontend/dist/app/${VERSION}/index.html"
           THEME="frontend/dist/app/${VERSION}/test2.css"
-          test -f "$APP"; test -f "$INDEX"; test -f "$THEME"
-          test -f "frontend/dist/app/${VERSION}/gg-logo.svg"
-          grep -Fq 'gg-logo.svg' "$INDEX"
-          grep -Fq '<span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="" /></span>' "$INDEX"
+          ICON="frontend/dist/app/${VERSION}/etahen26-icon.svg"
+          test -f "$APP"; test -f "$INDEX"; test -f "$THEME"; test -s "$ICON"
+          grep -Fq 'src="etahen26-icon.svg"' "$INDEX"
+          grep -Fq 'url("etahen26-icon.svg")' "$THEME"
+          grep -Fq '>etaHEN</text>' "$ICON"
+          grep -Fq '>2.6B</text>' "$ICON"
           grep -Fq "choosePayload('etahen-2.6B.bin', 'AUTO JAILBREAK · etaHEN 2.6B', true)" "$APP"
           grep -Fq 'persistentSenderReady' "$APP"
 
-      - name: Upload exact Test2 New Logo installer
+      - name: Upload Test2 etaHEN Icon V2 installer
         uses: actions/upload-artifact@v4
         with:
-          name: goldengame-v1.0.5-test2-exact-new-logo-etahen-2.6B
-          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-new-logo.elf
+          name: goldengame-v1.0.5-test2-etahen-icon-v2-cache-busted
+          path: work/ps5-webkit-autoloader/goldengame-ps5-jailbreak-installer_v1.0.5-test2-etahen-icon-v2.elf
           if-no-files-found: error
