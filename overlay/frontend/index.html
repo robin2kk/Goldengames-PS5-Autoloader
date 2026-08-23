@@ -7,34 +7,25 @@
   <link rel="stylesheet" href="rc5.css" />
   <link rel="stylesheet" href="jb-icon.css" />
   <link rel="stylesheet" href="test2.css" />
-  <link rel="stylesheet" href="test3.css" />
-  <link rel="stylesheet" href="test4.css" />
-  <link rel="stylesheet" href="test5.css" />
-  <link rel="icon" type="image/svg+xml" href="gg-logo.svg" />
-  <title>GOLDENGAMES PS5 AUTOLOADER v1.0.5</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <title>GOLDENGAME PS5 JAILBREAK v1.0.5</title>
 </head>
 <body>
   <div id="splash" aria-hidden="false">
-    <img class="logo" src="gg-logo.svg" alt="Goldengames GG" />
-    <h1><span>GOLDENGAMES</span></h1><p>PS5 AUTOLOADER · v1.0.5</p>
+    <img class="logo" src="gg-logo.svg" alt="Goldengames" />
+    <h1><span>GOLDENGAME</span></h1><p>PS5 JAILBREAK</p>
   </div>
   <div id="notification" class="notification" hidden><strong id="notificationTitle">etaHEN 2.6B</strong><span id="notificationText">Payload launched successfully.</span></div>
   <iframe id="exploit" title="exploit" hidden></iframe>
   <main id="dashboard" hidden>
     <section class="shell">
-      <div class="cornerSymbols" aria-hidden="true"><span class="psSquare">□</span><span class="psTriangle">△</span><span class="psCross">×</span><span class="psCircle">○</span></div>
-      <div class="psSymbols dashboardSymbols" aria-hidden="true"><span class="psSquare">□</span><span class="psTriangle">△</span><span class="psCross">×</span><span class="psCircle">○</span></div>
-      <header class="topbar test4Topbar">
-        <div class="brand"><img class="ggBrand" src="gg-logo.svg" alt="Goldengames GG" /><div><h1><span>GOLDENGAMES</span></h1><p>PS5 AUTOLOADER</p><em class="brandVersion">v1.0.5</em></div></div>
-        <img class="retroPsMark" src="retro-ps-mark.svg" alt="Retro console mark" />
+      <header class="topbar">
+        <div class="brand"><img src="gg-logo.svg" alt="Goldengames" /><div><h1><span>GOLDENGAME</span></h1><p>PS5 JAILBREAK · v1.0.5</p></div></div>
         <div class="statusbox"><div><span>Firmware</span><strong id="firmwareValue">Detecting...</strong></div><div class="divider"></div><div><span>Exploit</span><strong id="exploitValue">Auto</strong></div><div class="divider"></div><div><span>Status</span><strong id="statusValue" class="ready">READY</strong></div></div>
       </header>
-      <div class="readyBanner"><span class="readyCheck">✓</span><div><b>READY</b><small>System is ready for Auto Jailbreak</small></div></div>
       <button id="autoJailbreak" class="heroButton" type="button">
-        <span class="heroIcon" aria-hidden="true"><img src="jb-icon.svg" alt="AJ" /></span>
-        <span class="heroCopy"><b>AUTO JAILBREAK</b><small>Starts automatically with <strong>etaHEN 2.6B</strong></small><em>RECOMMENDED</em></span>
-        <span class="heroShipTrail" aria-hidden="true"><img src="retro-ship.svg" alt="" /></span>
-        <span class="autoStartBadge"><span class="playTri">▶</span><b>AUTO<br>START</b></span>
+        <span class="heroIcon" aria-hidden="true"><img src="gg-logo.svg" alt="" /></span>
+        <span class="heroCopy"><b>AUTO JAILBREAK</b><small>Starts automatically with <strong>etaHEN 2.6B</strong></small><em>RECOMMENDED</em></span><span class="arrow">&#8250;</span>
       </button>
       <div class="grid">
         <button class="tile etahen" data-payload="etahen26" type="button"><span class="tileIcon">E26</span><span><b>etaHEN</b><strong>2.6B</strong><small>Manual launch</small></span><i>&#8250;</i></button>
@@ -44,23 +35,18 @@
         <button class="tile websrv" data-payload="websrv" type="button"><span class="tileIcon">WS</span><span><b>WebSrv PS5</b><strong>0.34</strong><small>Manual launch</small></span><i>&#8250;</i></button>
         <button class="tile shadowmount" data-payload="shadowmount" type="button"><span class="tileIcon">SM</span><span><b>ShadowMountPlus</b><strong>1.7 alpha8</strong><small>Manual launch</small></span><i>&#8250;</i></button>
       </div>
-      <div class="bottomBar"><div><span class="infoDot">i</span><p>Goldengames PS5 Autoloader v1.0.5<br><small>Upstream v0.3.1</small></p></div><div class="community">Built for the <strong>PS5 Community</strong></div><div class="miniBrand"><span class="crownMini">♛</span><b>JAILBREAK TODAY. <strong>MORE GAMES TOMORROW.</strong></b></div></div>
+      <div class="bottomBar"><div><span class="infoDot">i</span><p>GOLDENGAME PS5 JAILBREAK<br><strong>v1.0.5</strong></p></div><div class="community">Built for the <strong>PS5 Community</strong></div><div class="miniBrand"><img src="gg-logo.svg" alt="Goldengames" /><b>PLAY · MODIFY · FREEDOM</b></div></div>
+      <p class="tip">Auto Jailbreak uses etaHEN 2.6B. Manual payload mode remains available after a successful jailbreak.</p>
     </section>
   </main>
   <main id="loader" hidden>
-    <div class="psSymbols loaderSymbols" aria-hidden="true"><span class="psSquare">□</span><span class="psTriangle">△</span><span class="psCross">×</span><span class="psCircle">○</span></div>
-    <img class="loaderRetroMark" src="retro-ps-mark.svg" alt="" aria-hidden="true" />
-    <div class="loaderHeader"><button id="backButton" type="button" disabled>&larr; Menu</button><div><img class="loaderGG" src="gg-logo.svg" alt="Goldengames GG" /><strong id="runTitle">Preparing Auto Jailbreak...</strong><span id="runSubtitle">Checking firmware and exploit route</span></div></div>
+    <div class="loaderHeader"><button id="backButton" type="button" disabled>&larr; Menu</button><div><strong id="runTitle">Preparing Auto Jailbreak...</strong><span id="runSubtitle">Checking firmware and exploit route</span></div></div>
     <div class="visualStages" aria-hidden="true"><span>PREPARE</span><span>EXPLOIT</span><span>etaHEN 2.6B</span><span>COMPLETE</span></div>
     <div id="logWrapper"><div id="logContainer"></div></div>
-    <div id="progressContainer">
-      <div id="progressBar"></div>
-      <div id="progressLabel">Preparing jailbreak...</div>
-      <div class="retroTrack" aria-hidden="true"><div class="retroCoins"><i></i><i></i><i></i><i></i></div><div class="retroRunner"><img src="retro-ship.svg" alt="" /></div></div>
-    </div>
-    <div class="loaderBrand">GOLDENGAMES PS5 AUTOLOADER v1.0.5 · <b>RETRO LOAD MODE</b></div>
+    <div id="progressContainer"><div id="progressBar"></div><div id="progressLabel">Preparing jailbreak...</div></div>
+    <div class="loaderBrand">GOLDENGAME PS5 JAILBREAK v1.0.5 · Technical logs hidden during normal operation</div>
   </main>
-  <footer id="footer">Goldengames PS5 Autoloader v1.0.5 &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
+  <footer id="footer">GOLDENGAME PS5 JAILBREAK v1.0.5 &bull; Based on PS5 WebKit Autoloader v[[VERSION_PLACEHOLDER]] by PLK &bull; GPL-3.0</footer>
   <script src="app.js"></script>
 </body>
 </html>
