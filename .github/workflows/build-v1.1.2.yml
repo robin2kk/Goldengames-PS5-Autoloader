@@ -3,6 +3,8 @@ name: Build Goldengames PS5 Autoloader v1.1.2
 on:
   push:
     branches: [v1.1.2-dev]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
