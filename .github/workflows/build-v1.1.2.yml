@@ -44,10 +44,10 @@ jobs:
           curl -fL --retry 3 -o "$P/cheatrunner-v0.17.elf" https://github.com/notmaj0r/CheatRunner/releases/download/v0.17/CheatRunner.elf
           curl -fL --retry 3 -o "$P/nanodns-0.4.elf" https://github.com/drakmor/nanoDNS/releases/download/0.4/nanodns.elf
           curl -fL --retry 3 -o "$P/ps5-linux-loader-v2.4.elf" https://github.com/ps5-linux/ps5-linux-loader/releases/download/v2.4/ps5-linux-loader.elf
-          cp overlay/v112/payloads/ftpsrv-v0.21.1.elf "$P/ftpsrv-v0.21.1.elf"
-          cp overlay/v112/payloads/websrv-v0.34.elf "$P/websrv-v0.34.elf"
-          cp overlay/v112/payloads/kstuff-v1.6.7.elf "$P/kstuff-v1.6.7.elf"
-          cp overlay/v112/payloads/kstuff-lite-v1.10.elf "$P/kstuff-lite-v1.10.elf"
+          curl -fL --retry 3 -o "$P/ftpsrv-v0.21.1.elf" https://github.com/ps5-payload-dev/ftpsrv/releases/download/v0.21.1/ftpsrv-ps5.elf
+          curl -fL --retry 3 -o "$P/websrv-v0.34.elf" https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o "$P/kstuff-v1.6.7.elf" https://github.com/EchoStretch/kstuff/releases/download/v1.6.7/kstuff.elf
+          curl -fL --retry 3 -o "$P/kstuff-lite-v1.10.elf" https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
           echo '4845cac45095361b8983b14d6690622183b0dcfbf6d7fda16e161aa91ff0531e  work/upstream/frontend/autoloader/payloads/etahen-2.5B.bin' > payloads.sha256
           echo '512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126  work/upstream/frontend/autoloader/payloads/etahen-2.6B.bin' >> payloads.sha256
           echo '2f296d3f1e69b65439bb5dc362f0f6504f6dc9f245fa16a3683e9d7ec9533773  work/upstream/frontend/autoloader/payloads/cheatrunner-v0.17.elf' >> payloads.sha256
