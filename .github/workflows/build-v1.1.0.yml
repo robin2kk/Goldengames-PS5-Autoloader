@@ -39,7 +39,7 @@ jobs:
           grep -Fq 'var UMTX2_FIRMWARES' "$APP"
           grep -Fq 'var POOPS_FIRMWARES' "$APP"
           grep -Fq 'var P2JB_FIRMWARES' "$APP"
-          grep -Fq 'probeExistingElfLoader' "$APP"
+          grep -Fq 'P2JB_URL' "$APP"
           grep -Fq 'GOLDENGAMES' "$INDEX"
           grep -Fq 'FW 1.00–12.70' "$INDEX"
           grep -Fq 'GOLDENGAMES' "$INSTALLER"
