@@ -1,0 +1,79 @@
+name: Build Goldengames PS5 Autoloader v1.1.0
+
+on:
+  push:
+    branches: [v1.1.0-dev]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Goldengames source
+        uses: actions/checkout@v4
+
+      - name: Clone exact upstream v0.4.0
+        run: |
+          set -euo pipefail
+          git clone --branch v0.4.0 --depth 1 --recurse-submodules https://github.com/itsPLK/ps5-webkit-autoloader.git work/upstream
+          test "$(git -C work/upstream rev-parse HEAD)" = "137f065d2ba8022ba8e796895e7cb05c204f2ce9"
+
+      - name: Apply Goldengames v1.1.0 branding
+        run: |
+          set -euo pipefail
+          cp overlay/v110/frontend/autoloader/index.html work/upstream/frontend/autoloader/index.html
+          cp overlay/v110/frontend/autoloader/style.css work/upstream/frontend/autoloader/style.css
+          cp overlay/v110/frontend/autoloader/logo.svg work/upstream/frontend/autoloader/logo.svg
+          cp overlay/v110/frontend/autoloader/favicon.svg work/upstream/frontend/autoloader/favicon.svg
+          cp overlay/v110/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
+          cp overlay/v110/assets/icon.svg work/upstream/assets/icon.svg
+          cp overlay/v110/assets/param.json.template work/upstream/assets/param.json.template
+          sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.0"/' work/upstream/include/wkali.h
+
+      - name: Verify preserved v0.4.0 functionality
+        run: |
+          set -euo pipefail
+          APP=work/upstream/frontend/autoloader/app.js
+          INDEX=work/upstream/frontend/autoloader/index.html
+          INSTALLER=work/upstream/frontend/installer-page/index.html
+          grep -Fq 'var UMTX2_FIRMWARES' "$APP"
+          grep -Fq 'var POOPS_FIRMWARES' "$APP"
+          grep -Fq 'var P2JB_FIRMWARES' "$APP"
+          grep -Fq 'probeExistingElfLoader' "$APP"
+          grep -Fq 'GOLDENGAMES' "$INDEX"
+          grep -Fq 'FW 1.00–12.70' "$INDEX"
+          grep -Fq 'GOLDENGAMES' "$INSTALLER"
+          grep -Fq '"titleName": "Goldengames PS5 Autoloader"' work/upstream/assets/param.json.template
+          node --check "$APP"
+          python3 -m json.tool work/upstream/assets/param.json.template >/dev/null
+
+      - name: Build installer ELF
+        working-directory: work/upstream
+        env:
+          BUILD_TYPE: stable
+          FORCE_EXPLOIT: auto
+        run: |
+          docker build -t goldengames-ps5-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -v "$PWD":/src -w /src goldengames-ps5-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.1.0.elf
+          sha256sum goldengames-ps5-autoloader-installer_v1.1.0.elf | tee goldengames-ps5-autoloader-installer_v1.1.0.elf.sha256
+
+      - name: Verify built package
+        working-directory: work/upstream
+        run: |
+          set -euo pipefail
+          test -s goldengames-ps5-autoloader-installer_v1.1.0.elf
+          file goldengames-ps5-autoloader-installer_v1.1.0.elf | grep -Fq 'ELF 64-bit LSB pie executable, x86-64'
+          strings goldengames-ps5-autoloader-installer_v1.1.0.elf | grep -Fq '/app/1.1.0/app.js'
+          strings goldengames-ps5-autoloader-installer_v1.1.0.elf | grep -Fq 'Goldengames PS5 Autoloader'
+
+      - name: Upload Goldengames v1.1.0 test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-ps5-autoloader-v1.1.0-test
+          path: |
+            work/upstream/goldengames-ps5-autoloader-installer_v1.1.0.elf
+            work/upstream/goldengames-ps5-autoloader-installer_v1.1.0.elf.sha256
+          if-no-files-found: error
+          retention-days: 14
