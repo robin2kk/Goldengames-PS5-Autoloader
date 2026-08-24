@@ -1,21 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#020716"/><stop offset=".55" stop-color="#071a3c"/><stop offset="1" stop-color="#020611"/></linearGradient>
-    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#59c9ff"/><stop offset=".5" stop-color="#087cf0"/><stop offset="1" stop-color="#063b9b"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff3ad"/><stop offset=".42" stop-color="#ffc735"/><stop offset="1" stop-color="#aa6300"/></linearGradient>
-    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#99abc1"/></linearGradient>
-    <filter id="glow"><feGaussianBlur stdDeviation="11" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f1f0ea"/><stop offset="1" stop-color="#aaa9a4"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#151515"/><stop offset="1" stop-color="#292929"/></linearGradient>
+    <filter id="shadow"><feGaussianBlur stdDeviation="12"/></filter>
   </defs>
-  <rect x="25" y="25" width="974" height="974" rx="120" fill="url(#bg)" stroke="#168fff" stroke-width="18"/>
-  <path d="M147 188h730v470H147z" fill="#030a19" stroke="url(#blue)" stroke-width="14"/>
-  <path d="M184 153h115l29 35H184zm541 0h115v35H696z" fill="url(#blue)"/>
-  <path d="M185 621h654v37H185z" fill="#0a4dba" opacity=".8"/>
-  <circle cx="512" cy="414" r="178" fill="none" stroke="#168fff" stroke-width="12" opacity=".7" filter="url(#glow)"/>
-  <path d="M347 280h165v91H410v50h94v146H347c-85 0-143-58-143-143 0-88 61-144 143-144zm0 75c-40 0-67 27-67 69 0 41 27 68 67 68h76v-31h-75v-74h156v-32z" fill="url(#gold)"/>
-  <path d="M677 280H512v91h102v50h-94v146h157c85 0 143-58 143-143 0-88-61-144-143-144zm0 75c40 0 67 27 67 69 0 41-27 68-67 68h-76v-31h75v-74H520v-32z" fill="url(#gold)"/>
-  <path d="M444 211l29 31 39-34 39 34 29-31 9 56H435z" fill="url(#gold)"/>
-  <text x="512" y="770" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="86" letter-spacing="3"><tspan fill="url(#gold)">GOLDEN</tspan><tspan fill="url(#silver)">GAMES</tspan></text>
-  <text x="512" y="847" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="42" fill="#65c9ff" letter-spacing="12">PS5 AUTOLOADER</text>
-  <rect x="327" y="888" width="370" height="58" rx="29" fill="#07162f" stroke="#ffc735" stroke-width="4"/>
-  <text x="512" y="928" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="26" fill="#ffe684" letter-spacing="8">OFFICIAL BUILD</text>
+  <rect x="24" y="24" width="976" height="976" rx="112" fill="url(#shell)" stroke="#62615e" stroke-width="18"/>
+  <rect x="75" y="75" width="874" height="874" rx="78" fill="none" stroke="#deddd7" stroke-width="8"/>
+  <rect x="130" y="142" width="764" height="550" rx="46" fill="#000" opacity=".22" filter="url(#shadow)"/>
+  <rect x="122" y="130" width="764" height="550" rx="46" fill="url(#screen)" stroke="#555" stroke-width="10"/>
+
+  <!-- Original Goldengames retro emblem using the classic four-color palette. -->
+  <path d="M270 257c0-50 40-90 90-90h145v82H371c-18 0-31 13-31 31v211c0 18 13 31 31 31h78v-73h-71v-76h159v231H360c-50 0-90-40-90-90z" fill="#df2d32"/>
+  <path d="M505 167h92c42 0 76 34 76 76v361H579V267c0-13-10-23-23-23h-51z" fill="#f4c330"/>
+  <path d="M537 374h195c49 0 89 40 89 89v51c0 50-40 90-89 90H617v-78h104c17 0 30-13 30-30v-17c0-17-13-30-30-30H537z" fill="#269c55"/>
+  <path d="M537 449h86v155h-86z" fill="#3475bd"/>
+
+  <!-- Open padlock: the released shackle is intentionally separated. -->
+  <path d="M680 294v-35c0-82 65-147 147-147 36 0 69 13 95 35l-48 58c-13-11-29-17-47-17-40 0-72 32-72 72v34z" fill="none" stroke="#f4c330" stroke-width="34" stroke-linecap="round"/>
+  <rect x="648" y="282" width="238" height="205" rx="34" fill="#3475bd" stroke="#f5f5ef" stroke-width="12"/>
+  <circle cx="767" cy="364" r="30" fill="#f4c330"/>
+  <path d="M747 382h40l20 63h-80z" fill="#f4c330"/>
+
+  <text x="512" y="786" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="86" letter-spacing="2"><tspan fill="#df2d32">GOLDEN</tspan><tspan fill="#3475bd">GAMES</tspan></text>
+  <text x="512" y="858" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="39" fill="#282828" letter-spacing="11">PS5 AUTOLOADER</text>
+  <rect x="315" y="894" width="394" height="58" rx="29" fill="#292929"/>
+  <circle cx="356" cy="923" r="13" fill="#df2d32"/><circle cx="397" cy="923" r="13" fill="#f4c330"/><circle cx="627" cy="923" r="13" fill="#269c55"/><circle cx="668" cy="923" r="13" fill="#3475bd"/>
+  <text x="512" y="933" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="25" fill="#fff" letter-spacing="5">JAILBREAK</text>
 </svg>

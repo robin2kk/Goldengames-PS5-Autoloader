@@ -22,8 +22,8 @@
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc1-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc1-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc2-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc2-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -189,21 +189,29 @@
        restore the classic full-height log; no-op for the other chains. */
     collapseP2jbStats();
     if (data.ok) {
-      uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
-      updateProgress(100, 'Autoload finished.');
-
-      /* Payload is running as its own process now — unload the iframe to
-         free the memory it held and avoid a browser OOM dialog.
-         NOTE: only safe for umtx2; poops and p2jb require their document to
-         remain open (poops holds parked racers and fds, p2jb holds its ROP
-         workers and spawned threads). */
-      if (exploitMode === 'umtx2') {
-        try { exploitEl.src = 'about:blank'; } catch (e) { }
-      }
       try {
         sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
       } catch (e) { }
+
+      /* Firmware 5.10 can raise the system OOM dialog before a blank iframe
+         is collected. Once UMTX2 confirms every byte reached elfldr, remove
+         the exploit document synchronously and replace the outer document as
+         well. The fresh dashboard sees SESSION_KEY and therefore never
+         repeats the kernel exploit. */
+      if (exploitMode === 'umtx2') {
+        try { exploitEl.src = 'about:blank'; } catch (e) { }
+        try {
+          if (exploitEl.parentNode) exploitEl.parentNode.removeChild(exploitEl);
+        } catch (e) { }
+        try {
+          window.location.replace(window.location.pathname + '?released=1');
+          return;
+        } catch (e) { }
+      }
+
+      uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
+      updateProgress(100, 'Autoload finished.');
       if (goldenStateEl) goldenStateEl.textContent = selectedLabel.toUpperCase() + ' READY';
     } else {
       uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');
@@ -926,7 +934,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc1', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc2', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
