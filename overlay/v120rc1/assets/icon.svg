@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#020716"/><stop offset=".55" stop-color="#071a3c"/><stop offset="1" stop-color="#020611"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#59c9ff"/><stop offset=".5" stop-color="#087cf0"/><stop offset="1" stop-color="#063b9b"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff3ad"/><stop offset=".42" stop-color="#ffc735"/><stop offset="1" stop-color="#aa6300"/></linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#99abc1"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="11" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="25" y="25" width="974" height="974" rx="120" fill="url(#bg)" stroke="#168fff" stroke-width="18"/>
+  <path d="M147 188h730v470H147z" fill="#030a19" stroke="url(#blue)" stroke-width="14"/>
+  <path d="M184 153h115l29 35H184zm541 0h115v35H696z" fill="url(#blue)"/>
+  <path d="M185 621h654v37H185z" fill="#0a4dba" opacity=".8"/>
+  <circle cx="512" cy="414" r="178" fill="none" stroke="#168fff" stroke-width="12" opacity=".7" filter="url(#glow)"/>
+  <path d="M347 280h165v91H410v50h94v146H347c-85 0-143-58-143-143 0-88 61-144 143-144zm0 75c-40 0-67 27-67 69 0 41 27 68 67 68h76v-31h-75v-74h156v-32z" fill="url(#gold)"/>
+  <path d="M677 280H512v91h102v50h-94v146h157c85 0 143-58 143-143 0-88-61-144-143-144zm0 75c40 0 67 27 67 69 0 41-27 68-67 68h-76v-31h75v-74H520v-32z" fill="url(#gold)"/>
+  <path d="M444 211l29 31 39-34 39 34 29-31 9 56H435z" fill="url(#gold)"/>
+  <text x="512" y="770" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="86" letter-spacing="3"><tspan fill="url(#gold)">GOLDEN</tspan><tspan fill="url(#silver)">GAMES</tspan></text>
+  <text x="512" y="847" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="42" fill="#65c9ff" letter-spacing="12">PS5 AUTOLOADER</text>
+  <rect x="327" y="888" width="370" height="58" rx="29" fill="#07162f" stroke="#ffc735" stroke-width="4"/>
+  <text x="512" y="928" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="26" fill="#ffe684" letter-spacing="8">OFFICIAL BUILD</text>
+</svg>
