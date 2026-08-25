@@ -19,7 +19,7 @@ body {
   overflow: hidden;
 }
 
-/* v1.2.0-rc3 dashboard: PS2 memory-card slots, designed for 1080p TV viewing. */
+/* v1.2.0-rc4 dashboard: PS2 memory-card slots, designed for 1080p TV viewing. */
 #dashboard {
   position: relative;
   z-index: 10;
@@ -569,7 +569,7 @@ body:before {
   #goldenHeader span { font-size:.62rem; letter-spacing:.14em; }
 }
 
-/* Goldengames v1.2.0-rc3 — PS2 Memory Card dashboard. */
+/* Goldengames v1.2.0-rc4 — PS2 Memory Card dashboard. */
 .ps2World{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 110%,rgba(19,77,191,.58),transparent 54%)}
 .memoryBlock{position:absolute;width:120px;height:230px;border:1px solid rgba(61,139,255,.34);background:linear-gradient(90deg,rgba(4,22,72,.88),rgba(12,52,135,.5));box-shadow:0 0 35px rgba(20,100,255,.17);transform:perspective(500px) rotateY(-18deg);animation:memoryRise 12s linear infinite}
 .memoryBlock:before{content:"";position:absolute;inset:12px;border:1px solid rgba(83,153,255,.22);background:repeating-linear-gradient(0deg,transparent 0 18px,rgba(84,148,255,.12) 19px 20px)}
