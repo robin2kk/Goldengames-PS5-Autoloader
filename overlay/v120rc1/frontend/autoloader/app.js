@@ -24,8 +24,8 @@
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc8-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc8-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc9-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc9-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -221,6 +221,16 @@
     if (goldenStateEl) goldenStateEl.textContent = 'PAYLOAD MENU READY';
   }
 
+  function ensureExploitFrame() {
+    if (exploitEl && exploitEl.parentNode) return;
+    exploitEl = document.createElement('iframe');
+    exploitEl.id = 'exploit';
+    exploitEl.title = 'exploit';
+    exploitEl.hidden = true;
+    exploitEl.src = 'about:blank';
+    document.body.insertBefore(exploitEl, dashboardEl || document.body.firstChild);
+  }
+
   function onAutoloadResult(data) {
     if (finished) return;
     finished = true;
@@ -240,19 +250,14 @@
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
       } catch (e) { }
 
-      /* Firmware 5.10 can raise the system OOM dialog before a blank iframe
-         is collected. Once UMTX2 confirms every byte reached elfldr, remove
-         the exploit document synchronously and replace the outer document as
-         well. The fresh dashboard sees SESSION_KEY and therefore never
-         repeats the kernel exploit. */
+      /* RC9 / firmware 5.10: once every byte reaches elfldr, detach the heavy
+         UMTX2 document but keep this outer page alive. RC8 replaced the outer
+         document here; that navigation coincided with etaHEN startup and
+         caused the PS5 system-memory dialog. A fresh sender iframe is created
+         lazily only when the user chooses another payload. */
       if (exploitMode === 'umtx2') {
-        try { exploitEl.src = 'about:blank'; } catch (e) { }
         try {
           if (exploitEl.parentNode) exploitEl.parentNode.removeChild(exploitEl);
-        } catch (e) { }
-        try {
-          window.location.replace(window.location.pathname + '?released=1');
-          return;
         } catch (e) { }
       }
 
@@ -911,6 +916,7 @@
   }
 
   function launchSelected(payload, label, forceJailbreak) {
+    ensureExploitFrame();
     selectedPayload = payload;
     selectedLabel = label;
     finished = false;
@@ -981,7 +987,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc8', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc9', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
@@ -1044,12 +1050,9 @@
     });
 
     var knownSession = false;
-    var releasedReload = false;
     try { knownSession = !!sessionStorage.getItem(SESSION_KEY); } catch (e) { }
-    try { releasedReload = new URLSearchParams(window.location.search).get('released') === '1'; } catch (e) { }
     if (knownSession) {
-      if (releasedReload) showDashboard();
-      else setTimeout(showDashboard, 350);
+      setTimeout(showDashboard, 350);
     } else {
       setTimeout(function () { launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', true); }, 900);
     }
