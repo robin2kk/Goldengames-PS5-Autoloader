@@ -24,8 +24,8 @@
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc5-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc5-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc6-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc6-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -49,6 +49,7 @@
   var mirrorTimer = 0;
   var retroAnimationTimer = 0;
   var retroAnimationFrame = 0;
+  var reportedProgress = 0;
 
   function startRetroAnimation() {
     if (retroAnimationTimer) clearInterval(retroAnimationTimer);
@@ -63,12 +64,27 @@
         retroBlocks[i].style.opacity = String(0.38 + height / 48);
         retroBlocks[i].style.background = colors[i];
       }
+      /* The long lower bar is an activity indicator while the exploit runs.
+         Move a 20% segment across the full track; progress text continues to
+         show the real reported stage instead of pretending to be a percent. */
+      var sweep = (retroAnimationFrame * 4) % 100;
+      if (sweep > 80) sweep = 160 - sweep;
+      progressBar.style.webkitTransition = 'none';
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '20%';
+      progressBar.style.left = sweep + '%';
+      progressBar.style.webkitTransform = 'scaleX(1)';
+      progressBar.style.transform = 'scaleX(1)';
     }, 140);
   }
 
   function stopRetroAnimation() {
     if (retroAnimationTimer) clearInterval(retroAnimationTimer);
     retroAnimationTimer = 0;
+    progressBar.style.width = '100%';
+    progressBar.style.left = '0';
+    progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
+    progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
   }
 
   /* The slopkit chains (poops 7.00-12.00, p2jb 12.02-12.70) keep a one-shot
@@ -133,6 +149,8 @@
   }
 
   function updateProgress(percent, message) {
+    reportedProgress = percent;
+    progressBar.style.webkitTransform = 'scaleX(' + percent / 100 + ')';
     progressBar.style.transform = 'scaleX(' + percent / 100 + ')';
     if (message) {
       progressLabel.textContent = message;
@@ -963,12 +981,20 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc5', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc6', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
       var data = event.data;
-      if (!data || data.type !== 'wkal') return;
+      if (!data) return;
+      /* RC6 memory fix: send-complete is earlier than the final WKAL result
+         but already guarantees every payload byte reached elfldr. Release
+         UMTX2 here, before etaHEN starts its heavier initialization. */
+      if (data.type === 'goldengames-diag' && data.stage === 'send-complete') {
+        onAutoloadResult({ ok: true, bytes: data.bytes || 0, early: true });
+        return;
+      }
+      if (data.type !== 'wkal') return;
       if (data.kind === 'autoload') {
         onAutoloadResult(data);
       }
