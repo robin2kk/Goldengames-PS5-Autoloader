@@ -20,11 +20,12 @@
   var riskContinueEl = document.getElementById('riskContinue');
   var goldenStateEl = document.getElementById('goldenState');
   var retroStatusEl = document.querySelector('.retroLoader span');
+  var retroBlocks = document.querySelectorAll('.retroBlocks i');
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc4-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc4-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc5-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc5-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -46,6 +47,29 @@
   var lastFrameUrl = '';
   var repairCount = 0;
   var mirrorTimer = 0;
+  var retroAnimationTimer = 0;
+  var retroAnimationFrame = 0;
+
+  function startRetroAnimation() {
+    if (retroAnimationTimer) clearInterval(retroAnimationTimer);
+    retroAnimationFrame = 0;
+    var colors = ['#df2d32', '#f4c330', '#269c55', '#3475bd', '#df2d32'];
+    retroAnimationTimer = setInterval(function () {
+      retroAnimationFrame++;
+      for (var i = 0; i < retroBlocks.length; i++) {
+        var phase = (retroAnimationFrame + i) % 6;
+        var height = phase < 3 ? 10 + phase * 9 : 10 + (5 - phase) * 9;
+        retroBlocks[i].style.height = height + 'px';
+        retroBlocks[i].style.opacity = String(0.38 + height / 48);
+        retroBlocks[i].style.background = colors[i];
+      }
+    }, 140);
+  }
+
+  function stopRetroAnimation() {
+    if (retroAnimationTimer) clearInterval(retroAnimationTimer);
+    retroAnimationTimer = 0;
+  }
 
   /* The slopkit chains (poops 7.00-12.00, p2jb 12.02-12.70) keep a one-shot
      latch and their "stopped at …" marker in sessionStorage under shared
@@ -160,6 +184,7 @@
   }
 
   function revealExploit() {
+    startRetroAnimation();
     splashEl.classList.add('hide');
     setTimeout(function () {
       splashEl.hidden = true;
@@ -169,6 +194,7 @@
   }
 
   function showDashboard() {
+    stopRetroAnimation();
     splashEl.classList.add('hide');
     splashEl.hidden = true;
     loaderEl.hidden = true;
@@ -216,6 +242,7 @@
       updateProgress(100, 'Autoload finished.');
       if (goldenStateEl) goldenStateEl.textContent = selectedLabel.toUpperCase() + ' READY';
     } else {
+      stopRetroAnimation();
       uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');
       updateProgress(0, 'Autoload failed.');
     }
@@ -936,7 +963,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc4', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc5', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {

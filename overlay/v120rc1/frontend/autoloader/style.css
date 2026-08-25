@@ -19,7 +19,7 @@ body {
   overflow: hidden;
 }
 
-/* v1.2.0-rc4 dashboard: PS2 memory-card slots, designed for 1080p TV viewing. */
+/* v1.2.0-rc5 dashboard: PS2 memory-card slots, designed for 1080p TV viewing. */
 #dashboard {
   position: relative;
   z-index: 10;
@@ -569,7 +569,7 @@ body:before {
   #goldenHeader span { font-size:.62rem; letter-spacing:.14em; }
 }
 
-/* Goldengames v1.2.0-rc4 — PS2 Memory Card dashboard. */
+/* Goldengames v1.2.0-rc5 — PS2 Memory Card dashboard. */
 .ps2World{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 110%,rgba(19,77,191,.58),transparent 54%)}
 .memoryBlock{position:absolute;width:120px;height:230px;border:1px solid rgba(61,139,255,.34);background:linear-gradient(90deg,rgba(4,22,72,.88),rgba(12,52,135,.5));box-shadow:0 0 35px rgba(20,100,255,.17);transform:perspective(500px) rotateY(-18deg);animation:memoryRise 12s linear infinite}
 .memoryBlock:before{content:"";position:absolute;inset:12px;border:1px solid rgba(83,153,255,.22);background:repeating-linear-gradient(0deg,transparent 0 18px,rgba(84,148,255,.12) 19px 20px)}
@@ -597,3 +597,22 @@ body:before {
 .stats-meta.stalled {
   color: #fbbf24;
 }
+
+/* PS1 CLASSIC DASHBOARD — approved gray shell with four-color controls. */
+body{background:linear-gradient(145deg,#d8d7d1 0%,#aaa9a4 52%,#777672 100%);color:#202020}
+.ps2World{background:radial-gradient(ellipse at 50% 105%,rgba(255,255,255,.62),transparent 58%)}
+.memoryBlock{border-color:rgba(74,74,72,.34);background:linear-gradient(90deg,rgba(160,159,154,.78),rgba(221,220,214,.72));box-shadow:0 0 28px rgba(0,0,0,.13)}
+.memoryBlock:before{border-color:rgba(70,70,68,.2);background:repeating-linear-gradient(0deg,transparent 0 18px,rgba(60,60,58,.1) 19px 20px)}
+#dashboard{color:#202020}
+.ps2Header{border:2px solid #686763;border-bottom-width:7px;border-radius:18px 18px 4px 4px;background:linear-gradient(145deg,#ecebe5,#aaa9a4);box-shadow:0 14px 32px rgba(0,0,0,.22)}
+.ps2Header h1{color:#df2d32}.ps2Header p{color:#3475bd}.onlineDot{color:#236e3e}.onlineDot:before{background:#269c55;box-shadow:0 0 9px #269c55}
+.memoryPanel{border:2px solid #6c6b67;border-radius:4px 4px 22px 22px;background:linear-gradient(145deg,rgba(238,237,231,.98),rgba(184,183,178,.98));box-shadow:inset 0 0 40px rgba(255,255,255,.35),0 24px 55px rgba(0,0,0,.26)}
+.memoryTitle{color:#333}.memoryTitle b{color:#5c5b58}.categoryTitle{color:#333;border-color:#8f8e89}.categoryTitle small{color:#555}
+.heroLaunch{border-color:#ba2026;background:linear-gradient(135deg,#df2d32,#9d171c);box-shadow:0 10px 24px rgba(145,20,25,.22)}.heroLaunch i,.heroLaunch b{color:#f4c330}.heroLaunch small{color:#fff4ca}
+.payloadCard{border:2px solid #777672!important;background:linear-gradient(145deg,#eeede7,#c3c2bd)!important;color:#202020!important;box-shadow:0 5px 12px rgba(0,0,0,.12)}
+.payloadCard i{color:#fff!important;background:#df2d32!important;border-color:#9e181d!important}.payloadCard:nth-child(4n+2) i{background:#dcae18!important;border-color:#9c7600!important;color:#202020!important}.payloadCard:nth-child(4n+3) i{background:#269c55!important;border-color:#176331!important}.payloadCard:nth-child(4n+4) i{background:#3475bd!important;border-color:#1f4f86!important}
+.payloadCard strong{color:#202020!important}.payloadCard small{color:#555!important}.payloadCard:focus,.payloadCard:hover{border-color:#3475bd!important;box-shadow:0 0 0 4px rgba(52,117,189,.24),0 7px 18px rgba(0,0,0,.18)}
+.advancedPanel{border-color:#777672!important;background:rgba(195,194,189,.72)!important}.advancedPanel summary{color:#8b1d22!important}.advancedPanel p,.sessionHint{color:#4b4a47!important}
+#loader{background:linear-gradient(145deg,#d8d7d1,#8f8e89)}
+#goldenHeader,#statusCard{border-color:#686763;background:linear-gradient(145deg,#ecebe5,#aaa9a4);color:#202020}.retroLoader{border:2px solid #686763;background:linear-gradient(#e5e4de,#b4b3ae)}.retroLoader span{color:#333;font-weight:700}.retroBlocks{-webkit-box-align:end;-webkit-align-items:flex-end;align-items:flex-end}.retroBlocks i{-webkit-animation:none!important;animation:none!important;transition:height .1s linear,opacity .1s linear}
+#progressContainer{border-color:#666;background:#8a8985}.loaderActions button{border-color:#666;background:#c8c7c2;color:#292929}
