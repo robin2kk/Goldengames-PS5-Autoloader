@@ -19,11 +19,12 @@
   var riskCancelEl = document.getElementById('riskCancel');
   var riskContinueEl = document.getElementById('riskContinue');
   var goldenStateEl = document.getElementById('goldenState');
+  var retroStatusEl = document.querySelector('.retroLoader span');
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc2-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc2-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc3-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc3-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -111,6 +112,7 @@
     progressBar.style.transform = 'scaleX(' + percent / 100 + ')';
     if (message) {
       progressLabel.textContent = message;
+      if (retroStatusEl) retroStatusEl.textContent = String(message).toUpperCase();
       uiLog(message, 'info');
     }
   }
@@ -934,7 +936,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc2', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc3', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
@@ -989,11 +991,14 @@
     });
 
     var knownSession = false;
+    var releasedReload = false;
     try { knownSession = !!sessionStorage.getItem(SESSION_KEY); } catch (e) { }
+    try { releasedReload = new URLSearchParams(window.location.search).get('released') === '1'; } catch (e) { }
     if (knownSession) {
-      setTimeout(showDashboard, 900);
+      if (releasedReload) showDashboard();
+      else setTimeout(showDashboard, 350);
     } else {
-      setTimeout(function () { launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', true); }, 1500);
+      setTimeout(function () { launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', true); }, 900);
     }
   }
 
