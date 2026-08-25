@@ -24,8 +24,8 @@
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc9-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc9-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc10-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc10-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -221,16 +221,6 @@
     if (goldenStateEl) goldenStateEl.textContent = 'PAYLOAD MENU READY';
   }
 
-  function ensureExploitFrame() {
-    if (exploitEl && exploitEl.parentNode) return;
-    exploitEl = document.createElement('iframe');
-    exploitEl.id = 'exploit';
-    exploitEl.title = 'exploit';
-    exploitEl.hidden = true;
-    exploitEl.src = 'about:blank';
-    document.body.insertBefore(exploitEl, dashboardEl || document.body.firstChild);
-  }
-
   function onAutoloadResult(data) {
     if (finished) return;
     finished = true;
@@ -250,15 +240,12 @@
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
       } catch (e) { }
 
-      /* RC9 / firmware 5.10: once every byte reaches elfldr, detach the heavy
-         UMTX2 document but keep this outer page alive. RC8 replaced the outer
-         document here; that navigation coincided with etaHEN startup and
-         caused the PS5 system-memory dialog. A fresh sender iframe is created
-         lazily only when the user chooses another payload. */
+      /* RC10 restores the lifecycle used by the earlier no-warning build:
+         wait for the final WKAL autoload result, then navigate the existing
+         UMTX2 iframe to about:blank. Do not remove it and do not reload the
+         outer app while etaHEN is starting. */
       if (exploitMode === 'umtx2') {
-        try {
-          if (exploitEl.parentNode) exploitEl.parentNode.removeChild(exploitEl);
-        } catch (e) { }
+        try { exploitEl.src = 'about:blank'; } catch (e) { }
       }
 
       uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
@@ -916,7 +903,6 @@
   }
 
   function launchSelected(payload, label, forceJailbreak) {
-    ensureExploitFrame();
     selectedPayload = payload;
     selectedLabel = label;
     finished = false;
@@ -987,19 +973,15 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc9', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc10', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
       var data = event.data;
       if (!data) return;
-      /* RC6 memory fix: send-complete is earlier than the final WKAL result
-         but already guarantees every payload byte reached elfldr. Release
-         UMTX2 here, before etaHEN starts its heavier initialization. */
-      if (data.type === 'goldengames-diag' && data.stage === 'send-complete') {
-        onAutoloadResult({ ok: true, bytes: data.bytes || 0, early: true });
-        return;
-      }
+      /* send-complete is diagnostic only. Firmware 5.10 remains inside the
+         active sender at that point; cleanup waits for the final WKAL result. */
+      if (data.type === 'goldengames-diag') return;
       if (data.type !== 'wkal') return;
       if (data.kind === 'autoload') {
         onAutoloadResult(data);
