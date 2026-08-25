@@ -1,0 +1,124 @@
+name: Build Goldengames PS5 Autoloader v1.2.0-rc10
+
+on:
+  push:
+    branches: [v1.2.0-rc10-dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Goldengames source
+        uses: actions/checkout@v4
+
+      - name: Clone exact upstream v0.4.0
+        run: |
+          set -euo pipefail
+          git clone --branch v0.4.0 --depth 1 --recurse-submodules https://github.com/itsPLK/ps5-webkit-autoloader.git work/upstream
+          test "$(git -C work/upstream rev-parse HEAD)" = "137f065d2ba8022ba8e796895e7cb05c204f2ce9"
+
+      - name: Apply PS2 Memory Card interface
+        run: |
+          set -euo pipefail
+          cp overlay/v120rc1/frontend/autoloader/index.html work/upstream/frontend/autoloader/index.html
+          cp overlay/v120rc1/frontend/autoloader/style.css work/upstream/frontend/autoloader/style.css
+          cp overlay/v120rc1/frontend/autoloader/app.js work/upstream/frontend/autoloader/app.js
+          cp overlay/v120rc1/frontend/autoloader/logo.svg work/upstream/frontend/autoloader/logo.svg
+          cp overlay/v120rc1/frontend/autoloader/favicon.svg work/upstream/frontend/autoloader/favicon.svg
+          cp overlay/v120rc1/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
+          cp overlay/v120rc1/assets/icon.svg work/upstream/assets/icon.svg
+          cp overlay/v120rc1/assets/param.json.template work/upstream/assets/param.json.template
+          cp overlay/v120rc1/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
+          sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.2.0-rc10"/' work/upstream/include/wkali.h
+
+      - name: Download and verify exact payloads
+        run: |
+          set -euo pipefail
+          P=work/upstream/frontend/autoloader/payloads
+          mkdir -p "$P"
+          curl -fL --retry 3 -o "$P/etahen-2.5B.bin" https://github.com/etaHEN/etaHEN/releases/download/2.5B/etaHEN-2.5B.bin
+          curl -fL --retry 3 -o "$P/etahen-2.6B.bin" https://raw.githubusercontent.com/nexgen999/PS5_Payload_Manager_Updater/main/ps5_hen_loader/etaHEN-2.6B.bin
+          curl -fL --retry 3 -o "$P/cheatrunner-v0.17.elf" https://github.com/notmaj0r/CheatRunner/releases/download/v0.17/CheatRunner.elf
+          curl -fL --retry 3 -o "$P/nanodns-0.4.elf" https://github.com/drakmor/nanoDNS/releases/download/0.4/nanodns.elf
+          curl -fL --retry 3 -o "$P/ps5-linux-loader-v2.4.elf" https://github.com/ps5-linux/ps5-linux-loader/releases/download/v2.4/ps5-linux-loader.elf
+          curl -fL --retry 3 -o "$P/ftpsrv-v0.21.1.elf" https://github.com/ps5-payload-dev/ftpsrv/releases/download/v0.21.1/ftpsrv-ps5.elf
+          curl -fL --retry 3 -o "$P/websrv-v0.34.elf" https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o "$P/kstuff-v1.6.7.elf" https://github.com/EchoStretch/kstuff/releases/download/v1.6.7/kstuff.elf
+          curl -fL --retry 3 -o "$P/kstuff-lite-v1.10.elf" https://github.com/EchoStretch/kstuff-lite/releases/download/v1.10/kstuff.elf
+          echo '4845cac45095361b8983b14d6690622183b0dcfbf6d7fda16e161aa91ff0531e  work/upstream/frontend/autoloader/payloads/etahen-2.5B.bin' > payloads.sha256
+          echo '512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126  work/upstream/frontend/autoloader/payloads/etahen-2.6B.bin' >> payloads.sha256
+          echo '2f296d3f1e69b65439bb5dc362f0f6504f6dc9f245fa16a3683e9d7ec9533773  work/upstream/frontend/autoloader/payloads/cheatrunner-v0.17.elf' >> payloads.sha256
+          echo 'dcb845f3570771275b22b37534bf924a7f8ae219fb91ef00c6bccab85d1c2420  work/upstream/frontend/autoloader/payloads/nanodns-0.4.elf' >> payloads.sha256
+          echo '51382795b486f7c5a3681648d457d129088311fc3f9601aeaff78dc72fafcf1d  work/upstream/frontend/autoloader/payloads/ps5-linux-loader-v2.4.elf' >> payloads.sha256
+          echo '7d4b31c83eae4e056580482a3a074e1db25922efc74ac1e439473b45d71a5938  work/upstream/frontend/autoloader/payloads/ftpsrv-v0.21.1.elf' >> payloads.sha256
+          echo '54730c867c6e1148536fdcb370e63a7762d989ea87b62488ad4caff64d43f263  work/upstream/frontend/autoloader/payloads/websrv-v0.34.elf' >> payloads.sha256
+          echo 'f1c1f4b2b6395644af04cbe9828aba58586acf7aacb9e01113cac92ce16e3569  work/upstream/frontend/autoloader/payloads/kstuff-v1.6.7.elf' >> payloads.sha256
+          echo 'b1dfe57f367a35374f605127915eda38c76a6ed5d1c729e427955798bd78c66a  work/upstream/frontend/autoloader/payloads/kstuff-lite-v1.10.elf' >> payloads.sha256
+          sha256sum -c payloads.sha256
+
+      - name: Verify Goldengames integration
+        run: |
+          set -euo pipefail
+          APP=work/upstream/frontend/autoloader/app.js
+          INDEX=work/upstream/frontend/autoloader/index.html
+          grep -Fq 'PS2 Memory Card' work/upstream/frontend/autoloader/style.css
+          grep -Fq 'id="payloadGrid"' "$INDEX"
+          grep -Fq 'id="riskDialog"' "$INDEX"
+          ! grep -Fq 'id="payloadSelect"' "$INDEX"
+          ! grep -Fq 'id="launchPayload"' "$INDEX"
+          ! grep -Fq 'id="autoJailbreak"' "$INDEX"
+          grep -Fq "launchSelected('etahen-2.6B.bin'" "$APP"
+          grep -Fq "goldengames:v120rc10-session-ready" "$APP"
+          grep -Fq "senderOnly ? 'wkonly' : 'kernel'" "$APP"
+          grep -Fq "exploitEl.src = 'about:blank'" "$APP"
+          ! grep -Fq "removeChild(exploitEl)" "$APP"
+          grep -Fq "if (data.type === 'goldengames-diag') return" "$APP"
+          ! grep -Fq "window.location.replace" "$APP"
+          grep -Fq "@-webkit-keyframes blockPulse" work/upstream/frontend/autoloader/style.css
+          grep -Fq "startRetroAnimation" "$APP"
+          ! grep -Fq "data.stage === 'send-complete'" "$APP"
+          grep -Fq "progressBar.style.left = sweep" "$APP"
+          grep -Fq "PS1 CLASSIC DASHBOARD" work/upstream/frontend/autoloader/style.css
+          grep -Fq "GOLDENGAMES_PAYLOADS" work/upstream/tools/gen_file_registry.py
+          grep -Fq 'id="showDetails"' "$INDEX"
+          node --check "$APP"
+          python3 -m py_compile work/upstream/tools/gen_file_registry.py
+
+      - name: Build installer ELF
+        working-directory: work/upstream
+        env:
+          BUILD_TYPE: stable
+          FORCE_EXPLOIT: auto
+        run: |
+          docker build -t goldengames-ps5-sdk -f Dockerfile.sdk .
+          docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -v "$PWD":/src -w /src goldengames-ps5-sdk make clean all
+          test -f installer.elf
+          mv installer.elf goldengames-ps5-autoloader-installer_v1.2.0-rc10-test.elf
+          sha256sum goldengames-ps5-autoloader-installer_v1.2.0-rc10-test.elf | tee goldengames-ps5-autoloader-installer_v1.2.0-rc10-test.elf.sha256
+
+      - name: Verify built package
+        working-directory: work/upstream
+        run: |
+          set -euo pipefail
+          ELF=goldengames-ps5-autoloader-installer_v1.2.0-rc10-test.elf
+          file "$ELF" | grep -Fq 'ELF 64-bit LSB pie executable, x86-64'
+          strings "$ELF" | grep -Fq '/app/1.2.0-rc10/app.js'
+          strings "$ELF" | grep -Fq 'cheatrunner-v0.17.elf'
+          strings "$ELF" | grep -Fq 'ps5-linux-loader-v2.4.elf'
+          strings "$ELF" | grep -Fq 'ftpsrv-v0.21.1.elf'
+          strings "$ELF" | grep -Fq 'websrv-v0.34.elf'
+          strings "$ELF" | grep -Fq 'kstuff-v1.6.7.elf'
+          strings "$ELF" | grep -Fq 'kstuff-lite-v1.10.elf'
+
+      - name: Upload v1.2.0-rc10 test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldengames-ps5-autoloader-v1.2.0-rc10-test
+          path: |
+            work/upstream/goldengames-ps5-autoloader-installer_v1.2.0-rc10-test.elf
+            work/upstream/goldengames-ps5-autoloader-installer_v1.2.0-rc10-test.elf.sha256
+          if-no-files-found: error
+          retention-days: 14
