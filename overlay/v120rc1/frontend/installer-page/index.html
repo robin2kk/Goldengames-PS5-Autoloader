@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en" manifest="/cache.appcache">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Goldengames PS5 Autoloader Installer v1.2.0-rc4</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      background: -webkit-linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+      color: #e2e8f0;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      min-height: 100%;
+      text-align: center;
+    }
+
+    #footer {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      -webkit-transform: translateX(-50%);
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: #4b5563;
+      line-height: 1.5;
+      text-align: center;
+      z-index: 20;
+    }
+
+
+
+    main {
+      max-width: 42rem;
+      padding: 2rem;
+    }
+
+    .logo {
+      display: inline-block;
+      width: 8rem;
+      height: 8rem;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.375rem;
+      line-height: 1.5;
+      color: #94a3b8;
+    }
+
+    #status {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #38bdf8;
+      margin-bottom: 0.5rem;
+    }
+
+    #progressWrap {
+      position: relative;
+      width: 100%;
+      max-width: 30rem;
+      height: 1.25rem;
+      margin: 1.75rem auto 0;
+      background: #1b2436;
+      border: 1px solid #2c3e5a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #progressBar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: #38bdf8;
+      background: -webkit-linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+      -webkit-transform: scaleX(0);
+      transform: scaleX(0);
+      -webkit-transform-origin: left center;
+      transform-origin: left center;
+      -webkit-transition: -webkit-transform 0.3s ease-out;
+      transition: transform 0.3s ease-out;
+    }
+
+    #progressPct {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #logContainer {
+      display: none !important;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 40rem;
+      height: 12rem;
+      background: #000;
+      border: 1px solid #2c3e5a;
+      border-radius: 8px;
+      overflow-y: auto;
+      text-align: left;
+      font-family: monospace;
+      font-size: 0.8rem;
+      padding: 0.5rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    #logContainer.error {
+      color: #f00;
+    }
+
+    #cacheCorruptOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 6, 23, 0.85);
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #cacheCorruptOverlay .card {
+      background: #1b2436;
+      border: 1px solid #2c3e5a;
+      border-radius: 12px;
+      max-width: 34rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    #cacheCorruptOverlay h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #fbbf24;
+      margin-bottom: 1rem;
+    }
+
+    #cacheCorruptOverlay p {
+      font-size: 1.125rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 1.5rem;
+    }
+
+    #cacheCorruptOverlay .actions {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    #cacheCorruptOverlay .actions[hidden] {
+      display: none !important;
+    }
+
+    #cacheCorruptOverlay .btn {
+      font-size: 1.125rem;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #cacheCorruptOverlay .btn.primary {
+      background: #2563eb;
+      background: -webkit-linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+      color: #fff;
+    }
+
+    #cacheCorruptOverlay .btn.secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    /* Goldengames v1.1.0 visual layer; installer behavior remains upstream v0.4.0. */
+    body { background: radial-gradient(circle at 50% 12%, #11254b 0%, #050b18 44%, #01030a 100%); }
+    body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.18; background:linear-gradient(rgba(28,128,255,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(28,128,255,.2) 1px,transparent 1px); background-size:48px 48px; }
+    main { position:relative; width:78vw; max-width:72rem; padding:3.2rem; border:1px solid #234978; border-radius:28px; background:linear-gradient(145deg,rgba(8,22,46,.97),rgba(2,7,18,.98)); box-shadow:0 0 70px rgba(0,119,255,.18); }
+    .logo { width:10rem; height:10rem; margin-bottom:1rem; filter:drop-shadow(0 0 22px rgba(255,190,38,.25)); }
+    h1 { color:#f8c547; font-size:3rem; font-weight:800; letter-spacing:.08em; }
+    h1:after { content:"PS5 AUTOLOADER · v1.2.0-rc4"; display:block; margin-top:.65rem; color:#55baff; font-size:1rem; letter-spacing:.32em; }
+    #status { color:#55baff; font-weight:700; }
+    #progressWrap { border-color:#315f91; background:#071126; }
+    #progressBar { background:-webkit-linear-gradient(90deg,#087cf0 0%,#55c9ff 58%,#f4be3f 100%); }
+    #footer { color:#7188a6; }
+    .installMemory{height:70px;margin:1.2rem auto 1.5rem;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:end;-webkit-align-items:flex-end;align-items:flex-end;gap:12px}
+    .installMemory i{display:block;width:30px;height:58px;border:1px solid #3984ed;background:linear-gradient(#3979d7,#0c2b70);box-shadow:0 0 18px rgba(55,128,255,.42);animation:cardRead 1.15s ease-in-out infinite}
+    .installMemory i:nth-child(2){animation-delay:.14s}.installMemory i:nth-child(3){animation-delay:.28s}.installMemory i:nth-child(4){animation-delay:.42s}.installMemory i:nth-child(5){animation-delay:.56s}
+    @keyframes cardRead{0%,100%{height:20px;opacity:.35}50%{height:58px;opacity:1}}
+    .installLegend{margin-bottom:1.1rem!important;color:#69b3ff!important;font-size:.72rem!important;letter-spacing:.22em}
+  </style>
+
+</head>
+
+<body>
+  <main>
+    <img class="logo" src="/logo.svg" alt="Goldengames" />
+    <h1>GOLDENGAMES</h1>
+    <div class="installMemory" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="installLegend">LOADING MEMORY CARD DATA</p>
+    <p id="status">Loading&hellip;</p>
+    <p id="detail"></p>
+
+    <div id="progressWrap" hidden>
+      <div id="progressBar"></div>
+      <div id="progressPct">0%</div>
+    </div>
+    <div id="logContainer" hidden></div>
+
+  </main>
+
+  <footer id="footer">Goldengames PS5 Autoloader v1.2.0-rc4 · Based on WebKit Autoloader v0.4.0 by PLK<br />GPL-3.0 · github.com/itsPLK/ps5-webkit-autoloader</footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var statusEl = document.getElementById('status');
+      var detailEl = document.getElementById('detail');
+      var progressWrap = document.getElementById('progressWrap');
+      var progressBar = document.getElementById('progressBar');
+      var progressPct = document.getElementById('progressPct');
+      var completed = false;
+      var isDownloading = false;
+      var isRetry = false;
+      var currentUid = '';
+      var simulateCorrupt = false;
+      var corruptionPromptShown = false;
+
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        isRetry = params.get('retry') === '1';
+        currentUid = params.get('uid') || '';
+        /* Test hook: ?simulate=corrupt forces the corruption prompt without
+         * needing a real AppCache error (e.g. for quick UI testing in a
+         * desktop browser via `make dev`). */
+        simulateCorrupt = params.get('simulate') === 'corrupt';
+      })();
+
+      var logContainer = document.getElementById('logContainer');
+      var seenLogs = "";
+
+      function appendLog(msg) {
+        var div = document.createElement('div');
+        div.textContent = msg;
+        logContainer.appendChild(div);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+
+      var logPos = 0;
+      var logXhr = null;
+
+      function pollLogs() {
+        logXhr = new XMLHttpRequest();
+        logXhr.open('GET', '/logs?pos=' + logPos, true);
+        logXhr.onreadystatechange = function () {
+          if (logXhr.readyState === 4) {
+            if (logXhr.status === 200) {
+              var newLogs = logXhr.responseText;
+              if (newLogs.length > 0) {
+                var lines = newLogs.split('\\n');
+                for (var i = 0; i < lines.length; i++) {
+                  if (lines[i].trim() !== '') appendLog(lines[i]);
+                }
+              }
+              var newPosStr = logXhr.getResponseHeader("X-Log-Pos");
+              if (newPosStr) {
+                logPos = parseInt(newPosStr, 10);
+              }
+              // Add a slight delay before reconnecting to reduce server load
+              setTimeout(pollLogs, 100);
+            } else {
+              // Server is down or error
+              if (completed) return; // Stop polling completely if we finished
+              setTimeout(pollLogs, 1000);
+            }
+          }
+        };
+        logXhr.send();
+      }
+      // Start the long-polling loop
+      pollLogs();
+
+
+      var probeOk = false;
+
+
+      var AUTOLOADER_URL = '/app/index.html';
+
+      function setProgress(pct) {
+        progressBar.style.transform = 'scaleX(' + pct / 100 + ')';
+        progressPct.textContent = pct + '%';
+      }
+
+      function setInstalled() {
+        statusEl.textContent = 'Installed successfully';
+        statusEl.style.color = '#22c55e';
+        progressBar.style.background = '-webkit-linear-gradient(90deg, #16a34a 0%, #22c55e 100%)';
+        detailEl.textContent = 'Goldengames PS5 Autoloader is now on your PS5 homescreen. You can close this page.';
+        setProgress(100);
+      }
+
+      function setFailed() {
+        statusEl.textContent = 'Install failed';
+        statusEl.style.color = '#ef4444';
+        progressBar.style.background = '-webkit-linear-gradient(90deg, #dc2626 0%, #ef4444 100%)';
+        detailEl.textContent = 'The app could not be installed. Close this page and re-run the installer.';
+      }
+
+      function setSlow() {
+        statusEl.textContent = 'Caching is taking unusually long';
+        detailEl.textContent = 'The shortcut is only created after the cache finishes. If this never completes, close the browser and re-run the installer.';
+      }
+
+      function setCaching() {
+        statusEl.textContent = 'Caching content...';
+        detailEl.textContent = 'Please wait a moment. Do not close this page yet!';
+        progressWrap.hidden = false;
+      }
+
+      function goToAutoloader() {
+        window.location.replace(AUTOLOADER_URL);
+      }
+
+      function probeServer() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/version', true);
+        xhr.timeout = 1000;
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              var hdrUid = xhr.getResponseHeader("X-User-Id");
+              if (hdrUid) currentUid = hdrUid;
+              probeOk = true;
+              setCaching();
+            } else {
+              goToAutoloader();
+            }
+          }
+        };
+        xhr.onerror = function () {
+          goToAutoloader();
+        };
+        xhr.ontimeout = function () {
+          goToAutoloader();
+        };
+        xhr.send();
+      }
+
+      function installApp() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/install', true);
+        xhr.timeout = 30000;
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              setInstalled();
+            } else {
+              setFailed();
+            }
+          }
+        };
+        xhr.onerror = function () {
+          setFailed();
+        };
+        xhr.ontimeout = function () {
+          setFailed();
+        };
+        xhr.send();
+      }
+
+      function maybeInstall() {
+        if (completed) {
+          return;
+        }
+        completed = true;
+        installApp();
+      }
+
+      function setCacheCorrupted() {
+        if (corruptionPromptShown) {
+          return;
+        }
+        corruptionPromptShown = true;
+        completed = true;
+        progressWrap.hidden = true;
+        logContainer.hidden = true;
+        statusEl.textContent = 'Caching failed';
+        detailEl.textContent = '';
+
+        var overlay = document.createElement('div');
+        overlay.id = 'cacheCorruptOverlay';
+
+        var card = document.createElement('div');
+        card.className = 'card';
+
+        var title = document.createElement('h2');
+        var msg = document.createElement('p');
+        var actions = null;
+
+        var webkitShellPath = '/user/home/' + (currentUid || '<userid>') + '/webkit/shell/';
+
+        if (isRetry) {
+          title.textContent = 'Cache issue persists';
+          msg.textContent = 'Clearing WebKit data from ' + webkitShellPath + ' didn\'t seem to fix the issue. You can close this page.';
+          var exitXhr = new XMLHttpRequest();
+          exitXhr.open('GET', '/exit', true);
+          exitXhr.send();
+        } else {
+          title.textContent = 'WebKit cache appears corrupted';
+          msg.textContent = 'Your PS5\'s WebKit browser data may be corrupted, preventing the cache from completing. Clearing it may fix the issue. ';
+          var strong = document.createElement('strong');
+          strong.textContent = 'This will remove all browser data in ' + webkitShellPath + ' (AppCache, cookies, local storage) for the current user.';
+          msg.appendChild(strong);
+
+          actions = document.createElement('div');
+          actions.className = 'actions';
+
+          var clearBtn = document.createElement('button');
+          clearBtn.className = 'btn primary';
+          clearBtn.textContent = 'Clear WebKit Data & Retry';
+          clearBtn.addEventListener('click', function () {
+            actions.hidden = true;
+            actions.style.display = 'none';
+            msg.textContent = 'Clearing data and restarting browser...';
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/clear-webkit-data', true);
+            xhr.timeout = 30000;
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState === 4 && xhr.status !== 200) {
+                msg.textContent = 'Failed to clear WebKit data';
+                actions.hidden = false;
+                actions.style.display = '';
+              }
+            };
+            xhr.onerror = function () {
+              msg.textContent = 'Failed to clear WebKit data';
+              actions.hidden = false;
+              actions.style.display = '';
+            };
+            xhr.ontimeout = function () {
+              msg.textContent = 'Failed to clear WebKit data';
+              actions.hidden = false;
+              actions.style.display = '';
+            };
+            xhr.send();
+          });
+          actions.appendChild(clearBtn);
+
+          var cancelBtn = document.createElement('button');
+          cancelBtn.className = 'btn secondary';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', function () {
+            msg.textContent = 'You can close this page. Re-run the installer ELF to try again.';
+            actions.hidden = true;
+            actions.style.display = 'none';
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/exit', true);
+            xhr.send();
+          });
+          actions.appendChild(cancelBtn);
+        }
+
+        card.appendChild(title);
+        card.appendChild(msg);
+        if (actions) {
+          card.appendChild(actions);
+        }
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+      }
+
+      window.addEventListener('load', function () {
+        /* Test hook: ?simulate=corrupt forces the corruption prompt as if an
+         * AppCache error fired during download, and skips the probe/install
+         * polling so the prompt stays up for UI testing (e.g. make dev). */
+        if (simulateCorrupt) {
+          isDownloading = true;
+          setCacheCorrupted();
+          return;
+        }
+
+        probeServer();
+
+        /* The shortcut is created only once the AppCache is current, so the
+           installer never installs a partial cache. /install then both installs
+           the homescreen app and stops the server. */
+        var waitTimer = setInterval(function () {
+          if (completed) {
+            clearInterval(waitTimer);
+            return;
+          }
+          if (!probeOk) {
+            clearInterval(waitTimer);
+            goToAutoloader();
+            return;
+          }
+          var st = window.applicationCache
+              ? window.applicationCache.status : -1;
+          if (st === -1 || st === window.applicationCache.IDLE) {
+            clearInterval(waitTimer);
+            maybeInstall();
+          }
+        }, 1000);
+
+        /* Safety cap — never leave the installer hanging on screen. It does NOT
+           install or exit: a partial cache must never create a shortcut, so the
+           user simply re-runs the installer if this never completes. */
+        setTimeout(function () {
+          if (!completed && probeOk) {
+            setSlow();
+          }
+        }, 120000);
+      });
+
+
+      if (window.applicationCache) {
+        window.applicationCache.addEventListener('checking', function () {
+          progressWrap.hidden = false;
+          appendLog("[AppCache] Checking for manifest...");
+        });
+        window.applicationCache.addEventListener('downloading', function () {
+          isDownloading = true;
+          appendLog("[AppCache] Downloading cache...");
+        });
+        window.applicationCache.addEventListener('progress', function (e) {
+          if (e.url) appendLog("[AppCache] Fetching: " + e.url);
+          if (e.total && e.total > 0) {
+            var pct = Math.min(99, Math.round((e.loaded / e.total) * 100));
+            setProgress(pct);
+          }
+        });
+        window.applicationCache.addEventListener('error', function (e) {
+          appendLog("[AppCache] Error occurred! Status: " + window.applicationCache.status);
+          logContainer.className = 'error';
+          if (isDownloading) {
+            setCacheCorrupted();
+          }
+        });
+        window.applicationCache.addEventListener('obsolete', function (e) {
+          appendLog("[AppCache] Manifest is obsolete.");
+        });
+        window.applicationCache.addEventListener('cached', function() {
+          isDownloading = false;
+          appendLog("[AppCache] Caching complete.");
+          maybeInstall();
+        });
+        window.applicationCache.addEventListener('noupdate', function() {
+          isDownloading = false;
+          appendLog("[AppCache] No update needed.");
+          maybeInstall();
+        });
+        window.applicationCache.addEventListener('updateready', function () {
+          isDownloading = false;
+          if (window.applicationCache.status === window.applicationCache.UPDATEREADY) {
+            window.applicationCache.swapCache();
+            window.location.reload();
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+
+</html>
