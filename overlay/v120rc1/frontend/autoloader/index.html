@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <title>Goldengames PS5 Auto Jailbreak v1.1.0</title>
+</head>
+
+<body>
+  <div class="ps2World" aria-hidden="true">
+    <i class="retroDisc discLeft"></i><i class="retroDisc discRight"></i>
+    <i class="lightTrail trailRed"></i><i class="lightTrail trailYellow"></i><i class="lightTrail trailGreen"></i><i class="lightTrail trailBlue"></i>
+    <i class="memoryBlock b1"></i><i class="memoryBlock b2"></i><i class="memoryBlock b3"></i><i class="memoryBlock b4"></i>
+    <span class="psSymbol triangle">△</span><span class="psSymbol circle">○</span><span class="psSymbol cross">×</span><span class="psSymbol square">□</span>
+  </div>
+  <div id="splash" aria-hidden="false">
+    <img class="logo" src="logo.svg" alt="Goldengames" />
+    <h1>GOLDENGAMES</h1>
+    <p>PS5 AUTO JAILBREAK <strong>v1.1.0</strong></p>
+  </div>
+
+  <iframe id="exploit" title="exploit" hidden></iframe>
+
+  <main id="dashboard" hidden>
+    <header class="ps2Header">
+      <img src="logo.svg" alt="Goldengames" />
+      <div><h1>GOLDENGAMES</h1><p>PS5 AUTO JAILBREAK · v1.1.0</p></div>
+      <span class="onlineDot">SYSTEM READY</span>
+    </header>
+    <section class="memoryPanel">
+      <div class="memoryTitle"><span>MEMORY CARD / PAYLOAD LIBRARY</span><b>FW 1.00–5.50 · 7.00–12.70</b></div>
+      <button class="heroLaunch" data-payload="etahen-2.6B.bin" data-label="etaHEN 2.6B" data-auto="1" type="button">
+        <i>△</i><span><strong>AUTO JAILBREAK</strong><small>Two-stage memory-safe · etaHEN 2.6B</small></span><b>LAUNCH</b>
+      </button>
+
+      <div class="categoryTitle"><span>MEMORY CARD SLOTS</span><small>Select with the controller and press ×</small></div>
+      <div class="payloadGrid" id="payloadGrid">
+        <button class="payloadCard" data-payload="payload.elf" data-label="Payload Manager" type="button"><i>PM</i><span><strong>PAYLOAD MANAGER</strong><small>Manage and send payloads</small></span></button>
+        <button class="payloadCard" data-payload="ftpsrv-v0.21.1.elf" data-label="FTP Server 0.21.1" type="button"><i>FTP</i><span><strong>FTP SERVER</strong><small>Network files · port 2121</small></span></button>
+        <button class="payloadCard" data-payload="websrv-v0.34.elf" data-label="Web Server 0.34" type="button"><i>WEB</i><span><strong>WEB SERVER</strong><small>PS5 HTTP server</small></span></button>
+        <button class="payloadCard" data-payload="cheatrunner-v0.17.elf" data-label="CheatRunner 0.17" type="button"><i>CH</i><span><strong>CHEAT RUNNER</strong><small>Cheat service 0.17</small></span></button>
+        <button class="payloadCard" data-payload="nanodns-0.4.elf" data-label="nanoDNS 0.4" type="button"><i>DNS</i><span><strong>NANODNS</strong><small>Local DNS service 0.4</small></span></button>
+        <button class="payloadCard" data-payload="etahen-2.5B.bin" data-label="etaHEN 2.5B" type="button"><i>HEN</i><span><strong>ETAHEN 2.5B</strong><small>Previous stable version</small></span></button>
+        <button class="payloadCard" data-payload="shadowmountplus.elf" data-label="ShadowMount Plus" type="button"><i>SMP</i><span><strong>SHADOWMOUNT PLUS</strong><small>Automatic game mount service</small></span></button>
+        <button class="payloadCard caution" data-payload="ps5-linux-loader-v2.4.elf" data-label="PS5 Linux Loader 2.4" data-risk="linux" type="button"><i>LNX</i><span><strong>LINUX LOADER</strong><small>Cold session recommended</small></span></button>
+      </div>
+
+      <details class="advancedPanel">
+        <summary>□ ADVANCED KSTUFF PAYLOADS</summary>
+        <p>Do not launch over etaHEN. Reboot the console before changing the active kernel payload.</p>
+        <div class="advancedGrid">
+          <button class="payloadCard danger" data-payload="kstuff-v1.6.7.elf" data-label="Kstuff 1.6.7" data-risk="kstuff" type="button"><i>KS</i><span><strong>KSTUFF 1.6.7</strong><small>FW 3.00–10.01</small></span></button>
+          <button class="payloadCard danger" data-payload="kstuff-lite-v1.10.elf" data-label="Kstuff Lite 1.10" data-risk="kstuff" type="button"><i>KSL</i><span><strong>KSTUFF LITE 1.10</strong><small>Advanced · kernel payload</small></span></button>
+        </div>
+      </details>
+
+      <p class="sessionHint">Every card uses memory-safe sender mode. After Auto Jailbreak, Goldengames reloads only the WebKit sender and does not repeat the kernel exploit.</p>
+    </section>
+  </main>
+
+  <div id="riskDialog" class="riskDialog" hidden role="dialog" aria-modal="true" aria-labelledby="riskTitle">
+    <div class="riskCard">
+      <span class="riskSymbol">△</span><h2 id="riskTitle">ADVANCED PAYLOAD</h2>
+      <p id="riskMessage"></p>
+      <div><button id="riskCancel" type="button">○ CANCEL</button><button id="riskContinue" type="button">× I REBOOTED · CONTINUE</button></div>
+    </div>
+  </div>
+
+
+  <main id="loader" hidden>
+    <header id="goldenHeader">
+      <img src="logo.svg" alt="Goldengames" />
+      <div><strong>GOLDENGAMES</strong><span>PS5 AUTO JAILBREAK · v1.1.0</span></div>
+      <b id="systemBadge">AUTO MODE · FW 1.00–12.70</b>
+    </header>
+    <section id="statusCard"><span>EXPLOIT STATUS</span><strong id="goldenState">PREPARING AUTO JAILBREAK</strong></section>
+    <div class="retroLoader" aria-hidden="true"><div class="retroBlocks"><i></i><i></i><i></i><i></i><i></i></div><span>READING MEMORY CARD...</span></div>
+    <div id="logWrapper">
+      <div id="logContainer"></div>
+    </div>
+
+    <div class="loaderActions"><button id="showDetails" type="button">□ SHOW DETAILS</button><button id="backToMenu" type="button">○ PAYLOAD MENU</button></div>
+
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+      <div id="progressLabel">Loading...</div>
+    </div>
+
+    <!-- p2jb live statistics, mirrored from the exploit's #livestat readout
+         by app.js. Hidden until the first real phase starts; styled in
+         style.css (#p2jbStats / body.p2jb-stats). -->
+    <div id="p2jbStats" hidden>
+      <div class="stats-head">
+        <span class="stats-title">P2JB</span>
+        <span class="stats-chip" id="p2jbStepChip">STEP &ndash;/7</span>
+        <span class="stats-clock" id="p2jbClocks">total --:--:--</span>
+      </div>
+      <div class="stats-status" id="p2jbStatus">&#8230;</div>
+      <div class="stats-infoline">
+        <div class="stats-detail" id="p2jbDetail" hidden></div>
+        <div id="p2jbGroups" hidden></div>
+      </div>
+      <div class="stats-bar-row">
+        <div class="stats-bar-label"><span id="p2jbPhaseName">PHASE</span><span id="p2jbPhasePct">&ndash;</span></div>
+        <div class="stats-track"><div class="stats-fill" id="p2jbPhaseFill"></div></div>
+        <div class="stats-meta" id="p2jbPhaseMeta">ETA --:--:--</div>
+      </div>
+      <div class="stats-bar-row overall">
+        <div class="stats-bar-label"><span>OVERALL</span><span id="p2jbOverallPct">&ndash;</span></div>
+        <div class="stats-track big"><div class="stats-fill" id="p2jbOverallFill"></div></div>
+        <div class="stats-meta" id="p2jbOverallMeta">&ndash; left</div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="footer">Goldengames PS5 Auto Jailbreak v1.1.0 · Based on WebKit Autoloader v0.4.0 by PLK<br />GPL-3.0 · Original project: github.com/itsPLK/ps5-webkit-autoloader</footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
