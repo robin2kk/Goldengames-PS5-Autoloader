@@ -1006,7 +1006,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc13', 'success');
+    uiLog('Goldengames PS5 Auto Jailbreak v1.1.0', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
