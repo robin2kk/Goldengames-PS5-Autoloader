@@ -24,8 +24,8 @@
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc6-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc6-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc7-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc7-active-payload';
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -981,7 +981,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc6', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc7', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
