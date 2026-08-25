@@ -119,7 +119,7 @@ new = ''' + "'''" + r'''    var wkalAutoloadName = new URLSearchParams(location.
                     wkalAutoload: true
                 }
             }));
-        }, goldengamesSenderOnly ? 500 : 1500);
+        }, goldengamesSenderOnly ? 500 : 4000);
     } else if (wkalAutoloadName) {
         await log("Goldengames diag: elfldr 9021 not ready; payload not sent", LogLevel.ERROR);
         try { window.parent.postMessage({ type: "wkal", kind: "autoload", ok: false, why: "elfldr 9021 not ready" }, "*"); } catch (e) { }
