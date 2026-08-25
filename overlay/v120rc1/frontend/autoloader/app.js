@@ -24,8 +24,9 @@
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc10-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc10-active-payload';
+  var SESSION_KEY = 'goldengames:v120rc11-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc11-active-payload';
+  var queuedAutoEtaHen = false;
 
   /* After a WebProcess crash the PS5 browser restores this page together with
      the iframe at its last URL — the armed exploit URL, which would auto-run
@@ -246,6 +247,21 @@
          outer app while etaHEN is starting. */
       if (exploitMode === 'umtx2') {
         try { exploitEl.src = 'about:blank'; } catch (e) { }
+      }
+
+      /* RC11 follows upstream v0.4.0 for the memory-heavy first stage:
+         UMTX2 launches the small unified Payload Manager first. Only after
+         WebKit has returned the final result and the iframe is blank do we
+         send etaHEN through the already-live sender, without another kernel
+         exploit. This avoids starting etaHEN at UMTX2's memory peak. */
+      if (queuedAutoEtaHen && selectedPayload === 'payload.elf') {
+        queuedAutoEtaHen = false;
+        if (goldenStateEl) goldenStateEl.textContent = 'STAGE 1 READY · COOLING DOWN';
+        updateProgress(55, 'Payload Manager ready · preparing etaHEN 2.6B...');
+        setTimeout(function () {
+          launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', false);
+        }, 6500);
+        return;
       }
 
       uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
@@ -945,6 +961,11 @@
     revealExploit();
   }
 
+  function startAutoJailbreak() {
+    queuedAutoEtaHen = true;
+    launchSelected('payload.elf', 'Payload Manager · Stage 1', true);
+  }
+
   function closeRiskDialog() {
     pendingRiskLaunch = null;
     if (riskDialogEl) riskDialogEl.hidden = true;
@@ -973,7 +994,7 @@
   }
 
   function start() {
-    uiLog('Goldengames PS5 Autoloader v1.2.0-rc10', 'success');
+    uiLog('Goldengames PS5 Autoloader v1.2.0-rc11', 'success');
     updateProgress(0, 'Ready.');
 
     window.addEventListener('message', function (event) {
@@ -1005,7 +1026,7 @@
       requestPayloadLaunch(value, opt.text, risk, false);
     });
     if (autoJailbreakEl) autoJailbreakEl.addEventListener('click', function () {
-      launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', true);
+      startAutoJailbreak();
     });
     if (showDetailsEl) showDetailsEl.addEventListener('click', function () {
       document.body.classList.toggle('details-open');
@@ -1015,7 +1036,11 @@
     var launchCards = document.querySelectorAll('[data-payload]');
     for (var c = 0; c < launchCards.length; c++) {
       launchCards[c].addEventListener('click', function () {
-        requestPayloadLaunch(this.getAttribute('data-payload'), this.getAttribute('data-label'), this.getAttribute('data-risk') || '', this.getAttribute('data-auto') === '1');
+        if (this.getAttribute('data-auto') === '1') {
+          startAutoJailbreak();
+          return;
+        }
+        requestPayloadLaunch(this.getAttribute('data-payload'), this.getAttribute('data-label'), this.getAttribute('data-risk') || '', false);
       });
     }
     if (riskCancelEl) riskCancelEl.addEventListener('click', closeRiskDialog);
@@ -1036,7 +1061,7 @@
     if (knownSession) {
       setTimeout(showDashboard, 350);
     } else {
-      setTimeout(function () { launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', true); }, 900);
+      setTimeout(startAutoJailbreak, 900);
     }
   }
 
