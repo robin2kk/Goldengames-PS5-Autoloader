@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f1f0ea"/><stop offset="1" stop-color="#aaa9a4"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#151515"/><stop offset="1" stop-color="#292929"/></linearGradient>
+    <filter id="shadow"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <rect x="24" y="24" width="976" height="976" rx="112" fill="url(#shell)" stroke="#62615e" stroke-width="18"/>
+  <rect x="75" y="75" width="874" height="874" rx="78" fill="none" stroke="#deddd7" stroke-width="8"/>
+  <rect x="130" y="142" width="764" height="550" rx="46" fill="#000" opacity=".22" filter="url(#shadow)"/>
+  <rect x="122" y="130" width="764" height="550" rx="46" fill="url(#screen)" stroke="#555" stroke-width="10"/>
+
+  <!-- Clear retro-console emblem: red upright P over separated color bands. -->
+  <path d="M312 184h154c107 0 175 55 175 142 0 83-66 136-164 136h-62v150H312zm103 79v122h55c44 0 70-21 70-61 0-39-27-61-72-61z" fill="#df2d32"/>
+  <path d="M270 515c118-56 230-74 354-50l-80 55c-75-4-141 7-212 36z" fill="#f4c330"/>
+  <path d="M332 556c93-24 183-25 282-3l-75 51c-60-11-113-8-170 7z" fill="#269c55"/>
+  <path d="M369 612c72-14 143-8 217 17l-76 48c-47-12-88-13-133-5z" fill="#3475bd"/>
+
+  <!-- Separate open-lock badge so the central emblem stays readable. -->
+  <circle cx="747" cy="500" r="135" fill="#202020" stroke="#f5f5ef" stroke-width="10"/>
+  <path d="M701 470v-39c0-56 45-101 101-101 26 0 49 9 67 25l-37 43c-8-7-18-11-30-11-24 0-44 20-44 44v39" fill="none" stroke="#f4c330" stroke-width="28" stroke-linecap="round"/>
+  <rect x="675" y="456" width="170" height="137" rx="25" fill="#3475bd" stroke="#f5f5ef" stroke-width="9"/>
+  <circle cx="760" cy="510" r="22" fill="#f4c330"/>
+  <path d="M746 524h28l14 43h-56z" fill="#f4c330"/>
+
+  <text x="512" y="786" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="86" letter-spacing="2"><tspan fill="#df2d32">GOLDEN</tspan><tspan fill="#3475bd">GAMES</tspan></text>
+  <text x="512" y="858" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="39" fill="#282828" letter-spacing="11">PS5 AUTOLOADER</text>
+  <rect x="315" y="894" width="394" height="58" rx="29" fill="#292929"/>
+  <circle cx="356" cy="923" r="13" fill="#df2d32"/><circle cx="397" cy="923" r="13" fill="#f4c330"/><circle cx="627" cy="923" r="13" fill="#269c55"/><circle cx="668" cy="923" r="13" fill="#3475bd"/>
+  <text x="512" y="933" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="25" fill="#fff" letter-spacing="5">JAILBREAK</text>
+</svg>
