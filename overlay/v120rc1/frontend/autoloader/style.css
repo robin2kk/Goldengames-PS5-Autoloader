@@ -644,3 +644,17 @@ body{
 #loader{background:linear-gradient(145deg,rgba(228,229,233,.96),rgba(152,153,161,.96))}
 #progressBar,.stats-fill{background:linear-gradient(90deg,#df4558 0%,#e6bd3d 32%,#2ea46e 64%,#397fce 100%)}
 @media(max-width:800px){.retroDisc{opacity:.28}.lightTrail{opacity:.4}.psSymbol{opacity:.3}}
+
+/* RC8: place the approved retro artwork inside the visible dashboard panel.
+   RC7 kept it behind this panel, so the PS5 browser could not show it. */
+.memoryPanel{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(246,246,248,.88),rgba(187,188,195,.9))}
+.memoryPanel:before{content:"";position:absolute;z-index:0;left:-12%;right:-12%;top:23%;height:48%;pointer-events:none;opacity:.72;background:linear-gradient(166deg,transparent 0 27%,rgba(226,55,76,.9) 27.4% 28%,transparent 28.4% 34%,rgba(228,177,43,.88) 34.4% 35%,transparent 35.4% 41%,rgba(39,164,103,.86) 41.4% 42%,transparent 42.4% 48%,rgba(50,119,204,.9) 48.4% 49%,transparent 49.4%);filter:drop-shadow(0 0 7px rgba(255,255,255,.85));animation:panelLightMove 4.8s ease-in-out infinite}
+.memoryPanel:after{content:"△   ○   ×   □";position:absolute;z-index:0;right:2%;bottom:1%;pointer-events:none;color:#397fce;font:700 7rem/1 Arial,sans-serif;letter-spacing:.08em;opacity:.17;text-shadow:-330px -170px 0 #2ca26c,-210px -70px 0 #db4353,-95px -145px 0 #d34d92;transform:rotate(-7deg)}
+.memoryPanel>*{position:relative;z-index:2}
+.ps2Header{position:relative;overflow:hidden;border-bottom-color:#397fce;background:linear-gradient(110deg,rgba(250,250,252,.97) 0 58%,rgba(222,63,81,.2) 58.4% 59.2%,rgba(229,182,48,.2) 59.6% 60.4%,rgba(42,163,105,.2) 60.8% 61.6%,rgba(55,126,207,.24) 62% 62.8%,rgba(185,186,193,.96) 63.2%)}
+.ps2Header:after{content:"△  ○  ×  □";position:absolute;right:1.4rem;bottom:-.25rem;color:#397fce;font:700 2.7rem Arial,sans-serif;letter-spacing:.12em;opacity:.2;pointer-events:none}
+.ps2Header>*{position:relative;z-index:1}
+.heroLaunch{background:linear-gradient(100deg,#dc3448 0%,#d84455 36%,#dbad2b 60%,#2c9b65 80%,#397ac5 100%);border-color:#8d4149}
+.payloadCard{background:linear-gradient(145deg,rgba(250,250,251,.95),rgba(198,199,204,.93))!important}
+@keyframes panelLightMove{0%,100%{transform:translateX(-2%);opacity:.5}50%{transform:translateX(2%);opacity:.88}}
+@media(max-width:800px){.memoryPanel:after{font-size:4.4rem;opacity:.13}.memoryPanel:before{opacity:.58}.ps2Header:after{display:none}}
