@@ -210,6 +210,7 @@ GOLDENGAMES_PAYLOADS = (
     "websrv-v0.34.elf",
     "kstuff-v1.6.7.elf",
     "kstuff-lite-v1.10.elf",
+    "shadowmountplus.elf",
 )
 
 # slopkit references its own scripts with cache-busting query strings
