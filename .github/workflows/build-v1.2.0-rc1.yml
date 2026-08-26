@@ -1,9 +1,9 @@
-# Isolated hardware-test build; the official v1.1.0 branch remains unchanged.
-name: Build Goldengames PS5 Auto Jailbreak v1.1.0 Background Fix Test
+# Official Goldengames PS5 Auto Jailbreak v1.1.0 build.
+name: Build Goldengames PS5 Auto Jailbreak v1.1.0 Official
 
 on:
   push:
-    branches: [v1.1.0-bg4k-test-dev]
+    branches: [v1.1.0-final-dev]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -42,7 +42,7 @@ jobs:
           cp overlay/v120rc1/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
           cp overlay/v120rc1/tools/apply_homescreen_background.py work/upstream/tools/apply_homescreen_background.py
           (cd work/upstream && python3 tools/apply_homescreen_background.py)
-          sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.0-bgfix-test"/' work/upstream/include/wkali.h
+          sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.0"/' work/upstream/include/wkali.h
 
       - name: Download and verify exact payloads
         run: |
@@ -120,16 +120,16 @@ jobs:
           docker build -t goldengames-ps5-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -v "$PWD":/src -w /src goldengames-ps5-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf
-          sha256sum goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf | tee goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf.sha256
+          mv installer.elf goldengames-ps5-auto-jailbreak-installer_v1.1.0.elf
+          sha256sum goldengames-ps5-auto-jailbreak-installer_v1.1.0.elf | tee goldengames-ps5-auto-jailbreak-installer_v1.1.0.elf.sha256
 
       - name: Verify built package
         working-directory: work/upstream
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf
+          ELF=goldengames-ps5-auto-jailbreak-installer_v1.1.0.elf
           file "$ELF" | grep -Fq 'ELF 64-bit LSB pie executable, x86-64'
-          strings "$ELF" | grep -Fq '/app/1.1.0-bgfix-test/app.js'
+          strings "$ELF" | grep -Fq '/app/1.1.0/app.js'
           strings "$ELF" | grep -Fq '/user/app/%s/sce_sys/pic0.png'
           strings "$ELF" | grep -Fq '/user/app/%s/sce_sys/pic0.dds'
           strings "$ELF" | grep -Fq '/user/appmeta/%s/pic0.png'
@@ -142,12 +142,12 @@ jobs:
           strings "$ELF" | grep -Fq 'kstuff-lite-v1.10.elf'
           strings "$ELF" | grep -Fq 'shadowmountplus.elf'
 
-      - name: Upload Goldengames PS5 Auto Jailbreak v1.1.0 background fix test
+      - name: Upload Goldengames PS5 Auto Jailbreak v1.1.0 official
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-auto-jailbreak-v1.1.0-bgfix-test
+          name: goldengames-ps5-auto-jailbreak-v1.1.0-official
           path: |
-            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf
-            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf.sha256
+            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0.elf
+            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0.elf.sha256
           if-no-files-found: error
           retention-days: 14
