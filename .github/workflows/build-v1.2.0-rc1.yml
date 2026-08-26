@@ -1,5 +1,5 @@
 # Isolated hardware-test build; the official v1.1.0 branch remains unchanged.
-name: Build Goldengames PS5 Auto Jailbreak v1.1.0 Theme Test
+name: Build Goldengames PS5 Auto Jailbreak v1.1.0 Background Fix Test
 
 on:
   push:
@@ -32,11 +32,12 @@ jobs:
           cp overlay/v120rc1/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
           cp overlay/v120rc1/assets/icon.svg work/upstream/assets/icon.svg
           cp overlay/v120rc1/assets/pic0.png work/upstream/assets/pic0.png
+          xz -dc overlay/v120rc1/assets/pic0.dds.xz > work/upstream/assets/pic0.dds
           cp overlay/v120rc1/assets/param.json.template work/upstream/assets/param.json.template
           cp overlay/v120rc1/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
           cp overlay/v120rc1/tools/apply_homescreen_background.py work/upstream/tools/apply_homescreen_background.py
           (cd work/upstream && python3 tools/apply_homescreen_background.py)
-          sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.0-theme-test"/' work/upstream/include/wkali.h
+          sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.0-bgfix-test"/' work/upstream/include/wkali.h
 
       - name: Download and verify exact payloads
         run: |
@@ -96,8 +97,11 @@ jobs:
           grep -Fq "GOLDENGAMES_PAYLOADS" work/upstream/tools/gen_file_registry.py
           grep -Fq 'id="showDetails"' "$INDEX"
           grep -Fq 'INCASSET(pic0_png, "assets/pic0.png")' work/upstream/src/app_installer.c
-          grep -Fq 'pic1.png' work/upstream/src/app_installer.c
-          test "$(sha256sum work/upstream/assets/pic0.png | cut -d' ' -f1)" = "4ed53525f1c443ca0fcba1d021b17c2e9b087dc24b49620dfd3d07ff3bf72d06"
+          grep -Fq 'INCASSET(pic0_dds, "assets/pic0.dds")' work/upstream/src/app_installer.c
+          grep -Fq '/user/appmeta/%s/pic0.png' work/upstream/src/app_installer.c
+          grep -Fq '/user/appmeta/%s/pic0.dds' work/upstream/src/app_installer.c
+          test "$(sha256sum work/upstream/assets/pic0.png | cut -d' ' -f1)" = "848ee05e4208d033040b7a369fe4bd745009139aaf73eecd6b1ebcc133e4166b"
+          test "$(sha256sum work/upstream/assets/pic0.dds | cut -d' ' -f1)" = "e4e7bc96fabc749821da9dad36c1286abe831e75f3be49ee8f6ac8beb689f64e"
           node --check "$APP"
           python3 -m py_compile work/upstream/tools/gen_file_registry.py
 
@@ -110,18 +114,20 @@ jobs:
           docker build -t goldengames-ps5-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -v "$PWD":/src -w /src goldengames-ps5-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-auto-jailbreak-installer_v1.1.0-theme-test.elf
-          sha256sum goldengames-ps5-auto-jailbreak-installer_v1.1.0-theme-test.elf | tee goldengames-ps5-auto-jailbreak-installer_v1.1.0-theme-test.elf.sha256
+          mv installer.elf goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf
+          sha256sum goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf | tee goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf.sha256
 
       - name: Verify built package
         working-directory: work/upstream
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-auto-jailbreak-installer_v1.1.0-theme-test.elf
+          ELF=goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf
           file "$ELF" | grep -Fq 'ELF 64-bit LSB pie executable, x86-64'
-          strings "$ELF" | grep -Fq '/app/1.1.0-theme-test/app.js'
+          strings "$ELF" | grep -Fq '/app/1.1.0-bgfix-test/app.js'
           strings "$ELF" | grep -Fq '/user/app/%s/sce_sys/pic0.png'
-          strings "$ELF" | grep -Fq '/user/app/%s/sce_sys/pic1.png'
+          strings "$ELF" | grep -Fq '/user/app/%s/sce_sys/pic0.dds'
+          strings "$ELF" | grep -Fq '/user/appmeta/%s/pic0.png'
+          strings "$ELF" | grep -Fq '/user/appmeta/%s/pic0.dds'
           strings "$ELF" | grep -Fq 'cheatrunner-v0.17.elf'
           strings "$ELF" | grep -Fq 'ps5-linux-loader-v2.4.elf'
           strings "$ELF" | grep -Fq 'ftpsrv-v0.21.1.elf'
@@ -130,12 +136,12 @@ jobs:
           strings "$ELF" | grep -Fq 'kstuff-lite-v1.10.elf'
           strings "$ELF" | grep -Fq 'shadowmountplus.elf'
 
-      - name: Upload Goldengames PS5 Auto Jailbreak v1.1.0 theme test
+      - name: Upload Goldengames PS5 Auto Jailbreak v1.1.0 background fix test
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-auto-jailbreak-v1.1.0-theme-test
+          name: goldengames-ps5-auto-jailbreak-v1.1.0-bgfix-test
           path: |
-            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0-theme-test.elf
-            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0-theme-test.elf.sha256
+            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf
+            work/upstream/goldengames-ps5-auto-jailbreak-installer_v1.1.0-bgfix-test.elf.sha256
           if-no-files-found: error
           retention-days: 14
