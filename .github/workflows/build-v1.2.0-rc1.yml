@@ -3,7 +3,7 @@ name: Build Goldengames PS5 Auto Jailbreak v1.1.0 Background Fix Test
 
 on:
   push:
-    branches: [v1.1.0-theme-test-dev]
+    branches: [v1.1.0-bg4k-test-dev]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout Goldengames source
         uses: actions/checkout@v4
+
+      - name: Install 4K image conversion support
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Clone exact upstream v0.4.0
         run: |
@@ -31,8 +34,10 @@ jobs:
           cp overlay/v120rc1/frontend/autoloader/favicon.svg work/upstream/frontend/autoloader/favicon.svg
           cp overlay/v120rc1/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
           cp overlay/v120rc1/assets/icon.svg work/upstream/assets/icon.svg
-          cp overlay/v120rc1/assets/pic0.png work/upstream/assets/pic0.png
-          xz -dc overlay/v120rc1/assets/pic0.dds.xz > work/upstream/assets/pic0.dds
+          cat overlay/v120rc1/assets/pic0-4k-jpeg.parts/* > /tmp/goldengames-pic0-4k.jpg
+          test "$(sha256sum /tmp/goldengames-pic0-4k.jpg | cut -d' ' -f1)" = "db1be01a47b3317472c62a13c9348aa16ef11a771ae6ca7f184d13071eb77320"
+          convert /tmp/goldengames-pic0-4k.jpg -colorspace sRGB -depth 8 -strip work/upstream/assets/pic0.png
+          convert work/upstream/assets/pic0.png -define dds:compression=dxt5 work/upstream/assets/pic0.dds
           cp overlay/v120rc1/assets/param.json.template work/upstream/assets/param.json.template
           cp overlay/v120rc1/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
           cp overlay/v120rc1/tools/apply_homescreen_background.py work/upstream/tools/apply_homescreen_background.py
@@ -100,8 +105,9 @@ jobs:
           grep -Fq 'INCASSET(pic0_dds, "assets/pic0.dds")' work/upstream/src/app_installer.c
           grep -Fq '/user/appmeta/%s/pic0.png' work/upstream/src/app_installer.c
           grep -Fq '/user/appmeta/%s/pic0.dds' work/upstream/src/app_installer.c
-          test "$(sha256sum work/upstream/assets/pic0.png | cut -d' ' -f1)" = "848ee05e4208d033040b7a369fe4bd745009139aaf73eecd6b1ebcc133e4166b"
-          test "$(sha256sum work/upstream/assets/pic0.dds | cut -d' ' -f1)" = "e4e7bc96fabc749821da9dad36c1286abe831e75f3be49ee8f6ac8beb689f64e"
+          test "$(identify -format '%wx%h' work/upstream/assets/pic0.png)" = "3840x2160"
+          test "$(identify -format '%wx%h' work/upstream/assets/pic0.dds)" = "3840x2160"
+          file work/upstream/assets/pic0.dds | grep -Fq 'compressed using DX10'
           node --check "$APP"
           python3 -m py_compile work/upstream/tools/gen_file_registry.py
 
