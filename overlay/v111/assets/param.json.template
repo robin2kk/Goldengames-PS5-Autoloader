@@ -1,0 +1,11 @@
+{
+    "titleId": "WKAL00001",
+    "applicationCategoryType": 65536,
+    "deeplinkUri": "http://127.0.0.1:18181/app/index.html",
+    "localizedParameters": {
+        "defaultLanguage": "en-US",
+        "en-US": {
+            "titleName": "Goldengames PS5 Autoloader"
+        }
+    }
+}
