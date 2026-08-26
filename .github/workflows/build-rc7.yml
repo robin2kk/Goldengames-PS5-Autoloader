@@ -1,4 +1,4 @@
-# Isolated hardware-test build; the official v1.1.0 branch remains unchanged.
+# Fresh run requested after the GitHub Actions outage.
 name: Build Goldengames PS5 Auto Jailbreak v1.1.0 Theme Test
 
 on:
