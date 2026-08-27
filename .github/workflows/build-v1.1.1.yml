@@ -56,7 +56,8 @@ jobs:
           curl -fL --retry 3 -o "$P/websrv-v0.34.elf" https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
           curl -fL --retry 3 -o "$P/kstuff-v1.6.7.elf" https://github.com/EchoStretch/kstuff/releases/download/v1.6.7/kstuff.elf
           xz -dc overlay/v120rc1/payloads/kstuff-lite-v1.10.elf.xz > "$P/kstuff-lite-v1.10.elf"
-          curl -fL --retry 3 -o "$P/shadowmountplus-v1.7alpha11.elf" https://github.com/drakmor/ShadowMountPlus/releases/download/1.7alpha11/shadowmountplus.elf
+          curl -fL --retry 3 -o /tmp/ShadowMountPlus_1.7alpha11.zip https://github.com/drakmor/ShadowMountPlus/releases/download/1.7alpha11/ShadowMountPlus_1.7alpha11.zip
+          unzip -p /tmp/ShadowMountPlus_1.7alpha11.zip shadowmountplus.elf > "$P/shadowmountplus-v1.7alpha11.elf"
           curl -fL --retry 3 -o "$P/onionhen-0.0.11.elf" https://github.com/aydencharles/onionHEN/releases/download/v0.0.11/OnionHEN.elf
           curl -fL --retry 3 -o "$P/pizza-hen-v0.1.elf" https://github.com/Michele-M-Media/PIZZA-HEN/releases/download/v0.1/PIZZA-HEN-v0.1.elf
           echo '4845cac45095361b8983b14d6690622183b0dcfbf6d7fda16e161aa91ff0531e  work/upstream/frontend/autoloader/payloads/etahen-2.5B.bin' > payloads.sha256
