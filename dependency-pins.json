@@ -8,5 +8,8 @@
   "kstuff-1.10.elf.sha256": "b1dfe57f367a35374f605127915eda38c76a6ed5d1c729e427955798bd78c66a",
   "pldmgr_v0.5.1.elf.sha256": "05617c69ea145d1c11b8f7a6b7d3bd9e6df3831afd25d71a4ac85d63fb8e28aa",
   "websrv-ps5.elf.sha256": "54730c867c6e1148536fdcb370e63a7762d989ea87b62488ad4caff64d43f263",
-  "shadowmountplus_v1.7alpha8.elf.sha256": "f15653fe90d81e5f82841ca693c0599d307c384d6454c1b0cc18190ae1ef4812"
+  "shadowmountplus_v1.7alpha8.elf.sha256": "f15653fe90d81e5f82841ca693c0599d307c384d6454c1b0cc18190ae1ef4812",
+  "shadowmountplus_v1.7alpha11.elf.sha256": "e9daf5dea90807fc653e02180a0eaacf09bcc88e5d99d3f67aa6d7bbf1996522",
+  "onionhen-0.0.11.elf.sha256": "edc5663c32bad01df9c4045bc93c1bdfecafd84c3414774ef42c522744d40868",
+  "pizza-hen-v0.1.elf.sha256": "eb627dac4746fbeb6ca88bf3e37d3c52562de15a0fb0ef433629b00e8a4a6abc"
 }

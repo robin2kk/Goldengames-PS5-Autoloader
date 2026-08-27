@@ -12,25 +12,35 @@ jobs:
       - name: Checkout Goldengames source
         uses: actions/checkout@v4
 
+      - name: Install 4K image conversion support
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
       - name: Clone exact upstream v0.4.0
         run: |
           set -euo pipefail
           git clone --branch v0.4.0 --depth 1 --recurse-submodules https://github.com/itsPLK/ps5-webkit-autoloader.git work/upstream
           test "$(git -C work/upstream rev-parse HEAD)" = "137f065d2ba8022ba8e796895e7cb05c204f2ce9"
 
-      - name: Apply PS2 Memory Card interface
+      - name: Apply Goldengames v1.1.1 console dashboard
         run: |
           set -euo pipefail
-          cp overlay/v111/frontend/autoloader/index.html work/upstream/frontend/autoloader/index.html
-          cp overlay/v111/frontend/autoloader/style.css work/upstream/frontend/autoloader/style.css
-          cp overlay/v111/frontend/autoloader/app.js work/upstream/frontend/autoloader/app.js
-          cp overlay/v111/frontend/autoloader/logo.svg work/upstream/frontend/autoloader/logo.svg
-          cp overlay/v111/frontend/autoloader/favicon.svg work/upstream/frontend/autoloader/favicon.svg
-          cp overlay/v111/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
-          cp overlay/v111/assets/icon.svg work/upstream/assets/icon.svg
-          cp overlay/v111/assets/param.json.template work/upstream/assets/param.json.template
-          cp overlay/v111/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
+          cp overlay/v120rc1/frontend/autoloader/index.html work/upstream/frontend/autoloader/index.html
+          cp overlay/v120rc1/frontend/autoloader/style.css work/upstream/frontend/autoloader/style.css
+          cp overlay/v120rc1/frontend/autoloader/app.js work/upstream/frontend/autoloader/app.js
+          cp overlay/v120rc1/frontend/autoloader/logo.svg work/upstream/frontend/autoloader/logo.svg
+          cp overlay/v120rc1/frontend/autoloader/favicon.svg work/upstream/frontend/autoloader/favicon.svg
+          cp overlay/v120rc1/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
+          cp overlay/v120rc1/assets/icon.svg work/upstream/assets/icon.svg
+          cat overlay/v120rc1/assets/pic0-4k-jpeg.parts/* > /tmp/goldengames-pic0-4k.jpg
+          test "$(sha256sum /tmp/goldengames-pic0-4k.jpg | cut -d' ' -f1)" = "db1be01a47b3317472c62a13c9348aa16ef11a771ae6ca7f184d13071eb77320"
+          convert /tmp/goldengames-pic0-4k.jpg -colorspace sRGB -depth 8 -strip work/upstream/assets/pic0.png
+          convert work/upstream/assets/pic0.png -define dds:compression=dxt5 work/upstream/assets/pic0.dds
+          cp overlay/v120rc1/assets/param.json.template work/upstream/assets/param.json.template
+          cp overlay/v120rc1/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
+          cp overlay/v120rc1/tools/apply_homescreen_background.py work/upstream/tools/apply_homescreen_background.py
+          (cd work/upstream && python3 tools/apply_homescreen_background.py)
           sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.1"/' work/upstream/include/wkali.h
+          sed -i 's/#define WKAL_TITLE_ID "WKAL00001"/#define WKAL_TITLE_ID "GGAU00001"/' work/upstream/include/wkali.h
 
       - name: Download and verify exact payloads
         run: |
@@ -42,11 +52,25 @@ jobs:
           curl -fL --retry 3 -o "$P/cheatrunner-v0.17.elf" https://github.com/notmaj0r/CheatRunner/releases/download/v0.17/CheatRunner.elf
           curl -fL --retry 3 -o "$P/nanodns-0.4.elf" https://github.com/drakmor/nanoDNS/releases/download/0.4/nanodns.elf
           curl -fL --retry 3 -o "$P/ps5-linux-loader-v2.4.elf" https://github.com/ps5-linux/ps5-linux-loader/releases/download/v2.4/ps5-linux-loader.elf
+          curl -fL --retry 3 -o "$P/ftpsrv-v0.21.1.elf" https://github.com/ps5-payload-dev/ftpsrv/releases/download/v0.21.1/ftpsrv-ps5.elf
+          curl -fL --retry 3 -o "$P/websrv-v0.34.elf" https://github.com/ps5-payload-dev/websrv/releases/download/v0.34/websrv-ps5.elf
+          curl -fL --retry 3 -o "$P/kstuff-v1.6.7.elf" https://github.com/EchoStretch/kstuff/releases/download/v1.6.7/kstuff.elf
+          xz -dc overlay/v120rc1/payloads/kstuff-lite-v1.10.elf.xz > "$P/kstuff-lite-v1.10.elf"
+          curl -fL --retry 3 -o "$P/shadowmountplus-v1.7alpha11.elf" https://github.com/drakmor/ShadowMountPlus/releases/download/1.7alpha11/shadowmountplus.elf
+          curl -fL --retry 3 -o "$P/onionhen-0.0.11.elf" https://github.com/aydencharles/onionHEN/releases/download/v0.0.11/OnionHEN.elf
+          curl -fL --retry 3 -o "$P/pizza-hen-v0.1.elf" https://github.com/Michele-M-Media/PIZZA-HEN/releases/download/v0.1/PIZZA-HEN-v0.1.elf
           echo '4845cac45095361b8983b14d6690622183b0dcfbf6d7fda16e161aa91ff0531e  work/upstream/frontend/autoloader/payloads/etahen-2.5B.bin' > payloads.sha256
           echo '512c74a9d6f56bb5a4ab871a0306a8cbefb8b3d5454ba8f1d833b020b245a126  work/upstream/frontend/autoloader/payloads/etahen-2.6B.bin' >> payloads.sha256
           echo '2f296d3f1e69b65439bb5dc362f0f6504f6dc9f245fa16a3683e9d7ec9533773  work/upstream/frontend/autoloader/payloads/cheatrunner-v0.17.elf' >> payloads.sha256
           echo 'dcb845f3570771275b22b37534bf924a7f8ae219fb91ef00c6bccab85d1c2420  work/upstream/frontend/autoloader/payloads/nanodns-0.4.elf' >> payloads.sha256
           echo '51382795b486f7c5a3681648d457d129088311fc3f9601aeaff78dc72fafcf1d  work/upstream/frontend/autoloader/payloads/ps5-linux-loader-v2.4.elf' >> payloads.sha256
+          echo '7d4b31c83eae4e056580482a3a074e1db25922efc74ac1e439473b45d71a5938  work/upstream/frontend/autoloader/payloads/ftpsrv-v0.21.1.elf' >> payloads.sha256
+          echo '54730c867c6e1148536fdcb370e63a7762d989ea87b62488ad4caff64d43f263  work/upstream/frontend/autoloader/payloads/websrv-v0.34.elf' >> payloads.sha256
+          echo 'f1c1f4b2b6395644af04cbe9828aba58586acf7aacb9e01113cac92ce16e3569  work/upstream/frontend/autoloader/payloads/kstuff-v1.6.7.elf' >> payloads.sha256
+          echo 'b1dfe57f367a35374f605127915eda38c76a6ed5d1c729e427955798bd78c66a  work/upstream/frontend/autoloader/payloads/kstuff-lite-v1.10.elf' >> payloads.sha256
+          echo 'e9daf5dea90807fc653e02180a0eaacf09bcc88e5d99d3f67aa6d7bbf1996522  work/upstream/frontend/autoloader/payloads/shadowmountplus-v1.7alpha11.elf' >> payloads.sha256
+          echo 'edc5663c32bad01df9c4045bc93c1bdfecafd84c3414774ef42c522744d40868  work/upstream/frontend/autoloader/payloads/onionhen-0.0.11.elf' >> payloads.sha256
+          echo 'eb627dac4746fbeb6ca88bf3e37d3c52562de15a0fb0ef433629b00e8a4a6abc  work/upstream/frontend/autoloader/payloads/pizza-hen-v0.1.elf' >> payloads.sha256
           sha256sum -c payloads.sha256
 
       - name: Verify Goldengames integration
@@ -54,10 +78,14 @@ jobs:
           set -euo pipefail
           APP=work/upstream/frontend/autoloader/app.js
           INDEX=work/upstream/frontend/autoloader/index.html
-          grep -Fq 'PS2 Memory Card' work/upstream/frontend/autoloader/style.css
-          grep -Fq 'id="payloadSelect"' "$INDEX"
-          grep -Fq "launchSelected('etahen-2.6B.bin'" "$APP"
-          grep -Fq "goldengames:session-ready" "$APP"
+          grep -Fq 'id="autoModeToggle"' "$INDEX"
+          grep -Fq 'id="jailbreakButton"' "$INDEX"
+          grep -Fq 'data-payload="onionhen-0.0.11.elf"' "$INDEX"
+          grep -Fq 'data-payload="pizza-hen-v0.1.elf"' "$INDEX"
+          grep -Fq 'data-payload="shadowmountplus-v1.7alpha11.elf"' "$INDEX"
+          grep -Fq 'v=final&autoload=' "$APP"
+          ! grep -Fq 'v=goldengames120rc1' "$APP"
+          grep -Fq "goldengames:v111-session-ready" "$APP"
           grep -Fq "GOLDENGAMES_PAYLOADS" work/upstream/tools/gen_file_registry.py
           grep -Fq 'id="showDetails"' "$INDEX"
           node --check "$APP"
@@ -72,25 +100,28 @@ jobs:
           docker build -t goldengames-ps5-sdk -f Dockerfile.sdk .
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -v "$PWD":/src -w /src goldengames-ps5-sdk make clean all
           test -f installer.elf
-          mv installer.elf goldengames-ps5-autoloader-installer_v1.1.1-test.elf
-          sha256sum goldengames-ps5-autoloader-installer_v1.1.1-test.elf | tee goldengames-ps5-autoloader-installer_v1.1.1-test.elf.sha256
+          mv installer.elf goldengames-ps5-jailbreak-installer_v1.1.1.elf
+          sha256sum goldengames-ps5-jailbreak-installer_v1.1.1.elf | tee goldengames-ps5-jailbreak-installer_v1.1.1.elf.sha256
 
       - name: Verify built package
         working-directory: work/upstream
         run: |
           set -euo pipefail
-          ELF=goldengames-ps5-autoloader-installer_v1.1.1-test.elf
+          ELF=goldengames-ps5-jailbreak-installer_v1.1.1.elf
           file "$ELF" | grep -Fq 'ELF 64-bit LSB pie executable, x86-64'
           strings "$ELF" | grep -Fq '/app/1.1.1/app.js'
           strings "$ELF" | grep -Fq 'cheatrunner-v0.17.elf'
           strings "$ELF" | grep -Fq 'ps5-linux-loader-v2.4.elf'
+          strings "$ELF" | grep -Fq 'onionhen-0.0.11.elf'
+          strings "$ELF" | grep -Fq 'pizza-hen-v0.1.elf'
+          strings "$ELF" | grep -Fq 'shadowmountplus-v1.7alpha11.elf'
 
-      - name: Upload v1.1.1 test build
+      - name: Upload Goldengames v1.1.1 build
         uses: actions/upload-artifact@v4
         with:
-          name: goldengames-ps5-autoloader-v1.1.1-test
+          name: goldengames-ps5-jailbreak-v1.1.1
           path: |
-            work/upstream/goldengames-ps5-autoloader-installer_v1.1.1-test.elf
-            work/upstream/goldengames-ps5-autoloader-installer_v1.1.1-test.elf.sha256
+            work/upstream/goldengames-ps5-jailbreak-installer_v1.1.1.elf
+            work/upstream/goldengames-ps5-jailbreak-installer_v1.1.1.elf.sha256
           if-no-files-found: error
           retention-days: 14
