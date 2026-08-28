@@ -39,6 +39,7 @@
   var ACTIVE_PAYLOAD_KEY = 'goldengames:v111-active-payload';
   var AUTO_MODE_KEY = 'goldengames:v111-auto-mode';
   var AUTO_PAYLOAD_KEY = 'goldengames:v111-auto-payload';
+  var queuedAutoPayload = null;
   var autoMode = false;
   var operationStartedAt = Date.now();
 
@@ -87,17 +88,11 @@
         retroBlocks[i].style.opacity = String(0.38 + height / 48);
         retroBlocks[i].style.background = colors[i];
       }
-      /* The long lower bar is an activity indicator while the exploit runs.
-         Move a 20% segment across the full track; progress text continues to
-         show the real reported stage instead of pretending to be a percent. */
-      var sweep = (retroAnimationFrame * 4) % 100;
-      if (sweep > 80) sweep = 160 - sweep;
-      progressBar.style.webkitTransition = 'none';
-      progressBar.style.transition = 'none';
-      progressBar.style.width = '20%';
-      progressBar.style.left = sweep + '%';
-      progressBar.style.webkitTransform = 'scaleX(1)';
-      progressBar.style.transform = 'scaleX(1)';
+      /* The colored bar grows with real exploit milestones. */
+      progressBar.style.width = '100%';
+      progressBar.style.left = '0';
+      progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
+      progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
     }, 140);
   }
 
@@ -304,19 +299,27 @@
         localStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
       } catch (e) { }
 
-      /* RC10 restores the lifecycle used by the earlier no-warning build:
-         wait for the final WKAL autoload result, then navigate the existing
-         UMTX2 iframe to about:blank. Do not remove it and do not reload the
-         outer app while etaHEN is starting. */
       /* Keep the runner iframe and the outer dashboard alive. Navigating the
          iframe to about:blank here could make the PS5 WebKit application
          disappear while a large HEN was still starting. */
 
-      /* RC11 follows upstream v0.4.0 for the memory-heavy first stage:
-         UMTX2 launches the small unified Payload Manager first. Only after
-         WebKit has returned the final result and the iframe is blank do we
-         send etaHEN through the already-live sender, without another kernel
-         exploit. This avoids starting etaHEN at UMTX2's memory peak. */
+      /* UMTX2 on 1.00-5.50 launches the small unified Payload Manager first.
+         This stays invisible to the user: after memory settles, the exact
+         payload card they pressed is sent without another kernel exploit. */
+      if (queuedAutoPayload && selectedPayload === 'payload.elf') {
+        var nextPayload = queuedAutoPayload;
+        queuedAutoPayload = null;
+        if (goldenStateEl) goldenStateEl.textContent = 'JAILBREAK READY · PREPARING PAYLOAD';
+        if (headerStateEl) headerStateEl.textContent = 'JAILBREAK COMPLETE';
+        if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
+        if (payloadValueEl) payloadValueEl.textContent = nextPayload.label.toUpperCase();
+        updateProgress(62, 'Jailbreak complete · preparing ' + nextPayload.label + '...');
+        setTimeout(function () {
+          launchSelected(nextPayload.payload, nextPayload.label, false);
+        }, 6500);
+        return;
+      }
+
       uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
       updateProgress(100, 'Payload launched successfully.');
       if (goldenStateEl) goldenStateEl.textContent = selectedLabel.toUpperCase() + ' READY';
@@ -324,6 +327,7 @@
       if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
       if (payloadValueEl) payloadValueEl.textContent = selectedLabel.toUpperCase();
     } else {
+      queuedAutoPayload = null;
       stopRetroAnimation();
       uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');
       updateProgress(0, 'Autoload failed.');
@@ -989,7 +993,8 @@
     if (headerStateEl) headerStateEl.textContent = forceJailbreak ? 'JAILBREAK RUNNING' : 'PAYLOAD RUNNING';
     if (exploitValueEl) exploitValueEl.textContent = forceJailbreak ? 'RUNNING' : (hasKnownSession() ? 'EXPLOIT OK' : 'STARTING');
     if (payloadValueEl) payloadValueEl.textContent = label.toUpperCase();
-    updateProgress(4, forceJailbreak
+    var initialProgress = !forceJailbreak && hasKnownSession() ? 68 : 4;
+    updateProgress(initialProgress, forceJailbreak
       ? (autoMode ? 'Preparing Auto Jailbreak...' : 'Preparing Jailbreak...')
       : 'Preparing ' + label + '...');
 
@@ -1028,6 +1033,16 @@
     revealExploit();
   }
 
+  function beginPayloadLaunch(payload, label, forceJailbreak) {
+    if (forceJailbreak && payload !== 'payload.elf' && pickExploit() === 'umtx2') {
+      queuedAutoPayload = { payload: payload, label: label };
+      launchSelected('payload.elf', 'Jailbreak Stage', true);
+      return;
+    }
+    queuedAutoPayload = null;
+    launchSelected(payload, label, forceJailbreak);
+  }
+
   function closeRiskDialog() {
     pendingRiskLaunch = null;
     if (riskDialogEl) riskDialogEl.hidden = true;
@@ -1035,7 +1050,7 @@
 
   function requestPayloadLaunch(payload, label, risk, forceJailbreak) {
     if (!risk) {
-      launchSelected(payload, label, !!forceJailbreak);
+      beginPayloadLaunch(payload, label, !!forceJailbreak);
       return;
     }
     var active = '';
@@ -1134,7 +1149,7 @@
         localStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
       } catch (e) { }
-      launchSelected(pending.payload, pending.label, pending.force);
+      beginPayloadLaunch(pending.payload, pending.label, pending.force);
     });
 
     if (hasKnownSession()) {

@@ -20,3 +20,14 @@ body:before{background:radial-gradient(circle at 50% 43%,rgba(244,247,250,.9),rg
 .statusPanel dl{padding:0 1.65rem}.statusPanel dl div{height:68px}.statusPanel dt{font-size:.82rem}.statusPanel dd{font-size:.84rem}.detailsButton{height:58px;margin-top:1rem;color:#f7f9fb;border-color:rgba(255,255,255,.7);background:linear-gradient(105deg,rgba(53,63,76,.88),rgba(95,107,121,.76));box-shadow:0 8px 18px rgba(25,34,47,.25);font-size:.82rem}.psBackdrop{opacity:1}.shape{text-shadow:0 20px 32px rgba(0,0,0,.24),inset 0 0 15px rgba(255,255,255,.4)}
 @media(max-width:1150px){.brandTitle h1{font-size:2.4rem}.brandHeader img{width:86px;height:86px}.consoleLayout{grid-template-columns:1fr 1.05fr .82fr}.payloadCard{min-height:64px}.lockButton{margin-top:3.4rem}.statusPanel dl div{height:58px}}
 @media(max-height:800px){.brandHeader{height:10vh}.brandHeader img{width:75px;height:75px}.brandTitle h1{font-size:2.1rem}.brandTitle p{margin-top:.4rem}.consoleLayout{height:78vh}.payloadCard{min-height:57px;margin-bottom:.42rem}.lockButton{width:145px;height:145px;margin:2.5rem auto .55rem}.lockShackle{left:41px;top:22px}.lockBody{left:30px;top:70px}.centerActivity{padding:.5rem .8rem}.statusPanel dl div{height:52px}}
+
+/* Test 4: real PS1 photograph, neon panels and stage-based progress. */
+.ps1ConsoleArt{width:118%;height:70%;left:-9%;top:15%;object-fit:contain;opacity:.34;filter:saturate(.82) contrast(.9) drop-shadow(0 18px 22px rgba(0,0,0,.42));mix-blend-mode:multiply}
+.payloadPanel{border-color:rgba(38,139,239,.92);box-shadow:inset 0 0 0 1px rgba(99,181,255,.28),0 0 20px rgba(35,133,232,.34),0 22px 48px rgba(25,34,47,.28)}
+.actionPanel{border-color:rgba(49,211,128,.86);box-shadow:inset 0 0 0 1px rgba(255,213,69,.25),-6px 0 22px rgba(221,64,82,.19),6px 0 22px rgba(47,123,235,.22),0 22px 48px rgba(25,34,47,.28)}
+.statusPanel{border-color:rgba(177,76,191,.82);box-shadow:inset 0 0 0 1px rgba(196,112,212,.24),0 0 20px rgba(149,63,179,.27),0 22px 48px rgba(25,34,47,.28)}
+.progressTrack{border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 2px 5px rgba(0,0,0,.42)}
+#progressBar{width:100%!important;left:0!important;transform-origin:left center;transition:transform .65s ease!important;animation:none!important;box-shadow:0 0 12px rgba(56,156,255,.7)}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:none!important}
+body.running .progressTrack{animation:trackGlow 1s ease-in-out infinite alternate}
+@keyframes trackGlow{to{box-shadow:inset 0 2px 5px rgba(0,0,0,.38),0 0 16px rgba(62,149,255,.58)}}
