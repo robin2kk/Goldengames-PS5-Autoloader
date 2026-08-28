@@ -201,6 +201,7 @@ def umtx2_iframe_url(app_dir, payload="payload.elf"):
 
 GOLDENGAMES_PAYLOADS = (
     "payload.elf",
+    "goldengames-stage.elf",
     "etahen-2.5B.bin",
     "etahen-2.6B.bin",
     "cheatrunner-v0.17.elf",

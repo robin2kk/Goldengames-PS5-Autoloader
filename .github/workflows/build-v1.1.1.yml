@@ -44,6 +44,7 @@ jobs:
           cp overlay/v120rc1/assets/param.json.template work/upstream/assets/param.json.template
           cp overlay/v120rc1/tools/gen_file_registry.py work/upstream/tools/gen_file_registry.py
           cp overlay/v120rc1/tools/apply_homescreen_background.py work/upstream/tools/apply_homescreen_background.py
+          cp overlay/v120rc1/tools/goldengames_stage.c work/upstream/tools/goldengames_stage.c
           (cd work/upstream && python3 tools/apply_homescreen_background.py)
           sed -i 's/#define WKAL_VERSION "0.4.0"/#define WKAL_VERSION "1.1.1"/' work/upstream/include/wkali.h
           sed -i 's/#define WKAL_TITLE_ID "WKAL00001"/#define WKAL_TITLE_ID "GGAU00001"/' work/upstream/include/wkali.h
@@ -87,7 +88,8 @@ jobs:
           INDEX=work/upstream/frontend/autoloader/index.html
           grep -Fq 'id="autoModeToggle"' "$INDEX"
           grep -Fq 'ps1-console.jpg' "$INDEX"
-          grep -Fq "Jailbreak Stage" "$APP"
+          grep -Fq "launchSelected('goldengames-stage.elf', 'Jailbreak Stage', true)" "$APP"
+          ! grep -Fq "launchSelected('payload.elf', 'Jailbreak Stage', true)" "$APP"
           grep -Fq "queuedAutoPayload" "$APP"
           grep -Fq "PAYLOAD FAILED · TRY AGAIN" "$APP"
           grep -Fq "exploitEl.src = 'about:blank'" "$APP"
@@ -123,6 +125,13 @@ jobs:
             sleep 15
           done
           test "$built" = 1
+          docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/src -w /src goldengames-ps5-sdk \
+            /opt/ps5-payload-sdk/bin/prospero-clang -Os -ffunction-sections -fdata-sections \
+            -Wl,--gc-sections -o frontend/autoloader/payloads/goldengames-stage.elf \
+            tools/goldengames_stage.c
+          docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/src -w /src goldengames-ps5-sdk \
+            /opt/ps5-payload-sdk/bin/prospero-strip frontend/autoloader/payloads/goldengames-stage.elf
+          test -s frontend/autoloader/payloads/goldengames-stage.elf
           docker run --rm -u "$(id -u):$(id -g)" -e BUILD_TYPE -e FORCE_EXPLOIT -v "$PWD":/src -w /src goldengames-ps5-sdk make clean all
           test -f installer.elf
           mv installer.elf goldengames-ps5-jailbreak-installer_v1.1.1.elf
@@ -140,6 +149,7 @@ jobs:
           strings "$ELF" | grep -Fq 'onionhen-0.0.11.elf'
           strings "$ELF" | grep -Fq 'pizza-hen-v0.1.elf'
           strings "$ELF" | grep -Fq 'shadowmountplus-v1.7alpha11.elf'
+          strings "$ELF" | grep -Fq 'goldengames-stage.elf'
 
       - name: Upload Goldengames v1.1.1 build
         uses: actions/upload-artifact@v4

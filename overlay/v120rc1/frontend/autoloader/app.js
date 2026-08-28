@@ -307,10 +307,10 @@
          iframe to about:blank here could make the PS5 WebKit application
          disappear while a large HEN was still starting. */
 
-      /* UMTX2 on 1.00-5.50 launches the small unified Payload Manager first.
-         This stays invisible to the user: after memory settles, the exact
-         payload card they pressed is sent without another kernel exploit. */
-      if (queuedAutoPayload && selectedPayload === 'payload.elf') {
+      /* UMTX2 on 1.00-5.50 launches an inert hand-off ELF first. It must not
+         use payload.elf here: the unified autoloader reads autoload.txt and
+         could launch a stale HEN instead of the card the user pressed. */
+      if (queuedAutoPayload && selectedPayload === 'goldengames-stage.elf') {
         var nextPayload = queuedAutoPayload;
         queuedAutoPayload = null;
         /* Retire only the hidden UMTX2 runner to release its memory. The
@@ -1052,9 +1052,9 @@
   }
 
   function beginPayloadLaunch(payload, label, forceJailbreak) {
-    if (forceJailbreak && payload !== 'payload.elf' && pickExploit() === 'umtx2') {
+    if (forceJailbreak && payload !== 'goldengames-stage.elf' && pickExploit() === 'umtx2') {
       queuedAutoPayload = { payload: payload, label: label };
-      launchSelected('payload.elf', 'Jailbreak Stage', true);
+      launchSelected('goldengames-stage.elf', 'Jailbreak Stage', true);
       return;
     }
     queuedAutoPayload = null;
