@@ -40,10 +40,13 @@
   var AUTO_MODE_KEY = 'goldengames:v111-auto-mode';
   var AUTO_PAYLOAD_KEY = 'goldengames:v111-auto-payload';
   var queuedAutoPayload = null;
+  var runtimeSessionReady = false;
+  var currentForceJailbreak = false;
   var autoMode = false;
   var operationStartedAt = Date.now();
 
   function hasKnownSession() {
+    if (runtimeSessionReady) return true;
     try {
       return !!(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY));
     } catch (e) {
@@ -292,6 +295,7 @@
        restore the classic full-height log; no-op for the other chains. */
     collapseP2jbStats();
     if (data.ok) {
+      runtimeSessionReady = true;
       try {
         sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
@@ -333,16 +337,19 @@
       queuedAutoPayload = null;
       stopRetroAnimation();
       var failureReason = data.why || 'unknown error';
-      try {
-        sessionStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
-        localStorage.removeItem(SESSION_KEY);
-        localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
-      } catch (e) { }
+      if (currentForceJailbreak) {
+        runtimeSessionReady = false;
+        try {
+          sessionStorage.removeItem(SESSION_KEY);
+          sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+          localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+        } catch (e) { }
+      }
       uiLog('[ERROR] Autoload failed: ' + failureReason, 'error');
       updateProgress(0, 'Failed: ' + failureReason);
       if (headerStateEl) headerStateEl.textContent = 'OPERATION FAILED';
-      if (exploitValueEl) exploitValueEl.textContent = 'FAILED';
+      if (exploitValueEl) exploitValueEl.textContent = currentForceJailbreak ? 'FAILED' : 'EXPLOIT OK';
       if (goldenStateEl) goldenStateEl.textContent = 'PAYLOAD FAILED · TRY AGAIN';
       if (payloadValueEl) payloadValueEl.textContent = 'NOT LOADED';
     }
@@ -993,6 +1000,7 @@
   function launchSelected(payload, label, forceJailbreak) {
     selectedPayload = payload;
     selectedLabel = label;
+    currentForceJailbreak = !!forceJailbreak;
     var activeCard = document.querySelector('.payloadCard[data-payload="' + payload + '"]');
     if (activeCard) activeCard.classList.add('active-launch');
     finished = false;
@@ -1065,7 +1073,11 @@
     }
     var active = '';
     try { active = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || localStorage.getItem(ACTIVE_PAYLOAD_KEY) || ''; } catch (e) { }
-    pendingRiskLaunch = { payload: payload, label: label, force: !!forceJailbreak };
+    if (!hasKnownSession() && !active) {
+      beginPayloadLaunch(payload, label, true);
+      return;
+    }
+    pendingRiskLaunch = { payload: payload, label: label, force: true };
     if (riskMessageEl) {
       if (risk === 'kstuff') {
         riskMessageEl.textContent = (active.indexOf('etahen') !== -1
@@ -1171,7 +1183,8 @@
         localStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
       } catch (e) { }
-      beginPayloadLaunch(pending.payload, pending.label, pending.force);
+      runtimeSessionReady = false;
+      beginPayloadLaunch(pending.payload, pending.label, true);
     });
 
     if (hasKnownSession()) {

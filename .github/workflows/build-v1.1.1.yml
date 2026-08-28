@@ -91,6 +91,8 @@ jobs:
           grep -Fq "queuedAutoPayload" "$APP"
           grep -Fq "PAYLOAD FAILED · TRY AGAIN" "$APP"
           grep -Fq "exploitEl.src = 'about:blank'" "$APP"
+          grep -Fq "runtimeSessionReady" "$APP"
+          grep -Fq 'data-label="etaHEN 2.5B" data-risk="kernel"' "$INDEX"
           grep -Fq 'Press any payload button' "$INDEX"
           ! grep -Fq 'id="jailbreakButton"' "$INDEX"
           ! grep -Fq 'id="launchSelectedButton"' "$INDEX"
