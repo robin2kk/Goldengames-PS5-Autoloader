@@ -33,6 +33,7 @@ jobs:
           cp overlay/v120rc1/frontend/autoloader/app.js work/upstream/frontend/autoloader/app.js
           cp overlay/v120rc1/frontend/autoloader/logo.svg work/upstream/frontend/autoloader/logo.svg
           cp overlay/v120rc1/frontend/autoloader/favicon.svg work/upstream/frontend/autoloader/favicon.svg
+          cp overlay/v120rc1/frontend/autoloader/ps1-console.svg work/upstream/frontend/autoloader/ps1-console.svg
           cp overlay/v120rc1/frontend/installer-page/index.html work/upstream/frontend/installer-page/index.html
           cp overlay/v120rc1/assets/icon.svg work/upstream/assets/icon.svg
           cat overlay/v120rc1/assets/pic0-4k-jpeg.parts/* > /tmp/goldengames-pic0-4k.jpg
@@ -84,7 +85,10 @@ jobs:
           APP=work/upstream/frontend/autoloader/app.js
           INDEX=work/upstream/frontend/autoloader/index.html
           grep -Fq 'id="autoModeToggle"' "$INDEX"
-          grep -Fq 'id="jailbreakButton"' "$INDEX"
+          grep -Fq 'ps1-console.svg' "$INDEX"
+          grep -Fq 'Press any payload button' "$INDEX"
+          ! grep -Fq 'id="jailbreakButton"' "$INDEX"
+          ! grep -Fq 'id="launchSelectedButton"' "$INDEX"
           grep -Fq 'data-payload="onionhen-0.0.11.elf"' "$INDEX"
           grep -Fq 'data-payload="pizza-hen-v0.1.elf"' "$INDEX"
           grep -Fq 'data-payload="shadowmountplus-v1.7alpha11.elf"' "$INDEX"

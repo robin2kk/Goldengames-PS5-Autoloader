@@ -28,8 +28,6 @@
   var modeNameEl = document.getElementById('modeName');
   var modeHelpEl = document.getElementById('modeHelp');
   var autoModeToggleEl = document.getElementById('autoModeToggle');
-  var jailbreakButtonEl = document.getElementById('jailbreakButton');
-  var launchSelectedButtonEl = document.getElementById('launchSelectedButton');
   var activityPayloadEl = document.getElementById('activityPayload');
   var detailsDrawerEl = document.getElementById('detailsDrawer');
   var retroStatusEl = document.querySelector('.retroLoader span');
@@ -39,7 +37,8 @@
   var pendingRiskLaunch = null;
   var SESSION_KEY = 'goldengames:v111-session-ready';
   var ACTIVE_PAYLOAD_KEY = 'goldengames:v111-active-payload';
-  var queuedAutoPayload = null;
+  var AUTO_MODE_KEY = 'goldengames:v111-auto-mode';
+  var AUTO_PAYLOAD_KEY = 'goldengames:v111-auto-payload';
   var autoMode = false;
   var operationStartedAt = Date.now();
 
@@ -194,8 +193,6 @@
   }
 
   function setControlsDisabled(disabled) {
-    if (jailbreakButtonEl) jailbreakButtonEl.disabled = disabled;
-    if (launchSelectedButtonEl) launchSelectedButtonEl.disabled = disabled;
     if (autoModeToggleEl) autoModeToggleEl.disabled = disabled;
     var cards = document.querySelectorAll('.payloadCard');
     for (var i = 0; i < cards.length; i++) cards[i].disabled = disabled;
@@ -219,10 +216,8 @@
     if (modeNameEl) modeNameEl.textContent = autoMode ? 'AUTO MODE' : 'MANUAL MODE';
     if (modeValueEl) modeValueEl.textContent = autoMode ? 'AUTO' : 'MANUAL';
     if (modeHelpEl) modeHelpEl.textContent = autoMode
-      ? 'Jailbreak and launch ' + selectedLabel + ' automatically.'
-      : 'Run the jailbreak first, then launch the selected payload.';
-    if (jailbreakButtonEl) jailbreakButtonEl.querySelector('span').textContent = autoMode
-      ? 'START AUTO JAILBREAK' : 'START JAILBREAK';
+      ? selectedLabel + ' will launch automatically when Goldengames opens.'
+      : 'Press any payload button to jailbreak and launch it.';
   }
 
   function selectPayload(card) {
@@ -231,7 +226,6 @@
     card.classList.add('selected');
     selectedPayload = card.getAttribute('data-payload');
     selectedLabel = card.getAttribute('data-label');
-    if (launchSelectedButtonEl) launchSelectedButtonEl.querySelector('span').textContent = 'LAUNCH ' + selectedLabel;
     if (payloadValueEl && hasKnownSession()) payloadValueEl.textContent = selectedLabel.toUpperCase();
     updateModeUi();
   }
@@ -284,7 +278,8 @@
     if (loaderEl) loaderEl.hidden = true;
     if (dashboardEl) dashboardEl.hidden = false;
     document.body.classList.remove('running');
-    if (launchSelectedButtonEl) launchSelectedButtonEl.classList.remove('selected-action');
+    var activeCards = document.querySelectorAll('.payloadCard.active-launch');
+    for (var i = 0; i < activeCards.length; i++) activeCards[i].classList.remove('active-launch');
     setControlsDisabled(false);
   }
 
@@ -313,42 +308,21 @@
          wait for the final WKAL autoload result, then navigate the existing
          UMTX2 iframe to about:blank. Do not remove it and do not reload the
          outer app while etaHEN is starting. */
-      if (exploitMode === 'umtx2') {
-        try { exploitEl.src = 'about:blank'; } catch (e) { }
-      }
+      /* Keep the runner iframe and the outer dashboard alive. Navigating the
+         iframe to about:blank here could make the PS5 WebKit application
+         disappear while a large HEN was still starting. */
 
       /* RC11 follows upstream v0.4.0 for the memory-heavy first stage:
          UMTX2 launches the small unified Payload Manager first. Only after
          WebKit has returned the final result and the iframe is blank do we
          send etaHEN through the already-live sender, without another kernel
          exploit. This avoids starting etaHEN at UMTX2's memory peak. */
-      if (queuedAutoPayload && selectedPayload === 'payload.elf') {
-        var nextAutoPayload = queuedAutoPayload;
-        queuedAutoPayload = null;
-        if (goldenStateEl) goldenStateEl.textContent = 'STAGE 1 READY · COOLING DOWN';
-        if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
-        updateProgress(55, 'Jailbreak ready · preparing ' + nextAutoPayload.label + '...');
-        setTimeout(function () {
-          launchSelected(nextAutoPayload.payload, nextAutoPayload.label, false);
-        }, 6500);
-        return;
-      }
-
-      var manualStageComplete = selectedPayload === 'payload.elf' && selectedLabel === 'Jailbreak Stage';
-      uiLog((manualStageComplete ? 'Jailbreak stage ready' : 'Payload loaded') + ' (' + data.bytes + ' bytes sent to elfldr).', 'success');
-      updateProgress(100, manualStageComplete ? 'Jailbreak completed. Choose a payload.' : 'Payload launched successfully.');
-      if (goldenStateEl) goldenStateEl.textContent = manualStageComplete ? 'JAILBREAK READY' : selectedLabel.toUpperCase() + ' READY';
+      uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
+      updateProgress(100, 'Payload launched successfully.');
+      if (goldenStateEl) goldenStateEl.textContent = selectedLabel.toUpperCase() + ' READY';
       if (headerStateEl) headerStateEl.textContent = 'OPERATION COMPLETE';
       if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
-      if (payloadValueEl) payloadValueEl.textContent = manualStageComplete ? 'READY TO SELECT' : selectedLabel.toUpperCase();
-      if (manualStageComplete) {
-        var chosenCard = document.querySelector('.payloadCard.selected');
-        if (chosenCard) {
-          selectedPayload = chosenCard.getAttribute('data-payload');
-          selectedLabel = chosenCard.getAttribute('data-label');
-          if (launchSelectedButtonEl) launchSelectedButtonEl.querySelector('span').textContent = 'LAUNCH ' + selectedLabel;
-        }
-      }
+      if (payloadValueEl) payloadValueEl.textContent = selectedLabel.toUpperCase();
     } else {
       stopRetroAnimation();
       uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');
@@ -1005,7 +979,8 @@
   function launchSelected(payload, label, forceJailbreak) {
     selectedPayload = payload;
     selectedLabel = label;
-    if (launchSelectedButtonEl) launchSelectedButtonEl.classList.toggle('selected-action', !forceJailbreak);
+    var activeCard = document.querySelector('.payloadCard[data-payload="' + payload + '"]');
+    if (activeCard) activeCard.classList.add('active-launch');
     finished = false;
     chainStarted = false;
     mirroredLines = 0;
@@ -1051,16 +1026,6 @@
     if (picked === 'poops' || picked === 'p2jb') clearSlopkitState();
     try { exploitEl.src = EXPLOIT_URL; } catch (e) { }
     revealExploit();
-  }
-
-  function startAutoJailbreak() {
-    queuedAutoPayload = { payload: selectedPayload, label: selectedLabel };
-    launchSelected('payload.elf', 'Jailbreak Stage', true);
-  }
-
-  function startManualJailbreak() {
-    queuedAutoPayload = null;
-    launchSelected('payload.elf', 'Jailbreak Stage', true);
   }
 
   function closeRiskDialog() {
@@ -1143,25 +1108,18 @@
     });
     if (autoModeToggleEl) autoModeToggleEl.addEventListener('click', function () {
       autoMode = !autoMode;
+      try {
+        localStorage.setItem(AUTO_MODE_KEY, autoMode ? '1' : '0');
+        localStorage.setItem(AUTO_PAYLOAD_KEY, selectedPayload);
+      } catch (e) { }
       updateModeUi();
     });
-    if (jailbreakButtonEl) jailbreakButtonEl.addEventListener('click', function () {
-      if (autoMode) startAutoJailbreak(); else startManualJailbreak();
-    });
-    if (launchSelectedButtonEl) launchSelectedButtonEl.addEventListener('click', function () {
-      var selectedCard = document.querySelector('.payloadCard.selected');
-      if (!selectedCard) return;
-      if (!hasKnownSession()) {
-        uiLog('Run the jailbreak before launching a payload in Manual Mode.', 'warning');
-        if (goldenStateEl) goldenStateEl.textContent = 'START JAILBREAK FIRST';
-        return;
-      }
-      requestPayloadLaunch(selectedPayload, selectedLabel, selectedCard.getAttribute('data-risk') || '', false);
-    });
-    var launchCards = document.querySelectorAll('[data-payload]');
+    var launchCards = document.querySelectorAll('.payloadCard[data-payload]');
     for (var c = 0; c < launchCards.length; c++) {
       launchCards[c].addEventListener('click', function () {
         selectPayload(this);
+        try { localStorage.setItem(AUTO_PAYLOAD_KEY, selectedPayload); } catch (e) { }
+        requestPayloadLaunch(selectedPayload, selectedLabel, this.getAttribute('data-risk') || '', !hasKnownSession());
       });
     }
     if (riskCancelEl) riskCancelEl.addEventListener('click', closeRiskDialog);
@@ -1183,7 +1141,22 @@
       if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
       if (goldenStateEl) goldenStateEl.textContent = 'PAYLOADS READY';
     }
+    try {
+      autoMode = localStorage.getItem(AUTO_MODE_KEY) === '1';
+      var savedPayload = localStorage.getItem(AUTO_PAYLOAD_KEY);
+      var savedCard = savedPayload && document.querySelector('.payloadCard[data-payload="' + savedPayload + '"]');
+      if (savedCard) selectPayload(savedCard);
+    } catch (e) { }
+    updateModeUi();
     setTimeout(showDashboard, 150);
+    if (autoMode) {
+      setTimeout(function () {
+        requestPayloadLaunch(selectedPayload, selectedLabel,
+          (document.querySelector('.payloadCard.selected') || {}).getAttribute
+            ? document.querySelector('.payloadCard.selected').getAttribute('data-risk') || ''
+            : '', !hasKnownSession());
+      }, 1400);
+    }
   }
 
   window.addEventListener('load', start);
