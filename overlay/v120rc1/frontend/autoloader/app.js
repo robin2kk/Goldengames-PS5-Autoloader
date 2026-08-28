@@ -48,7 +48,10 @@
   function hasKnownSession() {
     if (runtimeSessionReady) return true;
     try {
-      return !!(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY));
+      /* sessionStorage belongs to the current browser/console session. Never
+         restore an exploit-ready state from localStorage: it survives a full
+         PS5 reboot and would make a fresh kernel look jailbroken. */
+      return !!sessionStorage.getItem(SESSION_KEY);
     } catch (e) {
       return false;
     }
@@ -299,8 +302,6 @@
       try {
         sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
-        localStorage.setItem(SESSION_KEY, String(Date.now()));
-        localStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
       } catch (e) { }
 
       /* Keep the runner iframe and the outer dashboard alive. Navigating the
@@ -1072,7 +1073,7 @@
       return;
     }
     var active = '';
-    try { active = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || localStorage.getItem(ACTIVE_PAYLOAD_KEY) || ''; } catch (e) { }
+    try { active = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || ''; } catch (e) { }
     if (!hasKnownSession() && !active) {
       beginPayloadLaunch(payload, label, true);
       return;
@@ -1097,12 +1098,18 @@
   function start() {
     uiLog('Goldengames PS5 Jailbreak v1.1.1', 'success');
     updateProgress(0, 'Ready.');
+    /* Remove legacy persistent session markers written by Test 6/7. User
+       preferences remain persistent, but exploit state must never survive a
+       console reboot. */
+    try {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+    } catch (e) { }
     /* A page reload between the lightweight stage and the final payload must
        never be displayed as a completed jailbreak session. */
     try {
-      var restoredPayload = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY)
-        || localStorage.getItem(ACTIVE_PAYLOAD_KEY) || '';
-      if (restoredPayload === 'payload.elf') {
+      var restoredPayload = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || '';
+      if (restoredPayload === 'payload.elf' || restoredPayload === 'goldengames-stage.elf') {
         sessionStorage.removeItem(SESSION_KEY);
         sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
         localStorage.removeItem(SESSION_KEY);

@@ -94,6 +94,8 @@ jobs:
           grep -Fq "PAYLOAD FAILED · TRY AGAIN" "$APP"
           grep -Fq "exploitEl.src = 'about:blank'" "$APP"
           grep -Fq "runtimeSessionReady" "$APP"
+          grep -Fq "return !!sessionStorage.getItem(SESSION_KEY)" "$APP"
+          ! grep -Fq "localStorage.setItem(SESSION_KEY" "$APP"
           grep -Fq 'data-label="etaHEN 2.5B" data-risk="kernel"' "$INDEX"
           grep -Fq 'Press any payload button' "$INDEX"
           ! grep -Fq 'id="jailbreakButton"' "$INDEX"
