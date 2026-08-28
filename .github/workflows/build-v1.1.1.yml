@@ -20,6 +20,10 @@ jobs:
           set -euo pipefail
           git clone --branch v0.4.0 --depth 1 --recurse-submodules https://github.com/itsPLK/ps5-webkit-autoloader.git work/upstream
           test "$(git -C work/upstream rev-parse HEAD)" = "137f065d2ba8022ba8e796895e7cb05c204f2ce9"
+          # ftp.gnu.org is intermittently unreachable from GitHub-hosted runners.
+          # Use the matching upstream release asset hosted on GitHub instead.
+          sed -i 's#https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-1.0.1.tar.gz#https://github.com/Karlson2k/libmicrohttpd/releases/download/v1.0.1/libmicrohttpd-1.0.1.tar.gz#' work/upstream/build_deps.sh
+          grep -Fq 'github.com/Karlson2k/libmicrohttpd/releases/download/v1.0.1' work/upstream/build_deps.sh
 
       - name: Apply Goldengames v1.1.1 console dashboard
         run: |
