@@ -309,6 +309,9 @@
       if (queuedAutoPayload && selectedPayload === 'payload.elf') {
         var nextPayload = queuedAutoPayload;
         queuedAutoPayload = null;
+        /* Retire only the hidden UMTX2 runner to release its memory. The
+           visible Goldengames dashboard remains open and untouched. */
+        try { exploitEl.src = 'about:blank'; } catch (e) { }
         if (goldenStateEl) goldenStateEl.textContent = 'JAILBREAK READY · PREPARING PAYLOAD';
         if (headerStateEl) headerStateEl.textContent = 'JAILBREAK COMPLETE';
         if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
@@ -329,16 +332,23 @@
     } else {
       queuedAutoPayload = null;
       stopRetroAnimation();
-      uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');
-      updateProgress(0, 'Autoload failed.');
+      var failureReason = data.why || 'unknown error';
+      try {
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+      } catch (e) { }
+      uiLog('[ERROR] Autoload failed: ' + failureReason, 'error');
+      updateProgress(0, 'Failed: ' + failureReason);
       if (headerStateEl) headerStateEl.textContent = 'OPERATION FAILED';
       if (exploitValueEl) exploitValueEl.textContent = 'FAILED';
+      if (goldenStateEl) goldenStateEl.textContent = 'PAYLOAD FAILED · TRY AGAIN';
+      if (payloadValueEl) payloadValueEl.textContent = 'NOT LOADED';
     }
     setTimeout(function () {
-      if (data.ok) {
-        uiLog('Payload running on the console.', 'success');
-        showDashboard();
-      }
+      if (data.ok) uiLog('Payload running on the console.', 'success');
+      showDashboard();
     }, 1500);
   }
 
@@ -1075,6 +1085,18 @@
   function start() {
     uiLog('Goldengames PS5 Jailbreak v1.1.1', 'success');
     updateProgress(0, 'Ready.');
+    /* A page reload between the lightweight stage and the final payload must
+       never be displayed as a completed jailbreak session. */
+    try {
+      var restoredPayload = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY)
+        || localStorage.getItem(ACTIVE_PAYLOAD_KEY) || '';
+      if (restoredPayload === 'payload.elf') {
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+      }
+    } catch (e) { }
     var detected = detectFirmware();
     if (firmwareValueEl) firmwareValueEl.textContent = detected ? detected.str : 'UNKNOWN';
     updateModeUi();
@@ -1155,6 +1177,7 @@
     if (hasKnownSession()) {
       if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
       if (goldenStateEl) goldenStateEl.textContent = 'PAYLOADS READY';
+      updateProgress(100, 'Session ready.');
     }
     try {
       autoMode = localStorage.getItem(AUTO_MODE_KEY) === '1';

@@ -89,6 +89,8 @@ jobs:
           grep -Fq 'ps1-console.jpg' "$INDEX"
           grep -Fq "Jailbreak Stage" "$APP"
           grep -Fq "queuedAutoPayload" "$APP"
+          grep -Fq "PAYLOAD FAILED · TRY AGAIN" "$APP"
+          grep -Fq "exploitEl.src = 'about:blank'" "$APP"
           grep -Fq 'Press any payload button' "$INDEX"
           ! grep -Fq 'id="jailbreakButton"' "$INDEX"
           ! grep -Fq 'id="launchSelectedButton"' "$INDEX"
