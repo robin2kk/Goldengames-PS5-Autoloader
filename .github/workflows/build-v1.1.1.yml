@@ -97,9 +97,9 @@ jobs:
           grep -Fq "return !!sessionStorage.getItem(SESSION_KEY)" "$APP"
           ! grep -Fq "localStorage.setItem(SESSION_KEY" "$APP"
           grep -Fq 'id="headerState">WAITING FOR USER' "$INDEX"
-          grep -Fq "lockVisualEl.classList.add('unlocked')" "$APP"
-          grep -Fq '@keyframes colorFlow' work/upstream/frontend/autoloader/style.css
-          grep -Fq 'transform-origin:68px 62px' work/upstream/frontend/autoloader/style.css
+          grep -Fq 'class="ps5Mark"' "$INDEX"
+          ! grep -Fq 'id="lockVisual"' "$INDEX"
+          grep -Fq '@keyframes retroPixelRun' work/upstream/frontend/autoloader/style.css
           grep -Fq 'background:transparent!important' work/upstream/frontend/autoloader/style.css
           grep -Fq 'data-label="etaHEN 2.5B" data-risk="kernel"' "$INDEX"
           grep -Fq 'Press any payload button' "$INDEX"

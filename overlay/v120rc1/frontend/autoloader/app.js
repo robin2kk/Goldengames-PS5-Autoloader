@@ -20,7 +20,6 @@
   var riskContinueEl = document.getElementById('riskContinue');
   var goldenStateEl = document.getElementById('goldenState');
   var headerStateEl = document.getElementById('headerState');
-  var lockVisualEl = document.getElementById('lockVisual');
   var firmwareValueEl = document.getElementById('firmwareValue');
   var exploitValueEl = document.getElementById('exploitValue');
   var payloadValueEl = document.getElementById('payloadValue');
@@ -300,7 +299,6 @@
     collapseP2jbStats();
     if (data.ok) {
       runtimeSessionReady = true;
-      if (lockVisualEl) lockVisualEl.classList.add('unlocked');
       try {
         sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
@@ -342,7 +340,6 @@
       var failureReason = data.why || 'unknown error';
       if (currentForceJailbreak) {
         runtimeSessionReady = false;
-        if (lockVisualEl) lockVisualEl.classList.remove('unlocked');
         try {
           sessionStorage.removeItem(SESSION_KEY);
           sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
@@ -1005,7 +1002,6 @@
     selectedPayload = payload;
     selectedLabel = label;
     currentForceJailbreak = !!forceJailbreak;
-    if (forceJailbreak && lockVisualEl) lockVisualEl.classList.remove('unlocked');
     var activeCard = document.querySelector('.payloadCard[data-payload="' + payload + '"]');
     if (activeCard) activeCard.classList.add('active-launch');
     finished = false;
@@ -1204,7 +1200,6 @@
       if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
       if (goldenStateEl) goldenStateEl.textContent = 'PAYLOADS READY';
       if (headerStateEl) headerStateEl.textContent = 'JAILBREAK COMPLETE';
-      if (lockVisualEl) lockVisualEl.classList.add('unlocked');
       updateProgress(100, 'Session ready.');
     }
     try {

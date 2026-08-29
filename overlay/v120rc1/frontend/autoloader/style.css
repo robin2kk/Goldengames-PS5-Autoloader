@@ -46,3 +46,11 @@ body.running .centerActivity{background:transparent!important;box-shadow:none!im
 #progressBar{background-size:240% 100%!important}
 body.running #progressBar,body.running .centerActivity #progressBar{animation:colorFlow 1.15s linear infinite!important}
 @keyframes colorFlow{from{background-position:100% 0}to{background-position:-100% 0}}
+
+/* Test 11: clean PS5 emblem and stepped retro progress blocks. */
+.ps5Mark{height:188px;margin:5rem auto 1.05rem;display:flex;align-items:center;justify-content:center;gap:.03em;font:900 5.7rem/1 Arial Black,Arial,sans-serif;font-style:italic;letter-spacing:-.09em;filter:drop-shadow(0 5px 1px rgba(255,255,255,.82)) drop-shadow(0 11px 13px rgba(35,45,60,.3))}
+.ps5Mark span:nth-child(1){color:#df3439}.ps5Mark span:nth-child(2){color:#efbd24}.ps5Mark span:nth-child(3){color:#2877c8}
+.centerActivity #progressBar{background:repeating-linear-gradient(90deg,#df3439 0 9px,#efbd24 9px 18px,#25985e 18px 27px,#2877c8 27px 36px,rgba(20,29,42,.2) 36px 40px)!important;background-size:40px 100%!important;image-rendering:pixelated}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:retroPixelRun .62s steps(4,end) infinite!important}
+@keyframes retroPixelRun{from{background-position:0 0}to{background-position:40px 0}}
+@media(max-height:800px){.ps5Mark{height:145px;margin:2.5rem auto .55rem;font-size:4.5rem}}
