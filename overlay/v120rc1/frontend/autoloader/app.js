@@ -20,6 +20,7 @@
   var riskContinueEl = document.getElementById('riskContinue');
   var goldenStateEl = document.getElementById('goldenState');
   var headerStateEl = document.getElementById('headerState');
+  var lockVisualEl = document.getElementById('lockVisual');
   var firmwareValueEl = document.getElementById('firmwareValue');
   var exploitValueEl = document.getElementById('exploitValue');
   var payloadValueEl = document.getElementById('payloadValue');
@@ -299,6 +300,7 @@
     collapseP2jbStats();
     if (data.ok) {
       runtimeSessionReady = true;
+      if (lockVisualEl) lockVisualEl.classList.add('unlocked');
       try {
         sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
@@ -340,6 +342,7 @@
       var failureReason = data.why || 'unknown error';
       if (currentForceJailbreak) {
         runtimeSessionReady = false;
+        if (lockVisualEl) lockVisualEl.classList.remove('unlocked');
         try {
           sessionStorage.removeItem(SESSION_KEY);
           sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
@@ -1002,6 +1005,7 @@
     selectedPayload = payload;
     selectedLabel = label;
     currentForceJailbreak = !!forceJailbreak;
+    if (forceJailbreak && lockVisualEl) lockVisualEl.classList.remove('unlocked');
     var activeCard = document.querySelector('.payloadCard[data-payload="' + payload + '"]');
     if (activeCard) activeCard.classList.add('active-launch');
     finished = false;
@@ -1098,6 +1102,8 @@
   function start() {
     uiLog('Goldengames PS5 Jailbreak v1.1.1', 'success');
     updateProgress(0, 'Ready.');
+    if (progressLabel) progressLabel.textContent = 'SELECT A PAYLOAD';
+    if (activityPayloadEl) activityPayloadEl.textContent = 'NONE LAUNCHED';
     /* Remove legacy persistent session markers written by Test 6/7. User
        preferences remain persistent, but exploit state must never survive a
        console reboot. */
@@ -1197,6 +1203,8 @@
     if (hasKnownSession()) {
       if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
       if (goldenStateEl) goldenStateEl.textContent = 'PAYLOADS READY';
+      if (headerStateEl) headerStateEl.textContent = 'JAILBREAK COMPLETE';
+      if (lockVisualEl) lockVisualEl.classList.add('unlocked');
       updateProgress(100, 'Session ready.');
     }
     try {

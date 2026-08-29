@@ -31,3 +31,14 @@ body:before{background:radial-gradient(circle at 50% 43%,rgba(244,247,250,.9),rg
 body.running #progressBar,body.running .centerActivity #progressBar{animation:none!important}
 body.running .progressTrack{animation:trackGlow 1s ease-in-out infinite alternate}
 @keyframes trackGlow{to{box-shadow:inset 0 2px 5px rgba(0,0,0,.38),0 0 16px rgba(62,149,255,.58)}}
+
+/* Test 9 UI polish: transparent lock, real unlocked state and lively progress. */
+.lockButton{background:transparent!important;border-color:transparent!important;box-shadow:none!important;overflow:visible;transition:filter .45s ease,transform .45s ease}
+.lockShackle,.lockBody{transition:transform .55s cubic-bezier(.2,.9,.25,1.25),border-color .4s,background .4s,color .4s,box-shadow .4s}
+.lockButton.unlocked{filter:drop-shadow(0 0 15px rgba(255,190,35,.72));transform:scale(1.04)}
+.lockButton.unlocked .lockShackle{transform-origin:12px 62px;transform:translate(4px,-5px) rotate(31deg);border-color:#f2b82f}
+.lockButton.unlocked .lockBody{background:linear-gradient(145deg,#ffd85a,#d88a08);color:#202631;box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 8px 18px rgba(117,69,0,.28)}
+.centerActivity{width:86%;transform:translateY(10px);margin-bottom:.15rem}
+#progressBar{background-size:240% 100%!important}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:colorFlow 1.15s linear infinite!important}
+@keyframes colorFlow{from{background-position:100% 0}to{background-position:-100% 0}}
