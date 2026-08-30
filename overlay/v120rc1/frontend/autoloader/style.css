@@ -54,3 +54,13 @@ body.running #progressBar,body.running .centerActivity #progressBar{animation:co
 body.running #progressBar,body.running .centerActivity #progressBar{animation:retroPixelRun .62s steps(4,end) infinite!important}
 @keyframes retroPixelRun{from{background-position:0 0}to{background-position:40px 0}}
 @media(max-height:800px){.ps5Mark{height:108px;margin:1.8rem auto .45rem;font-size:3rem}}
+
+
+/* Test 13: unobstructed PS1 artwork and segmented reference-style meter. */
+.consoleViewSpacer{height:135px;margin:3.8rem auto .75rem;pointer-events:none}
+.centerActivity .progressTrack{height:20px!important;max-width:330px!important;position:relative;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+.centerActivity .progressTrack:before{content:"";position:absolute;inset:0;background:#75808c;-webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);opacity:.35}
+.centerActivity #progressBar{background:linear-gradient(90deg,#d9363e 0%,#e85b36 18%,#e6bd2f 38%,#55a64d 60%,#2878bc 82%,#295cc5 100%)!important;background-size:100% 100%!important;border-radius:0!important;-webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);box-shadow:none!important}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:retroSegmentPulse .72s steps(2,end) infinite!important}
+@keyframes retroSegmentPulse{0%,100%{filter:brightness(.9) saturate(1)}50%{filter:brightness(1.35) saturate(1.25)}}
+@media(max-height:800px){.consoleViewSpacer{height:108px;margin:1.8rem auto .45rem}.centerActivity .progressTrack{max-width:285px!important}}
