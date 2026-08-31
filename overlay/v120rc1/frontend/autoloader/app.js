@@ -5,6 +5,7 @@
   var loaderEl = document.getElementById('loader');
   var logContainer = document.getElementById('logContainer');
   var progressBar = document.getElementById('progressBar');
+  var progressSegments = progressBar ? progressBar.getElementsByTagName('i') : [];
   var progressLabel = document.getElementById('progressLabel');
   var exploitEl = document.getElementById('exploit');
   var dashboardEl = document.getElementById('dashboard');
@@ -81,6 +82,25 @@
   var retroAnimationFrame = 0;
   var reportedProgress = 0;
 
+  function renderSegmentProgress(percent, animateEdge) {
+    var total = progressSegments.length;
+    if (!total) return;
+    var safe = Math.max(0, Math.min(100, Number(percent) || 0));
+    var lit = safe > 0 ? Math.max(1, Math.ceil(safe * total / 100)) : 0;
+    var palette = ['#ed3941', '#efbd2c', '#42bd68', '#2e82d8'];
+    for (var i = 0; i < total; i++) {
+      var on = i < lit;
+      var color = palette[Math.min(3, Math.floor(i * 4 / total))];
+      var edge = on && i === lit - 1;
+      var high = edge && animateEdge && (retroAnimationFrame % 2 === 0);
+      progressSegments[i].className = on ? (edge ? 'on edge' : 'on') : '';
+      progressSegments[i].style.backgroundColor = on ? color : 'rgba(74,84,98,.3)';
+      progressSegments[i].style.height = high ? '24px' : (on ? '19px' : '15px');
+      progressSegments[i].style.opacity = high ? '1' : (on ? '.9' : '.38');
+      progressSegments[i].style.boxShadow = on ? ('0 0 ' + (high ? '14px ' : '7px ') + color) : 'none';
+    }
+  }
+
   function startRetroAnimation() {
     if (retroAnimationTimer) clearInterval(retroAnimationTimer);
     retroAnimationFrame = 0;
@@ -94,33 +114,15 @@
         retroBlocks[i].style.opacity = String(0.38 + height / 48);
         retroBlocks[i].style.background = colors[i];
       }
-      /* The colored bar grows with real exploit milestones. */
-      progressBar.style.width = '100%';
-      progressBar.style.left = '0';
-      progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
-      progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
-      /* Drive the visible retro pulse in JavaScript as well as CSS. Older PS5
-         WebKit builds do not reliably animate masked gradients. */
-      var pulseSteps = [0.76, 0.9, 1.08, 1.32, 1.08, 0.9];
-      var pulse = pulseSteps[retroAnimationFrame % pulseSteps.length];
-      progressBar.style.opacity = String(0.82 + (pulse - 0.76) * 0.32);
-      progressBar.style.webkitFilter = 'brightness(' + pulse + ') saturate(1.25)';
-      progressBar.style.filter = 'brightness(' + pulse + ') saturate(1.25)';
-      progressBar.style.boxShadow = '0 0 ' + Math.round(8 + pulse * 9) + 'px rgba(62,149,255,.78)';
+      /* Real DOM segments: compatible with older PS5 WebKit builds. */
+      renderSegmentProgress(reportedProgress, true);
     }, 140);
   }
 
   function stopRetroAnimation() {
     if (retroAnimationTimer) clearInterval(retroAnimationTimer);
     retroAnimationTimer = 0;
-    progressBar.style.width = '100%';
-    progressBar.style.left = '0';
-    progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
-    progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
-    progressBar.style.opacity = '1';
-    progressBar.style.webkitFilter = 'none';
-    progressBar.style.filter = 'none';
-    progressBar.style.boxShadow = 'none';
+    renderSegmentProgress(reportedProgress, false);
   }
 
   /* The slopkit chains (poops 7.00-12.00, p2jb 12.02-12.70) keep a one-shot
@@ -186,8 +188,7 @@
 
   function updateProgress(percent, message) {
     reportedProgress = percent;
-    progressBar.style.webkitTransform = 'scaleX(' + percent / 100 + ')';
-    progressBar.style.transform = 'scaleX(' + percent / 100 + ')';
+    renderSegmentProgress(percent, false);
     if (message) {
       progressLabel.textContent = message;
       if (activityPayloadEl) activityPayloadEl.textContent = selectedLabel;
@@ -947,7 +948,7 @@
          autoload flow owns the UI from this point on. */
       if (!p2jbComplete && p2jbLastStageText.indexOf('ELF LOADER READY') !== -1) {
         p2jbComplete = true;
-        progressBar.style.transform = 'scaleX(1)';
+        renderSegmentProgress(100, false);
         uiLog('[p2jb] exploit complete — elfldr ready.', 'success');
         /* Pin the panel green at 100% until the autoload result lands, then
            onAutoloadResult collapses back to the classic full-height log.

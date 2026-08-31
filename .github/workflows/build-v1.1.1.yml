@@ -102,8 +102,10 @@ jobs:
           ! grep -Fq 'id="lockVisual"' "$INDEX"
           grep -Fq '@keyframes retroSegmentPulse' work/upstream/frontend/autoloader/style.css
           grep -Fq -- '-webkit-mask:repeating-linear-gradient' work/upstream/frontend/autoloader/style.css
-          grep -Fq 'pulseSteps = [0.76, 0.9, 1.08, 1.32' "$APP"
+          grep -Fq 'function renderSegmentProgress(percent, animateEdge)' "$APP"
+          grep -Fq 'class="segmentMeter"' "$INDEX"
           grep -Fq '@keyframes neonButtonStep' work/upstream/frontend/autoloader/style.css
+          grep -Fq '#progressBar.segmentMeter i' work/upstream/frontend/autoloader/style.css
           grep -Fq 'background:transparent!important' work/upstream/frontend/autoloader/style.css
           grep -Fq 'data-label="etaHEN 2.5B" data-risk="kernel"' "$INDEX"
           grep -Fq 'Press any payload button' "$INDEX"

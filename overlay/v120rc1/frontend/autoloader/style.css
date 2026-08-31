@@ -79,3 +79,10 @@ body.running .centerActivity .symbolProgress>span{animation:neonButtonStep .7s s
 body.running .centerActivity .symbolProgress>span:nth-child(2){animation-delay:.12s!important}body.running .centerActivity .symbolProgress>span:nth-child(3){animation-delay:.24s!important}body.running .centerActivity .symbolProgress>span:nth-child(4){animation-delay:.36s!important}
 @keyframes neonButtonStep{from{transform:translateY(0);filter:brightness(.8)}to{transform:translateY(-5px);filter:brightness(1.45)}}
 @media(max-height:800px){.consoleViewSpacer{height:168px!important;margin:1.25rem auto .25rem!important}}
+
+
+/* Test 15: real DOM meter blocks for maximum PS5 WebKit compatibility. */
+.centerActivity .progressTrack{overflow:visible!important}
+#progressBar.segmentMeter{position:absolute!important;inset:0!important;width:100%!important;height:26px!important;display:flex!important;align-items:center!important;gap:4px!important;transform:none!important;-webkit-transform:none!important;background:none!important;-webkit-mask:none!important;mask:none!important;animation:none!important;box-shadow:none!important;opacity:1!important;filter:none!important;-webkit-filter:none!important}
+#progressBar.segmentMeter i{display:block;flex:1;min-width:3px;height:15px;border-radius:2px;transition:height .12s linear,opacity .12s linear,box-shadow .12s linear;background-color:rgba(74,84,98,.3)}
+body.running #progressBar.segmentMeter,body.running .centerActivity #progressBar.segmentMeter{animation:none!important}
