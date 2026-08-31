@@ -1,660 +1,88 @@
-* {
-  margin: 0;
-  padding: 0;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: #0f172a;
-  background: -webkit-linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
-  color: #e2e8f0;
-  min-height: 100%;
-  overflow: hidden;
-}
-
-/* v1.2.0-rc6 dashboard: PS2 memory-card slots, designed for 1080p TV viewing. */
-#dashboard {
-  position: relative;
-  z-index: 10;
-  height: 100%;
-  overflow-y: auto;
-  padding: 2.1rem 5vw 6.5rem;
-}
-
-.memoryPanel { max-width: 1280px; margin: 1.2rem auto 0; }
-.heroLaunch {
-  width: 100%; margin: 1rem 0 1.15rem; padding: 1rem 1.25rem;
-  display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center;
-  color: #fff; text-align: left; border: 1px solid #f5c542; border-radius: 14px;
-  background: -webkit-linear-gradient(135deg, #735d08, #c58d09 55%, #5b4308);
-  box-shadow: 0 0 24px rgba(245,197,66,.17); cursor: pointer;
-}
-.heroLaunch:focus, .payloadCard:focus, .ps2Button:focus {
-  outline: 3px solid #fff; outline-offset: 3px; -webkit-transform: translateY(-2px); transform: translateY(-2px);
-}
-.heroLaunch > i { font-size: 2.2rem; margin-right: 1rem; font-style: normal; }
-.heroLaunch span { -webkit-box-flex: 1; flex: 1; }
-.heroLaunch strong, .heroLaunch small { display: block; }
-.heroLaunch strong { font-size: 1.25rem; letter-spacing: .08em; }
-.heroLaunch small { margin-top: .2rem; color: #fff3bd; }
-.heroLaunch > b { letter-spacing: .1em; }
-.categoryTitle { display: -webkit-box; display: flex; -webkit-box-pack: justify; justify-content: space-between; margin: .8rem 0; color: #a9c9ff; letter-spacing: .08em; }
-.categoryTitle small { color: #7f95b7; letter-spacing: 0; }
-.payloadGrid, .advancedGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
-.payloadCard {
-  min-height: 84px; padding: .9rem; display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center;
-  color: #eef6ff; text-align: left; border: 1px solid #275aa0; border-radius: 12px;
-  background: -webkit-linear-gradient(145deg, rgba(16,58,116,.96), rgba(7,27,67,.98)); cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 20px rgba(0,0,0,.2);
-}
-.payloadCard > i {
-  width: 3rem; height: 3rem; margin-right: .75rem; display: -webkit-box; display: flex;
-  -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center;
-  flex: 0 0 3rem; color: #9ed1ff; font-size: .78rem; font-style: normal; font-weight: 800;
-  border: 1px solid #3887da; border-radius: 8px; background: #071d48;
-}
-.payloadCard strong, .payloadCard small { display: block; }
-.payloadCard strong { font-size: .88rem; letter-spacing: .045em; }
-.payloadCard small { margin-top: .28rem; color: #8ba8ca; }
-.payloadCard.caution { border-color: #a87920; }
-.payloadCard.danger { border-color: #b64e5b; background: -webkit-linear-gradient(145deg, #4e1831, #210d23); }
-.payloadCard.danger > i { color: #ffb1bb; border-color: #a04458; background: #2b1023; }
-.advancedPanel { margin-top: .85rem; padding: .8rem; border: 1px solid #673952; border-radius: 12px; background: rgba(23,8,28,.78); }
-.advancedPanel summary { color: #ffb1bb; cursor: pointer; letter-spacing: .07em; }
-.advancedPanel > p { margin: .65rem 0; color: #c8a8b2; font-size: .82rem; }
-.advancedGrid { grid-template-columns: repeat(2, 1fr); }
-.compactLabel { display: block; margin-top: 1rem; color: #6f88aa; font-size: .75rem; letter-spacing: .08em; }
-.riskDialog { position: fixed; z-index: 80; inset: 0; display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; background: rgba(0,0,0,.78); }
-.riskDialog[hidden] { display: none !important; }
-.riskCard { width: min(580px, 88vw); padding: 1.8rem; text-align: center; border: 2px solid #e75d71; border-radius: 16px; background: #170d1c; box-shadow: 0 0 40px rgba(231,93,113,.25); }
-.riskSymbol { color: #ffca4b; font-size: 2.4rem; }
-.riskCard h2 { margin: .55rem 0; color: #ffb1bb; letter-spacing: .08em; }
-.riskCard p { color: #ddd2d7; line-height: 1.55; }
-.riskCard div { display: -webkit-box; display: flex; gap: .65rem; margin-top: 1.25rem; }
-.riskCard button { -webkit-box-flex: 1; flex: 1; padding: .8rem; color: #fff; border: 1px solid #52647d; border-radius: 9px; background: #182236; }
-#riskContinue { border-color: #b64e5b; background: #6a2032; }
-
-@media (max-width: 900px) {
-  .payloadGrid { grid-template-columns: repeat(2, 1fr); }
-  .categoryTitle small { display: none; }
-}
-
-#footer {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: #4b5563;
-  line-height: 1.5;
-  text-align: center;
-  z-index: 20;
-}
-
-
-
-/* Splash screen: shown before the loader, animate out once at startup */
-#splash {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 30;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  background: #0f172a;
-  background: -webkit-linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
-  opacity: 1;
-  -webkit-transition: opacity 0.45s ease-in, visibility 0s linear 0.45s;
-  transition: opacity 0.45s ease-in, visibility 0s linear 0.45s;
-}
-
-#splash.hide {
-  opacity: 0;
-  visibility: hidden;
-  -webkit-transition: opacity 0.45s ease-in, visibility 0s linear 0.45s;
-  transition: opacity 0.45s ease-in, visibility 0s linear 0.45s;
-}
-
-#splash .logo {
-  width: 11rem;
-  height: 11rem;
-  -webkit-animation: splash-in 0.8s ease-out both;
-  animation: splash-in 0.8s ease-out both;
-}
-
-#splash h1 {
-  margin-top: 1.75rem;
-  font-size: 2.5rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #e2e8f0;
-  -webkit-animation: splash-in 0.8s ease-out 0.15s both;
-  animation: splash-in 0.8s ease-out 0.15s both;
-}
-
-@-webkit-keyframes splash-in {
-  from {
-    opacity: 0;
-    -webkit-transform: translateY(10px);
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    -webkit-transform: translateY(0);
-    transform: translateY(0);
-  }
-}
-
-@keyframes splash-in {
-  from {
-    opacity: 0;
-    -webkit-transform: translateY(10px);
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    -webkit-transform: translateY(0);
-    transform: translateY(0);
-  }
-}
-
-
-
-/* Loader UI: centered; the bottom-right iframe just floats over it */
-#loader {
-  position: relative;
-  z-index: 10;
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  background: #0f172a;
-  background: -webkit-linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
-}
-
-main[hidden] {
-  display: none !important;
-}
-
-#logWrapper {
-  width: 82%;
-  height: 72%;
-  max-width: 1220px;
-  background: #05070d;
-  border: 1px solid #1e3a5f;
-  border-radius: 10px;
-  overflow-y: auto;
-  font-family: "SFMono-Regular", Menlo, Monaco, "Cascadia Mono", monospace;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  padding: 1rem 1.25rem;
-}
-
-#logContainer {
-  color: #94a3b8;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
-#logContainer .line {
-  white-space: pre-wrap;
-  margin-bottom: 0.25rem;
-}
-
-#logContainer .info {
-  color: #94a3b8;
-}
-
-#logContainer .success {
-  color: #7df966;
-}
-
-#logContainer .warning {
-  color: #fbbf24;
-}
-
-#logContainer .error {
-  color: #f87171;
-}
-
-#progressContainer {
-  position: relative;
-  width: 82%;
-  max-width: 1220px;
-  height: 3rem;
-  margin-top: 1.75rem;
-  background: #1b2436;
-  border: 1px solid #2c3e5a;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-#progressBar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background: #38bdf8;
-  background: -webkit-linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
-  -webkit-transform: scaleX(0);
-  transform: scaleX(0);
-  -webkit-transform-origin: left center;
-  transform-origin: left center;
-  -webkit-transition: -webkit-transform 0.5s ease-in-out;
-  transition: transform 0.5s ease-in-out;
-}
-
-#progressLabel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-  z-index: 1;
-  pointer-events: none;
-}
-
-
-/* p2jb live statistics panel: our own rendering of the exploit's #livestat
-   readout (phase + OVERALL bars, ETA, worker progress, detail counters),
-   mirrored by app.js. Hidden for every other chain; while visible the log
-   shrinks and this panel fills the space below. */
-#p2jbStats {
-  width: 82%;
-  max-width: 1220px;
-  margin-top: 1.5rem;
-  padding: 1.35rem 1.6rem;
-  background: #05070d;
-  border: 1px solid #1e3a5f;
-  border-radius: 12px;
-  font-family: "SFMono-Regular", Menlo, Monaco, "Cascadia Mono", monospace;
-}
-
-#p2jbStats[hidden] {
-  display: none !important;
-}
-
-body.p2jb-stats #loader {
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  padding-bottom: 3.5rem; /* keep clear of the fixed footer */
-}
-
-body.p2jb-stats #logWrapper {
-  height: 32%;
-  margin-top: 0;
-}
-
-/* The panel carries all progress info — the slim bar would only duplicate
-   its OVERALL row. Restored when the panel collapses. */
-body.p2jb-stats #progressContainer {
-  display: none;
-}
-
-.stats-head {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-align: baseline;
-  -webkit-align-items: baseline;
-  align-items: baseline;
-  margin-bottom: 0.8rem;
-}
-
-.stats-head > * {
-  margin-right: 1rem;
-}
-
-.stats-title {
-  font-size: 1.45rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #e2e8f0;
-}
-
-.stats-chip {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #7dd3fc;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  border-radius: 999px;
-  padding: 0.25rem 0.85rem;
-}
-
-.stats-clock {
-  margin-left: auto;
-  margin-right: 0;
-  font-size: 1.05rem;
-  color: #94a3b8;
-}
-
-.stats-status {
-  min-height: 1.5em;
-  margin-bottom: 0.6rem;
-  font-size: 1.2rem;
-  color: #b8c4d2;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.stats-status.bad {
-  color: #f87171;
-}
-
-/* Counters + per-worker bars share one row: detail text left, the worker
-   strip filling the rest (wrapping when upstream feeds many workers). */
-.stats-infoline {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-align: start;
-  -webkit-align-items: flex-start;
-  align-items: flex-start;
-  margin-bottom: 0.8rem;
-}
-
-/* Extra livestat lines upstream feeds beyond the headline (byte counters,
-   "queued / in-pipe", race tallies, ...). */
-.stats-detail {
-  -webkit-flex: 0 1 auto;
-  flex: 0 1 auto;
-  margin-right: 1.5rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #8fa1b3;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
-.stats-detail[hidden] {
-  display: none !important;
-}
-
-/* Per-worker progress strip (upstream's "per-core:" line during the leak):
-   compact bars filling the right side with percentages inside. */
-#p2jbGroups {
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  gap: 1.1rem;
-  margin-top: 0.15rem;
-}
-
-#p2jbGroups[hidden] {
-  display: none !important;
-}
-
-#p2jbGroups .group {
-  -webkit-flex: 1 1 0%;
-  flex: 1 1 0%;
-  min-width: 90px;
-}
-
-#p2jbGroups .gtrack {
-  position: relative;
-  display: block;
-  height: 1.35rem;
-  background: #131c2e;
-  border: 1px solid #223452;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-#p2jbGroups .gpct {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.35rem;
-  color: #dfe9f5;
-  letter-spacing: 0.02em;
-}
-
-.stats-bar-row {
-  margin-top: 0.85rem;
-}
-
-.stats-bar-row.overall {
-  margin-top: 1.1rem;
-}
-
-.stats-bar-label {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  justify-content: space-between;
-  margin-bottom: 0.4rem;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #8fa1b3;
-}
-
-.stats-bar-label span:last-child {
-  color: #e2e8f0;
-}
-
-.stats-track {
-  position: relative;
-  height: 1.25rem;
-  background: #131c2e;
-  border: 1px solid #223452;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.stats-track.big {
-  height: 1.7rem;
-}
-
-.stats-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #38bdf8;
-  background: -webkit-linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
-  -webkit-transform: scaleX(0);
-  transform: scaleX(0);
-  -webkit-transform-origin: left center;
-  transform-origin: left center;
-}
-
-body.p2jb-done .stats-fill {
-  background: #16c60c;
-  background: -webkit-linear-gradient(90deg, #15803d 0%, #47c76a 100%);
-}
-
-/* Goldengames v1.1.0 dashboard skin. Functional v0.4.0 IDs and layout remain. */
-body {
-  background: radial-gradient(circle at 75% 8%, #102b5d 0%, #050b18 38%, #01030a 100%);
-}
-body:before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: .16;
-  background: linear-gradient(rgba(35,117,230,.22) 1px, transparent 1px), linear-gradient(90deg,rgba(35,117,230,.22) 1px,transparent 1px);
-  background-size: 52px 52px;
-}
-#splash h1 { color:#f6c64d; font-weight:800; letter-spacing:.12em; }
-#splash p { margin-top:.55rem; color:#7bcaff; letter-spacing:.26em; font-size:.9rem; }
-#splash p strong { color:#fff; }
-#loader { width:86vw; max-width:1400px; margin:auto; padding:4vh 4vw 5.5rem; }
-#goldenHeader {
-  display:-webkit-box; display:-webkit-flex; display:flex; -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-  padding:1.1rem 1.35rem; margin-bottom:1.25rem; border:1px solid #244e7e; border-radius:20px;
-  background:linear-gradient(135deg,rgba(9,27,57,.97),rgba(3,10,24,.97)); box-shadow:0 0 35px rgba(19,122,255,.13);
-}
-#goldenHeader img { width:72px; height:72px; margin-right:1rem; }
-#goldenHeader div { display:-webkit-box; display:-webkit-flex; display:flex; -webkit-box-orient:vertical; -webkit-flex-direction:column; flex-direction:column; }
-#goldenHeader strong { color:#f7c84b; font-size:1.65rem; letter-spacing:.12em; }
-#goldenHeader span { color:#68c2ff; margin-top:.25rem; font-size:.78rem; letter-spacing:.24em; }
-#systemBadge { margin-left:auto; padding:.65rem 1rem; border:1px solid rgba(87,196,255,.42); border-radius:999px; color:#9cddff; background:rgba(31,137,220,.1); font-size:.72rem; letter-spacing:.12em; }
-#statusCard { display:-webkit-box; display:-webkit-flex; display:flex; -webkit-box-pack:justify; -webkit-justify-content:space-between; justify-content:space-between; margin-bottom:1rem; padding:.85rem 1.2rem; border-left:4px solid #f2bd3f; background:rgba(10,26,51,.82); }
-#statusCard span { color:#738eac; font-size:.72rem; letter-spacing:.18em; }
-#goldenState { color:#f3c44b; font-size:.82rem; letter-spacing:.12em; }
-#logWrapper, #p2jbStats { border-color:#244b76; border-radius:18px; background:rgba(2,8,19,.9); box-shadow:inset 0 0 30px rgba(0,0,0,.35); }
-#progressContainer { border-color:#315f91; background:#071126; border-radius:999px; }
-#progressBar, .stats-fill { background:#1a92ff; background:-webkit-linear-gradient(90deg,#087cf0 0%,#55c9ff 62%,#f4be3f 100%); }
-#footer { color:#607894; }
-@media (max-width: 760px) {
-  #systemBadge { display:none; }
-  #loader { width:94vw; padding-left:2.5vw; padding-right:2.5vw; }
-  #goldenHeader strong { font-size:1.15rem; }
-  #goldenHeader span { font-size:.62rem; letter-spacing:.14em; }
-}
-
-/* Goldengames v1.2.0-rc6 — PS2 Memory Card dashboard. */
-.ps2World{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 110%,rgba(19,77,191,.58),transparent 54%)}
-.memoryBlock{position:absolute;width:120px;height:230px;border:1px solid rgba(61,139,255,.34);background:linear-gradient(90deg,rgba(4,22,72,.88),rgba(12,52,135,.5));box-shadow:0 0 35px rgba(20,100,255,.17);transform:perspective(500px) rotateY(-18deg);animation:memoryRise 12s linear infinite}
-.memoryBlock:before{content:"";position:absolute;inset:12px;border:1px solid rgba(83,153,255,.22);background:repeating-linear-gradient(0deg,transparent 0 18px,rgba(84,148,255,.12) 19px 20px)}
-.memoryBlock.b1{left:7%;bottom:-260px}.memoryBlock.b2{left:28%;bottom:-300px;animation-delay:-7s}.memoryBlock.b3{right:25%;bottom:-250px;animation-delay:-3s}.memoryBlock.b4{right:6%;bottom:-320px;animation-delay:-9s}
-@keyframes memoryRise{0%{transform:translateY(0) perspective(500px) rotateY(-18deg);opacity:0}15%{opacity:.75}85%{opacity:.45}100%{transform:translateY(-130vh) perspective(500px) rotateY(-18deg);opacity:0}}
-.psSymbol{position:absolute;font-family:Arial,sans-serif;font-size:5rem;opacity:.22;filter:drop-shadow(0 0 14px currentColor);animation:symbolFloat 8s ease-in-out infinite}.triangle{left:9%;top:16%;color:#39d1b5}.circle{right:10%;top:15%;color:#ff557e;animation-delay:-2s}.cross{left:12%;bottom:12%;color:#64a7ff;animation-delay:-4s}.square{right:12%;bottom:14%;color:#d77bff;animation-delay:-6s}
-@keyframes symbolFloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-24px) rotate(8deg)}}
-#dashboard{position:relative;z-index:2;width:78vw;max-width:1180px;margin:auto;padding:5vh 0 5.5rem}
-.ps2Header{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;padding:1.2rem 1.45rem;border-bottom:1px solid rgba(88,149,255,.45);background:linear-gradient(90deg,rgba(3,12,37,.95),rgba(9,35,91,.86),rgba(3,12,37,.95))}
-.ps2Header img{width:78px;height:78px;margin-right:1rem}.ps2Header h1{margin:0;color:#f4c951;font-size:1.85rem;letter-spacing:.14em}.ps2Header p{margin:.25rem 0 0;color:#71b7ff;font-size:.75rem;letter-spacing:.25em}.onlineDot{margin-left:auto;color:#75dca0;font-size:.7rem;letter-spacing:.14em}.onlineDot:before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#39d57c;box-shadow:0 0 12px #39d57c}
-.memoryPanel{margin-top:1rem;padding:2.2rem 2.4rem;border:1px solid #274f9d;border-radius:4px;background:linear-gradient(145deg,rgba(5,17,53,.97),rgba(4,10,30,.98));box-shadow:inset 0 0 55px rgba(20,68,160,.17),0 24px 80px rgba(0,0,0,.42)}
-.memoryTitle{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:2rem;color:#6fa8ff;font-size:.75rem;letter-spacing:.2em}.memoryTitle b{color:#8b9bb8}
-.memoryPanel label{display:block;margin-bottom:.55rem;color:#9dbbe6;font-size:.72rem;letter-spacing:.19em}.selectShell{position:relative;border:1px solid #3169c4;background:#02091d}.selectShell:after{content:"▼";position:absolute;right:1.15rem;top:50%;transform:translateY(-50%);color:#74b3ff;pointer-events:none}.selectShell select{width:100%;padding:1.15rem 3.2rem 1.15rem 1.2rem;border:0;outline:0;background:transparent;color:#fff;font:700 1.08rem Arial,sans-serif;-webkit-appearance:none;appearance:none}.selectShell option{background:#07152f;color:#fff}
-.actionRow{display:-webkit-box;display:-webkit-flex;display:flex;gap:1rem;margin-top:1.25rem}.ps2Button{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-flex:1;flex:1;padding:1rem 1.15rem;border:1px solid #2c72d7;background:linear-gradient(135deg,#0d4aa6,#09245b);color:#fff;text-align:left}.ps2Button i{margin-right:1rem;color:#79b7ff;font:normal 2rem Arial}.ps2Button span{font-weight:800;letter-spacing:.09em}.ps2Button small{display:block;margin-top:.3rem;color:#9db5d7;font-weight:400;letter-spacing:.04em}.ps2Button.gold{border-color:#c79629;background:linear-gradient(135deg,#664810,#1c2852)}.ps2Button.gold i{color:#f2c34a}.ps2Button:active{transform:scale(.985)}.sessionHint{margin:1.45rem 0 0;color:#7185a7;font-size:.78rem;text-align:center}
-.retroLoader{margin:0 0 1rem;padding:1rem;border:1px solid rgba(55,119,221,.4);background:rgba(3,12,32,.72);text-align:center}.retroLoader span{display:block;margin-top:.7rem;color:#6baeff;font-size:.68rem;letter-spacing:.2em}.retroBlocks{height:28px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;gap:9px}.retroBlocks i{width:18px;height:28px;background:linear-gradient(#4b8cff,#12346f);box-shadow:0 0 12px rgba(54,126,255,.5);-webkit-animation:blockPulse 1s ease-in-out infinite;animation:blockPulse 1s ease-in-out infinite}.retroBlocks i:nth-child(2){-webkit-animation-delay:.12s;animation-delay:.12s}.retroBlocks i:nth-child(3){-webkit-animation-delay:.24s;animation-delay:.24s}.retroBlocks i:nth-child(4){-webkit-animation-delay:.36s;animation-delay:.36s}.retroBlocks i:nth-child(5){-webkit-animation-delay:.48s;animation-delay:.48s}@-webkit-keyframes blockPulse{0%,100%{-webkit-transform:scaleY(.4);transform:scaleY(.4);opacity:.38}50%{-webkit-transform:scaleY(1);transform:scaleY(1);opacity:1}}@keyframes blockPulse{0%,100%{-webkit-transform:scaleY(.4);transform:scaleY(.4);opacity:.38}50%{-webkit-transform:scaleY(1);transform:scaleY(1);opacity:1}}
-#logWrapper{display:none}.details-open #logWrapper{display:block}.loaderActions{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;gap:1rem;margin-top:.9rem}.loaderActions button{padding:.65rem 1rem;border:1px solid #274f86;background:#07152d;color:#7fa9dd;font-size:.7rem;letter-spacing:.1em}
-@media(max-width:800px){#dashboard{width:94vw}.memoryPanel{padding:1.4rem}.actionRow{display:block}.ps2Button{width:100%;margin-top:.8rem}.memoryTitle b{display:none}}
-
-.stats-meta {
-  margin-top: 0.4rem;
-  font-size: 1rem;
-  color: #7b8fa3;
-}
-
-.stats-meta.stalled {
-  color: #fbbf24;
-}
-
-/* PS1 CLASSIC DASHBOARD — approved gray shell with four-color controls. */
-body{background:linear-gradient(145deg,#d8d7d1 0%,#aaa9a4 52%,#777672 100%);color:#202020}
-.ps2World{background:radial-gradient(ellipse at 50% 105%,rgba(255,255,255,.62),transparent 58%)}
-.memoryBlock{border-color:rgba(74,74,72,.34);background:linear-gradient(90deg,rgba(160,159,154,.78),rgba(221,220,214,.72));box-shadow:0 0 28px rgba(0,0,0,.13)}
-.memoryBlock:before{border-color:rgba(70,70,68,.2);background:repeating-linear-gradient(0deg,transparent 0 18px,rgba(60,60,58,.1) 19px 20px)}
-#dashboard{color:#202020}
-.ps2Header{border:2px solid #686763;border-bottom-width:7px;border-radius:18px 18px 4px 4px;background:linear-gradient(145deg,#ecebe5,#aaa9a4);box-shadow:0 14px 32px rgba(0,0,0,.22)}
-.ps2Header h1{color:#df2d32}.ps2Header p{color:#3475bd}.onlineDot{color:#236e3e}.onlineDot:before{background:#269c55;box-shadow:0 0 9px #269c55}
-.memoryPanel{border:2px solid #6c6b67;border-radius:4px 4px 22px 22px;background:linear-gradient(145deg,rgba(238,237,231,.98),rgba(184,183,178,.98));box-shadow:inset 0 0 40px rgba(255,255,255,.35),0 24px 55px rgba(0,0,0,.26)}
-.memoryTitle{color:#333}.memoryTitle b{color:#5c5b58}.categoryTitle{color:#333;border-color:#8f8e89}.categoryTitle small{color:#555}
-.heroLaunch{border-color:#ba2026;background:linear-gradient(135deg,#df2d32,#9d171c);box-shadow:0 10px 24px rgba(145,20,25,.22)}.heroLaunch i,.heroLaunch b{color:#f4c330}.heroLaunch small{color:#fff4ca}
-.payloadCard{border:2px solid #777672!important;background:linear-gradient(145deg,#eeede7,#c3c2bd)!important;color:#202020!important;box-shadow:0 5px 12px rgba(0,0,0,.12)}
-.payloadCard i{color:#fff!important;background:#df2d32!important;border-color:#9e181d!important}.payloadCard:nth-child(4n+2) i{background:#dcae18!important;border-color:#9c7600!important;color:#202020!important}.payloadCard:nth-child(4n+3) i{background:#269c55!important;border-color:#176331!important}.payloadCard:nth-child(4n+4) i{background:#3475bd!important;border-color:#1f4f86!important}
-.payloadCard strong{color:#202020!important}.payloadCard small{color:#555!important}.payloadCard:focus,.payloadCard:hover{border-color:#3475bd!important;box-shadow:0 0 0 4px rgba(52,117,189,.24),0 7px 18px rgba(0,0,0,.18)}
-.advancedPanel{border-color:#777672!important;background:rgba(195,194,189,.72)!important}.advancedPanel summary{color:#8b1d22!important}.advancedPanel p,.sessionHint{color:#4b4a47!important}
-#loader{background:linear-gradient(145deg,#d8d7d1,#8f8e89)}
-#goldenHeader,#statusCard{border-color:#686763;background:linear-gradient(145deg,#ecebe5,#aaa9a4);color:#202020}.retroLoader{border:2px solid #686763;background:linear-gradient(#e5e4de,#b4b3ae)}.retroLoader span{color:#333;font-weight:700}.retroBlocks{-webkit-box-align:end;-webkit-align-items:flex-end;align-items:flex-end}.retroBlocks i{-webkit-animation:none!important;animation:none!important;transition:height .1s linear,opacity .1s linear}
-#progressContainer{border-color:#666;background:#8a8985}.loaderActions button{border-color:#666;background:#c8c7c2;color:#292929}
-
-/* Goldengames v1.2.0-rc7 — PS1-inspired luminous startup background.
-   Dashboard geometry and all functional controls remain unchanged from RC6. */
-body{
-  background:
-    radial-gradient(circle at 50% 2%,rgba(255,255,255,.98) 0%,rgba(238,239,244,.86) 24%,transparent 52%),
-    linear-gradient(145deg,#d9d9dd 0%,#b9bac1 52%,#8d8e95 100%);
-}
-.ps2World{
-  background:
-    radial-gradient(ellipse at 50% 46%,rgba(255,255,255,.76),transparent 46%),
-    linear-gradient(180deg,rgba(242,243,248,.44),rgba(158,159,168,.18));
-}
-.memoryBlock{display:none}
-.retroDisc{position:absolute;width:34vw;height:34vw;min-width:360px;min-height:360px;border:2px solid rgba(83,84,92,.16);border-radius:50%;background:radial-gradient(circle,transparent 0 9%,rgba(255,255,255,.2) 9.5% 10.5%,rgba(201,202,208,.42) 11% 62%,rgba(246,246,248,.25) 63% 66%,rgba(135,136,144,.2) 67%);box-shadow:inset 0 0 50px rgba(255,255,255,.42),0 18px 45px rgba(48,49,56,.12);opacity:.62}
-.discLeft{left:-10vw;top:17vh;transform:rotate(-12deg)}.discRight{right:-15vw;bottom:-19vw;opacity:.32;transform:scale(.72)}
-.lightTrail{position:absolute;left:-8vw;top:78%;width:116vw;height:5px;border-radius:999px;transform-origin:left center;opacity:.68;filter:blur(.4px);animation:trailGlow 3.4s ease-in-out infinite}
-.trailRed{background:linear-gradient(90deg,transparent,#ef4f62 18%,#ef4f62 68%,transparent);transform:rotate(-11deg);box-shadow:0 0 17px #ef4f62}
-.trailYellow{background:linear-gradient(90deg,transparent,#efc94d 18%,#efc94d 68%,transparent);transform:rotate(-7deg);box-shadow:0 0 17px #efc94d;animation-delay:-.7s}
-.trailGreen{background:linear-gradient(90deg,transparent,#37b77b 18%,#37b77b 68%,transparent);transform:rotate(-3deg);box-shadow:0 0 17px #37b77b;animation-delay:-1.4s}
-.trailBlue{background:linear-gradient(90deg,transparent,#4389df 18%,#4389df 68%,transparent);transform:rotate(1deg);box-shadow:0 0 17px #4389df;animation-delay:-2.1s}
-@keyframes trailGlow{0%,100%{opacity:.38;filter:blur(.7px)}50%{opacity:.82;filter:blur(0)}}
-.psSymbol{opacity:.46;font-weight:700;text-shadow:0 0 22px currentColor;animation-duration:6.5s}.triangle{color:#2da872}.circle{color:#dc4352}.cross{color:#397cc7}.square{color:#d35093}
-.ps2Header{background:linear-gradient(145deg,rgba(247,247,249,.94),rgba(185,186,192,.93));box-shadow:0 14px 32px rgba(40,41,48,.2),0 0 30px rgba(255,255,255,.42)}
-.memoryPanel{background:linear-gradient(145deg,rgba(242,242,244,.94),rgba(190,191,197,.94));backdrop-filter:blur(8px)}
-#loader{background:linear-gradient(145deg,rgba(228,229,233,.96),rgba(152,153,161,.96))}
-#progressBar,.stats-fill{background:linear-gradient(90deg,#df4558 0%,#e6bd3d 32%,#2ea46e 64%,#397fce 100%)}
-@media(max-width:800px){.retroDisc{opacity:.28}.lightTrail{opacity:.4}.psSymbol{opacity:.3}}
-
-/* RC8: place the approved retro artwork inside the visible dashboard panel.
-   RC7 kept it behind this panel, so the PS5 browser could not show it. */
-.memoryPanel{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(246,246,248,.88),rgba(187,188,195,.9))}
-.memoryPanel:before{content:"";position:absolute;z-index:0;left:-12%;right:-12%;top:23%;height:48%;pointer-events:none;opacity:.72;background:linear-gradient(166deg,transparent 0 27%,rgba(226,55,76,.9) 27.4% 28%,transparent 28.4% 34%,rgba(228,177,43,.88) 34.4% 35%,transparent 35.4% 41%,rgba(39,164,103,.86) 41.4% 42%,transparent 42.4% 48%,rgba(50,119,204,.9) 48.4% 49%,transparent 49.4%);filter:drop-shadow(0 0 7px rgba(255,255,255,.85));animation:panelLightMove 4.8s ease-in-out infinite}
-.memoryPanel:after{content:"△   ○   ×   □";position:absolute;z-index:0;right:2%;bottom:1%;pointer-events:none;color:#397fce;font:700 7rem/1 Arial,sans-serif;letter-spacing:.08em;opacity:.17;text-shadow:-330px -170px 0 #2ca26c,-210px -70px 0 #db4353,-95px -145px 0 #d34d92;transform:rotate(-7deg)}
-.memoryPanel>*{position:relative;z-index:2}
-.ps2Header{position:relative;overflow:hidden;border-bottom-color:#397fce;background:linear-gradient(110deg,rgba(250,250,252,.97) 0 58%,rgba(222,63,81,.2) 58.4% 59.2%,rgba(229,182,48,.2) 59.6% 60.4%,rgba(42,163,105,.2) 60.8% 61.6%,rgba(55,126,207,.24) 62% 62.8%,rgba(185,186,193,.96) 63.2%)}
-.ps2Header:after{content:"△  ○  ×  □";position:absolute;right:1.4rem;bottom:-.25rem;color:#397fce;font:700 2.7rem Arial,sans-serif;letter-spacing:.12em;opacity:.2;pointer-events:none}
-.ps2Header>*{position:relative;z-index:1}
-.heroLaunch{background:linear-gradient(100deg,#dc3448 0%,#d84455 36%,#dbad2b 60%,#2c9b65 80%,#397ac5 100%);border-color:#8d4149}
-.payloadCard{background:linear-gradient(145deg,rgba(250,250,251,.95),rgba(198,199,204,.93))!important}
-@keyframes panelLightMove{0%,100%{transform:translateX(-2%);opacity:.5}50%{transform:translateX(2%);opacity:.88}}
-@media(max-width:800px){.memoryPanel:after{font-size:4.4rem;opacity:.13}.memoryPanel:before{opacity:.58}.ps2Header:after{display:none}}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#172033;overflow:hidden;background:#dfe3e8}body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 51% 46%,rgba(255,255,255,.96),rgba(235,238,241,.92) 42%,rgba(36,43,53,.42) 100%),linear-gradient(120deg,#d9dde1,#f6f7f8 50%,#c7ccd2);z-index:-3}.psBackdrop{position:fixed;inset:0;overflow:hidden;z-index:-2;opacity:.9}.shape{position:absolute;font-weight:100;line-height:1;text-shadow:0 18px 35px rgba(0,0,0,.16)}.triangle{right:7%;top:18%;font-size:18rem;color:#44c8a3;transform:rotate(-15deg)}.circle{right:2%;top:43%;font-size:20rem;color:#e35d5b}.cross{right:13%;bottom:4%;font-size:20rem;color:#397eca;transform:rotate(-8deg)}.square{right:0;bottom:-7%;font-size:17rem;color:#9b7db5;transform:rotate(18deg)}.lightTrail{position:absolute;left:12%;top:49%;width:80%;height:2px;transform-origin:left;background:linear-gradient(90deg,transparent,currentColor,transparent);filter:blur(.3px);opacity:.55}.trailRed{color:#df4a4f;transform:rotate(1deg)}.trailYellow{color:#e0b439;transform:rotate(-2deg)}.trailGreen{color:#36a46e;transform:rotate(-5deg)}.trailBlue{color:#347bd1;transform:rotate(-8deg)}
+#dashboard{position:relative;z-index:2;height:100%;padding:3.2vh 5vw 5rem}.brandHeader{height:10vh;display:flex;align-items:center;max-width:1440px;margin:0 auto 2vh;padding:0 2rem;border-radius:20px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);box-shadow:0 18px 50px rgba(20,30,45,.08);backdrop-filter:blur(14px)}.brandHeader img{width:66px;height:66px;margin-right:18px}.brandTitle h1{font-size:2rem;letter-spacing:.22em;color:#2e3540}.brandTitle p{margin-top:.35rem;font-size:.78rem;letter-spacing:.34em;color:#3675b4}.readyBadge{margin-left:auto;display:flex;align-items:center;gap:.55rem;font-size:.76rem;letter-spacing:.2em;color:#39785b}.readyBadge i,.centerStatus i{width:9px;height:9px;border-radius:50%;background:#20ad62;box-shadow:0 0 12px #20ad62}
+.consoleLayout{height:61vh;max-width:1440px;margin:auto;display:grid;grid-template-columns:1.05fr 1.18fr .92fr;gap:1.3rem}.glassPanel{min-width:0;border-radius:22px;background:rgba(245,247,249,.69);border:1px solid rgba(255,255,255,.72);box-shadow:0 22px 55px rgba(25,36,52,.16);backdrop-filter:blur(18px)}.panelHeading{height:4.8rem;padding:1.6rem 1.7rem 1rem;display:flex;align-items:center;border-bottom:1px solid rgba(70,83,100,.12)}.panelHeading h2{font-size:1rem;letter-spacing:.05em}.panelHeading h2:after{content:"";display:block;width:66px;margin-top:.55rem;border-bottom:3px solid #3a79c7}.panelHeading span{margin-left:auto;color:#718096;font-size:.66rem;letter-spacing:.12em}.payloadPanel{overflow:hidden}.payloadList{height:calc(100% - 4.8rem);padding:1rem 1.05rem;overflow-y:auto;scrollbar-width:none}.payloadList::-webkit-scrollbar{display:none}.payloadCard{width:100%;min-height:62px;margin-bottom:.6rem;padding:.55rem .65rem;display:flex;align-items:center;text-align:left;border:1px solid transparent;border-radius:13px;background:rgba(255,255,255,.46);color:#273142;transition:transform .18s,background .18s,border .18s,box-shadow .18s}.payloadCard>i{width:42px;height:42px;flex:none;margin-right:.75rem;display:flex;align-items:center;justify-content:center;border-radius:9px;background:#227e71;color:#fff;font-style:normal;font-weight:700;font-size:.72rem}.payloadCard:nth-child(4n+2)>i{background:#7758a7}.payloadCard:nth-child(4n+3)>i{background:#bd8c19}.payloadCard:nth-child(4n)>i{background:#3275aa}.payloadCard>span{min-width:0;flex:1}.payloadCard strong,.payloadCard small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.payloadCard strong{font-size:.88rem}.payloadCard small{margin-top:.18rem;font-size:.67rem;color:#778294}.payloadCard>b{font-size:1.75rem;font-weight:300;color:#536173}.payloadCard:hover,.payloadCard:focus,.payloadCard.selected{outline:none;transform:translateX(3px);border-color:#3479c8;background:rgba(255,255,255,.88);box-shadow:0 5px 18px rgba(43,105,176,.17)}
+.actionPanel{padding:1.45rem 2rem;text-align:center;display:flex;flex-direction:column;align-items:center}.modeRow{width:100%;display:flex;align-items:center;text-align:left}.modeRow>div span,.modeRow>div strong{display:block}.modeRow>div span{font-size:.65rem;letter-spacing:.16em;color:#7a8697}.modeRow>div strong{margin-top:.24rem;font-size:.95rem;color:#334155}.modeToggle{margin-left:auto;padding:.42rem .55rem;display:flex;align-items:center;border:1px solid #c6ccd5;border-radius:999px;background:rgba(255,255,255,.65);color:#596579;font-size:.7rem;font-weight:700}.modeToggle i{width:34px;height:18px;margin-right:.48rem;border-radius:20px;background:#aab2be;position:relative}.modeToggle i:after{content:"";position:absolute;left:3px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff;transition:left .2s}.modeToggle.on{border-color:#3c7bd4;color:#2160b3;background:#e9f2ff}.modeToggle.on i{background:#377cda}.modeToggle.on i:after{left:19px}.lockButton{width:174px;height:174px;margin:1.2rem auto .85rem;position:relative;border-radius:30px;border:2px solid transparent;background:linear-gradient(rgba(246,248,250,.75),rgba(222,227,233,.7)) padding-box,linear-gradient(135deg,#e24b4d,#e1b338,#2cab72,#3179d6) border-box;box-shadow:0 12px 28px rgba(51,67,87,.2),inset 0 0 22px rgba(255,255,255,.75)}.lockShackle{position:absolute;width:74px;height:71px;left:50px;top:30px;border:9px solid #a7afb9;border-bottom:0;border-radius:36px 36px 0 0}.lockBody{position:absolute;width:90px;height:67px;left:41px;top:82px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#a7afb9;color:#eef1f4;font-size:1rem;font-style:normal;letter-spacing:.12em}.centerStatus{display:flex;align-items:center;gap:.55rem;font-size:.75rem;font-weight:700;letter-spacing:.06em;color:#267b4d}.actionPanel>p{min-height:2.4rem;margin:.6rem auto .75rem;color:#727d8d;font-size:.74rem;line-height:1.45}.primaryButton,.secondaryButton{width:100%;height:50px;padding:0 1rem;display:flex;align-items:center;justify-content:center;gap:1rem;border:0;border-radius:13px;font-size:.88rem;font-weight:700;letter-spacing:.04em}.primaryButton{color:#fff;background:linear-gradient(90deg,#164697,#4939a6);box-shadow:0 8px 18px rgba(40,61,154,.24)}.secondaryButton{margin-top:.65rem;color:#245798;border:1px solid rgba(43,102,180,.35);background:rgba(255,255,255,.5)}.primaryButton b,.secondaryButton b{font-size:1.15rem}.primaryButton:focus,.secondaryButton:focus,.modeToggle:focus,.detailsButton:focus{outline:3px solid rgba(45,112,201,.38);outline-offset:2px}
+.statusPanel{padding-bottom:1rem}.statusPanel dl{padding:0 1.45rem}.statusPanel dl div{height:60px;display:flex;align-items:center;border-bottom:1px solid rgba(70,83,100,.12)}.statusPanel dt{font-size:.75rem;font-weight:700}.statusPanel dt i{display:inline-block;width:28px;font-style:normal;font-size:.9rem}.statusPanel dd{max-width:45%;margin-left:auto;text-align:right;font-size:.78rem;color:#354052;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.green{color:#1ea65c}.blue{color:#2d75c4}.red{color:#d45454}.purple{color:#6652a7}.gold{color:#bb8d17}.detailsButton{display:block;width:calc(100% - 2.9rem);height:40px;margin:.85rem 1.45rem 0;border:1px solid rgba(69,91,120,.25);border-radius:10px;background:rgba(255,255,255,.38);color:#44546b;font-size:.73rem;font-weight:700}
+.activityPanel{height:8.5vh;max-width:1120px;margin:2vh auto 0;padding:0 1.8rem;display:flex;align-items:center;border-radius:18px;background:rgba(245,247,249,.64);border:1px solid rgba(255,255,255,.65);box-shadow:0 14px 35px rgba(25,36,52,.12);backdrop-filter:blur(16px)}.activityText{width:34%}.activityText strong,.activityText span{display:block}.activityText strong{font-size:.78rem;color:#3468ae}.activityText span{margin-top:.3rem;font-size:.72rem;color:#647184}.symbolProgress{flex:1;display:flex;align-items:center;gap:.55rem;font-size:1.8rem}.symbolProgress>span:nth-child(1){color:#268b64}.symbolProgress>span:nth-child(2){color:#c7494e}.symbolProgress>span:nth-child(3){color:#2f72c5}.symbolProgress>span:nth-child(4){color:#a34f8b}.progressTrack{height:18px;flex:1;margin-left:.35rem;position:relative;overflow:hidden;border-radius:8px;background:repeating-linear-gradient(90deg,rgba(70,82,100,.16) 0 5px,transparent 5px 10px)}#progressBar{position:absolute;inset:0 auto 0 0;width:100%;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,#dd474c,#e2b137,#2f9d69,#347ace);border-radius:8px;transition:transform .45s ease}
+body.running .activityPanel{box-shadow:0 0 28px rgba(50,110,197,.3)}body.running .primaryButton,body.running .secondaryButton.selected-action{animation:buttonPulse .8s ease-in-out infinite alternate}body.running .symbolProgress>span{animation:symbolBounce .7s ease-in-out infinite alternate}body.running .symbolProgress>span:nth-child(2){animation-delay:.12s}body.running .symbolProgress>span:nth-child(3){animation-delay:.24s}body.running .symbolProgress>span:nth-child(4){animation-delay:.36s}body.running #progressBar{animation:progressSweep 1.25s linear infinite}
+@keyframes buttonPulse{to{transform:scale(1.025);filter:brightness(1.22);box-shadow:0 0 24px rgba(59,92,210,.48)}}@keyframes symbolBounce{to{transform:translateY(-6px);filter:drop-shadow(0 0 8px currentColor)}}@keyframes progressSweep{0%{transform:translateX(-100%) scaleX(.32)}50%{transform:translateX(90%) scaleX(.32)}100%{transform:translateX(-100%) scaleX(.32)}}
+.actionPanel{position:relative;overflow:hidden}.actionPanel>*:not(.ps1ConsoleArt){position:relative;z-index:2}.ps1ConsoleArt{position:absolute;z-index:0;width:92%;height:72%;left:4%;top:18%;object-fit:contain;opacity:.18;filter:drop-shadow(0 20px 20px rgba(20,25,35,.3));pointer-events:none}.payloadCard{min-height:72px;margin-bottom:.7rem;padding:.62rem .72rem;border-width:2px;border-color:rgba(255,255,255,.68);background:linear-gradient(100deg,rgba(255,255,255,.9),rgba(255,255,255,.58));box-shadow:0 7px 16px rgba(29,40,56,.11)}.payloadCard>i{width:50px;height:50px}.payloadCard strong{font-size:1rem}.payloadCard>b{font-size:2rem}.payloadCard:nth-child(4n+1){border-left:7px solid #2ca36a}.payloadCard:nth-child(4n+2){border-left:7px solid #d74b50}.payloadCard:nth-child(4n+3){border-left:7px solid #3379ca}.payloadCard:nth-child(4n){border-left:7px solid #b05291}.payloadCard:hover,.payloadCard:focus,.payloadCard.selected{transform:translateX(5px) scale(1.015);border-top-color:#3479c8;border-right-color:#3479c8;border-bottom-color:#3479c8;background:#fff;box-shadow:0 8px 24px rgba(43,105,176,.28)}.centerActivity{width:88%;margin-top:auto;margin-bottom:.4rem;padding:.75rem .85rem;border-radius:15px;background:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.92);box-shadow:0 10px 25px rgba(25,36,52,.15)}.centerActivity .activityText{width:100%;text-align:center;margin-bottom:.55rem}.centerActivity .symbolProgress{width:100%;display:flex;align-items:center;justify-content:center;gap:.55rem;font-size:1.8rem}.centerActivity .progressTrack{height:14px;max-width:250px}.centerActivity #progressBar{background:linear-gradient(90deg,#df2d32 0 24%,#f4c330 24% 49%,#269c55 49% 74%,#3475bd 74% 100%)}body.running .centerActivity{box-shadow:0 0 32px rgba(50,110,197,.42)}body.running .payloadCard.active-launch{animation:buttonPulse .7s ease-in-out infinite alternate;border-color:#fff}body.running .centerActivity #progressBar{animation:progressSweep 1.05s linear infinite}
+.detailsDrawer{display:none;position:fixed;z-index:30;left:8vw;right:8vw;bottom:6vh;max-height:42vh;padding:1rem;border-radius:18px;background:rgba(10,17,29,.94);color:#d7e0ec;box-shadow:0 25px 80px rgba(0,0,0,.4)}body.details-open .detailsDrawer{display:block}.detailsHeader{display:flex;align-items:center;margin-bottom:.6rem;color:#8fb8eb;font-size:.76rem;letter-spacing:.1em}.detailsHeader button{margin-left:auto;padding:.4rem .75rem;border:1px solid #44556e;border-radius:8px;background:#1e2a3c;color:#dae5f2}#logWrapper{height:20vh;overflow-y:auto;padding:.8rem;border-radius:10px;background:#050911;font:12px/1.55 monospace}#logContainer .line{margin-bottom:.2rem;white-space:pre-wrap}.info{color:#9eb0c5}.success{color:#75e09b}.warning{color:#f2c45e}.error{color:#ff7a82}#p2jbStats{margin-top:.7rem;padding:.75rem;border:1px solid #29425f;border-radius:10px;background:#08101b;font:12px monospace}.stats-head,.stats-bar-label,.stats-infoline{display:flex;align-items:center;gap:.8rem}.stats-clock{margin-left:auto}.stats-status{margin:.5rem 0}.stats-track{height:7px;margin:.3rem 0;background:#1d2d42;border-radius:4px;overflow:hidden}.stats-fill{height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:#42a6f5}.stats-bar-row{margin-top:.5rem}.stats-bar-label{justify-content:space-between}.stats-meta{color:#8698ad}
+.retroLoader{display:none}.riskDialog{position:fixed;z-index:80;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,8,14,.8)}.riskDialog[hidden]{display:none!important}.riskCard{width:min(580px,88vw);padding:1.8rem;text-align:center;border:2px solid #e75d71;border-radius:16px;background:#170d1c;color:#fff}.riskSymbol{font-size:2.4rem;color:#ffca4b}.riskCard h2{margin:.5rem}.riskCard p{line-height:1.5;color:#ddd2d7}.riskCard div{display:flex;gap:.65rem;margin-top:1.2rem}.riskCard button{flex:1;padding:.8rem;color:#fff;border:1px solid #52647d;border-radius:9px;background:#182236}#footer{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:5;font-size:.65rem;color:#697688;text-align:center;white-space:nowrap}main[hidden],#splash[hidden],#loader[hidden]{display:none!important}
+@media(max-width:1050px){#dashboard{padding-left:2.2vw;padding-right:2.2vw}.consoleLayout{grid-template-columns:1fr 1.08fr .92fr;gap:.7rem}.actionPanel{padding-left:1rem;padding-right:1rem}.brandTitle h1{font-size:1.5rem}.payloadCard{min-height:56px}.statusPanel dl{padding:0 .8rem}.statusPanel dl div{height:56px}.detailsButton{width:calc(100% - 1.6rem);margin-left:.8rem;margin-right:.8rem}}@media(max-height:760px){#dashboard{padding-top:1.5vh}.brandHeader{height:9vh;margin-bottom:1vh}.consoleLayout{height:65vh}.lockButton{width:135px;height:135px;margin:.7rem auto}.lockShackle{left:38px;top:19px}.lockBody{left:27px;top:68px}.activityPanel{margin-top:1vh}.payloadCard{min-height:52px;margin-bottom:.4rem}}
+
+/* Test 2 visual target: premium PS1-inspired dashboard. */
+body:before{background:radial-gradient(circle at 50% 43%,rgba(244,247,250,.9),rgba(174,181,190,.8) 54%,rgba(70,78,90,.74) 100%),linear-gradient(120deg,#bfc5cc,#edf0f3 48%,#858e99)}
+#dashboard{padding:2.2vh 3.7vw 3.5rem}.brandHeader{height:13vh;max-width:1560px;margin:0 auto 1.5vh;padding:0;background:transparent;border:0;box-shadow:none;backdrop-filter:none}.brandHeader img{width:112px;height:112px;margin-right:30px;border-radius:18px;filter:drop-shadow(0 8px 12px rgba(20,28,39,.35))}.brandTitle h1{font-size:3.25rem;line-height:1;letter-spacing:.12em;color:#e9edf1;background:linear-gradient(#fff 8%,#dfe4e9 34%,#7d8792 55%,#f3f5f7 78%,#969fa9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 1px #4f5964) drop-shadow(0 8px 11px rgba(0,0,0,.24))}.brandTitle p{margin-top:.9rem;font-size:.95rem;letter-spacing:.46em;color:#48515c}.readyBadge{font-size:.95rem;font-weight:800;letter-spacing:.08em;color:#21a85f}.readyBadge i{width:22px;height:22px;border:3px solid #2ac66e;background:transparent;box-shadow:0 0 14px rgba(40,200,110,.55);position:relative}.readyBadge i:after{content:"✓";position:absolute;left:2px;top:-3px;font-size:.85rem;color:#15964e}
+.consoleLayout{height:73vh;max-width:1560px;grid-template-columns:1.03fr 1.12fr .82fr;gap:1rem}.glassPanel{border-radius:25px;background:linear-gradient(135deg,rgba(242,245,248,.76),rgba(185,193,202,.55));border:2px solid rgba(255,255,255,.78);box-shadow:inset 0 0 0 1px rgba(91,104,120,.22),0 20px 48px rgba(25,34,47,.28);backdrop-filter:blur(18px)}.panelHeading{height:5.2rem;padding:1.7rem 2rem 1rem;justify-content:center}.panelHeading h2{font-size:1.18rem}.panelHeading h2:after{margin-left:auto;margin-right:auto;width:105px}.panelHeading span{display:none}
+.payloadList{padding:1rem 1.35rem}.payloadCard{min-height:76px;margin-bottom:.72rem;padding:.64rem .85rem;color:#f3f5f7;border:1px solid rgba(72,137,210,.9);border-left-width:8px;border-radius:16px;background:linear-gradient(105deg,rgba(18,24,33,.94),rgba(55,64,76,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 7px 16px rgba(15,20,28,.3),0 0 12px rgba(39,124,211,.13)}.payloadCard:nth-child(4n+1){border-left-color:#2582ef}.payloadCard:nth-child(4n+2){border-left-color:#24a3ee}.payloadCard:nth-child(4n+3){border-left-color:#45d14e}.payloadCard:nth-child(4n){border-left-color:#f29b24}.payloadCard>i{width:52px;height:52px;margin-right:1rem;border-radius:9px;background:linear-gradient(#222b37,#070a0e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 5px 10px rgba(0,0,0,.35);font-size:.9rem}.payloadCard:nth-child(4n+2)>i,.payloadCard:nth-child(4n+3)>i,.payloadCard:nth-child(4n)>i{background:linear-gradient(#222b37,#070a0e)}.payloadCard strong{font-size:1.04rem;color:#fff}.payloadCard small{font-size:.65rem;color:#aeb8c4}.payloadCard>b{color:#fff}.payloadCard:hover,.payloadCard:focus,.payloadCard.selected{transform:translateX(4px) scale(1.012);color:#fff;border-top-color:#69b5ff;border-right-color:#69b5ff;border-bottom-color:#69b5ff;background:linear-gradient(105deg,#182230,#354355);box-shadow:0 0 20px rgba(52,143,235,.4)}
+.actionPanel{padding:1.7rem 2rem 1.25rem}.modeRow{justify-content:center}.modeRow>div{text-align:center}.modeRow>div span{display:none}.modeRow>div strong{font-size:1.2rem}.modeToggle{position:absolute!important;right:1.5rem;top:1.45rem;background:rgba(35,42,51,.75);border-color:rgba(255,255,255,.6);color:#fff}.modeToggle i{background:#5e6671}.modeToggle.on{background:#194f91;color:#fff}.ps1ConsoleArt{width:112%;height:66%;left:-6%;top:14%;opacity:.28;filter:grayscale(1) contrast(.9) drop-shadow(0 20px 22px rgba(0,0,0,.35))}.lockButton{width:188px;height:188px;margin:5rem auto 1.05rem;background:linear-gradient(rgba(33,40,51,.78),rgba(67,76,88,.78)) padding-box,linear-gradient(135deg,#ef4444,#f4c430,#3dc66c,#2f82e2,#bc4cb3) border-box;box-shadow:0 15px 30px rgba(30,38,50,.36),0 0 28px rgba(55,120,230,.26),inset 0 0 26px rgba(255,255,255,.13)}.lockShackle{left:56px;top:33px;border-color:#f2f5f7}.lockBody{left:47px;top:89px;background:#f2f5f7;color:#4d5662}.centerStatus{font-size:.93rem;color:#1cad5b;text-shadow:0 0 12px rgba(30,200,100,.35)}.actionPanel>p{margin:.9rem auto 1rem;font-size:.77rem;color:#384351}.centerActivity{width:92%;margin-top:auto;padding:.85rem 1rem;background:linear-gradient(110deg,rgba(32,39,49,.92),rgba(69,79,91,.86));border-color:rgba(255,255,255,.65);box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 10px 25px rgba(20,27,38,.34)}.centerActivity .activityText strong{color:#39df73}.centerActivity .activityText span{color:#eef2f5}.centerActivity .symbolProgress{font-size:2.15rem}.centerActivity .progressTrack{height:17px;max-width:290px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 6px,transparent 6px 11px)}
+.statusPanel dl{padding:0 1.65rem}.statusPanel dl div{height:68px}.statusPanel dt{font-size:.82rem}.statusPanel dd{font-size:.84rem}.detailsButton{height:58px;margin-top:1rem;color:#f7f9fb;border-color:rgba(255,255,255,.7);background:linear-gradient(105deg,rgba(53,63,76,.88),rgba(95,107,121,.76));box-shadow:0 8px 18px rgba(25,34,47,.25);font-size:.82rem}.psBackdrop{opacity:1}.shape{text-shadow:0 20px 32px rgba(0,0,0,.24),inset 0 0 15px rgba(255,255,255,.4)}
+@media(max-width:1150px){.brandTitle h1{font-size:2.4rem}.brandHeader img{width:86px;height:86px}.consoleLayout{grid-template-columns:1fr 1.05fr .82fr}.payloadCard{min-height:64px}.lockButton{margin-top:3.4rem}.statusPanel dl div{height:58px}}
+@media(max-height:800px){.brandHeader{height:10vh}.brandHeader img{width:75px;height:75px}.brandTitle h1{font-size:2.1rem}.brandTitle p{margin-top:.4rem}.consoleLayout{height:78vh}.payloadCard{min-height:57px;margin-bottom:.42rem}.lockButton{width:145px;height:145px;margin:2.5rem auto .55rem}.lockShackle{left:41px;top:22px}.lockBody{left:30px;top:70px}.centerActivity{padding:.5rem .8rem}.statusPanel dl div{height:52px}}
+
+/* Test 4: real PS1 photograph, neon panels and stage-based progress. */
+.ps1ConsoleArt{width:118%;height:70%;left:-9%;top:15%;object-fit:contain;opacity:.34;filter:saturate(.82) contrast(.9) drop-shadow(0 18px 22px rgba(0,0,0,.42));mix-blend-mode:multiply}
+.payloadPanel{border-color:rgba(38,139,239,.92);box-shadow:inset 0 0 0 1px rgba(99,181,255,.28),0 0 20px rgba(35,133,232,.34),0 22px 48px rgba(25,34,47,.28)}
+.actionPanel{border-color:rgba(49,211,128,.86);box-shadow:inset 0 0 0 1px rgba(255,213,69,.25),-6px 0 22px rgba(221,64,82,.19),6px 0 22px rgba(47,123,235,.22),0 22px 48px rgba(25,34,47,.28)}
+.statusPanel{border-color:rgba(177,76,191,.82);box-shadow:inset 0 0 0 1px rgba(196,112,212,.24),0 0 20px rgba(149,63,179,.27),0 22px 48px rgba(25,34,47,.28)}
+.progressTrack{border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 2px 5px rgba(0,0,0,.42)}
+#progressBar{width:100%!important;left:0!important;transform-origin:left center;transition:transform .65s ease!important;animation:none!important;box-shadow:0 0 12px rgba(56,156,255,.7)}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:none!important}
+body.running .progressTrack{animation:trackGlow 1s ease-in-out infinite alternate}
+@keyframes trackGlow{to{box-shadow:inset 0 2px 5px rgba(0,0,0,.38),0 0 16px rgba(62,149,255,.58)}}
+
+/* Test 9 UI polish: transparent lock, real unlocked state and lively progress. */
+.lockButton{background:transparent!important;border-color:transparent!important;box-shadow:none!important;overflow:visible;transition:filter .45s ease,transform .45s ease}
+.lockShackle,.lockBody{transition:transform .55s cubic-bezier(.2,.9,.25,1.25),border-color .4s,background .4s,color .4s,box-shadow .4s}
+.lockButton.unlocked{filter:drop-shadow(0 0 15px rgba(255,190,35,.72));transform:scale(1.04)}
+.lockButton.unlocked .lockShackle{transform-origin:68px 62px;transform:translate(0,-3px) rotate(21deg);border-color:#f2b82f}
+.lockButton.unlocked .lockBody{background:linear-gradient(145deg,#ffd85a,#d88a08);color:#202631;box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 8px 18px rgba(117,69,0,.28)}
+.centerActivity{width:88%;transform:translateY(16px);margin-bottom:0;padding:.55rem .5rem!important;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+.centerActivity .activityText strong{color:#16894b!important;text-shadow:0 1px 8px rgba(255,255,255,.9)}
+.centerActivity .activityText span{color:#374556!important;text-shadow:0 1px 8px rgba(255,255,255,.9)}
+.centerActivity .progressTrack{background:repeating-linear-gradient(90deg,rgba(48,60,76,.2) 0 6px,rgba(255,255,255,.34) 6px 11px)!important;border-color:rgba(67,83,103,.3)!important;box-shadow:inset 0 1px 4px rgba(42,54,70,.2)!important}
+body.running .centerActivity{background:transparent!important;box-shadow:none!important}
+#progressBar{background-size:240% 100%!important}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:colorFlow 1.15s linear infinite!important}
+@keyframes colorFlow{from{background-position:100% 0}to{background-position:-100% 0}}
+
+/* Test 11: clean PS5 emblem and stepped retro progress blocks. */
+.ps5Mark{height:135px;margin:3.8rem auto .75rem;display:flex;align-items:center;justify-content:center;gap:.03em;font:900 3.6rem/1 Arial Black,Arial,sans-serif;font-style:italic;letter-spacing:-.09em;filter:drop-shadow(0 5px 1px rgba(255,255,255,.82)) drop-shadow(0 11px 13px rgba(35,45,60,.3))}
+.ps5Mark span:nth-child(1){color:#df3439}.ps5Mark span:nth-child(2){color:#efbd24}.ps5Mark span:nth-child(3){color:#2877c8}
+.centerActivity #progressBar{background:repeating-linear-gradient(90deg,#df3439 0 9px,#efbd24 9px 18px,#25985e 18px 27px,#2877c8 27px 36px,rgba(20,29,42,.2) 36px 40px)!important;background-size:40px 100%!important;image-rendering:pixelated}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:retroPixelRun .62s steps(4,end) infinite!important}
+@keyframes retroPixelRun{from{background-position:0 0}to{background-position:40px 0}}
+@media(max-height:800px){.ps5Mark{height:108px;margin:1.8rem auto .45rem;font-size:3rem}}
+
+
+/* Test 13: unobstructed PS1 artwork and segmented reference-style meter. */
+.consoleViewSpacer{height:135px;margin:3.8rem auto .75rem;pointer-events:none}
+.centerActivity .progressTrack{height:20px!important;max-width:330px!important;position:relative;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+.centerActivity .progressTrack:before{content:"";position:absolute;inset:0;background:#75808c;-webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);opacity:.35}
+.centerActivity #progressBar{background:linear-gradient(90deg,#d9363e 0%,#e85b36 18%,#e6bd2f 38%,#55a64d 60%,#2878bc 82%,#295cc5 100%)!important;background-size:100% 100%!important;border-radius:0!important;-webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 11px);box-shadow:none!important}
+body.running #progressBar,body.running .centerActivity #progressBar{animation:retroSegmentPulse .72s steps(2,end) infinite!important}
+@keyframes retroSegmentPulse{0%,100%{filter:brightness(.9) saturate(1)}50%{filter:brightness(1.35) saturate(1.25)}}
+@media(max-height:800px){.consoleViewSpacer{height:108px;margin:1.8rem auto .45rem}.centerActivity .progressTrack{max-width:285px!important}}
+
+
+/* Test 14: clearer artwork, reliable animated meter and neon PS accents. */
+.consoleViewSpacer{height:225px!important;margin:2.25rem auto .35rem!important}
+.actionPanel .centerStatus{margin-top:0}
+.payloadPanel{border-color:#2b9cff!important;box-shadow:inset 0 0 0 1px rgba(83,199,255,.34),0 0 24px rgba(35,133,232,.46),0 22px 48px rgba(25,34,47,.28)!important}
+.actionPanel{border-color:#45d681!important;box-shadow:inset 3px 0 0 rgba(229,54,64,.48),inset -3px 0 0 rgba(43,119,216,.5),0 -2px 18px rgba(235,190,42,.2),0 22px 48px rgba(25,34,47,.28)!important}
+.statusPanel{border-color:#d05bd9!important;box-shadow:inset 0 0 0 1px rgba(224,108,232,.32),0 0 24px rgba(173,66,189,.4),0 22px 48px rgba(25,34,47,.28)!important}
+.centerActivity .symbolProgress>span{font-weight:700;text-shadow:0 0 7px currentColor,0 0 15px currentColor}
+.centerActivity .symbolProgress>span:nth-child(1){color:#4dde77}.centerActivity .symbolProgress>span:nth-child(2){color:#34dbe5}.centerActivity .symbolProgress>span:nth-child(3){color:#ef4de1}.centerActivity .symbolProgress>span:nth-child(4){color:#ff8a3d}
+.payloadCard{box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 7px 16px rgba(15,20,28,.3),0 0 14px rgba(39,124,211,.2)!important}
+body.running .centerActivity .symbolProgress>span{animation:neonButtonStep .7s steps(2,end) infinite alternate!important}
+body.running .centerActivity .symbolProgress>span:nth-child(2){animation-delay:.12s!important}body.running .centerActivity .symbolProgress>span:nth-child(3){animation-delay:.24s!important}body.running .centerActivity .symbolProgress>span:nth-child(4){animation-delay:.36s!important}
+@keyframes neonButtonStep{from{transform:translateY(0);filter:brightness(.8)}to{transform:translateY(-5px);filter:brightness(1.45)}}
+@media(max-height:800px){.consoleViewSpacer{height:168px!important;margin:1.25rem auto .25rem!important}}
+
+
+/* Test 15: real DOM meter blocks for maximum PS5 WebKit compatibility. */
+.centerActivity .progressTrack{overflow:visible!important}
+#progressBar.segmentMeter{position:absolute!important;inset:0!important;width:100%!important;height:26px!important;display:flex!important;align-items:center!important;gap:4px!important;transform:none!important;-webkit-transform:none!important;background:none!important;-webkit-mask:none!important;mask:none!important;animation:none!important;box-shadow:none!important;opacity:1!important;filter:none!important;-webkit-filter:none!important}
+#progressBar.segmentMeter i{display:block;flex:1;min-width:3px;height:15px;border-radius:2px;transition:height .12s linear,opacity .12s linear,box-shadow .12s linear;background-color:rgba(74,84,98,.3)}
+body.running #progressBar.segmentMeter,body.running .centerActivity #progressBar.segmentMeter{animation:none!important}

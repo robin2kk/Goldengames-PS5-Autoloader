@@ -176,7 +176,7 @@ def poops_iframe_url(app_dir, payload="payload.elf"):
         "?go=1&auto=1&production=1&trigger=netcontrol&attempts=8"
         "&only=ps0_preflight,ps1_prepare,ps3_stage0,ps4_validate"
         ",ps5_stage1,ps6_stage2,ps8_stage3,ps9_stage4,ps10_stage5"
-        f"&log=debug&payload=1&autoload={payload}&v=goldengames120rc1"
+        f"&log=debug&payload=1&v=final&autoload={payload}"
     )
 
 
@@ -187,7 +187,7 @@ def p2jb_iframe_url(app_dir, payload="payload.elf"):
     return (
         app_dir + "/slopkit/slopkit/p2jb.html"
         "?go=1&auto=1&production=1&log=debug"
-        f"&payload=1&autoload={payload}&v=goldengames120rc1"
+        f"&payload=1&v=final&autoload={payload}"
     )
 
 
@@ -201,6 +201,7 @@ def umtx2_iframe_url(app_dir, payload="payload.elf"):
 
 GOLDENGAMES_PAYLOADS = (
     "payload.elf",
+    "goldengames-stage.elf",
     "etahen-2.5B.bin",
     "etahen-2.6B.bin",
     "cheatrunner-v0.17.elf",
@@ -211,6 +212,9 @@ GOLDENGAMES_PAYLOADS = (
     "kstuff-v1.6.7.elf",
     "kstuff-lite-v1.10.elf",
     "shadowmountplus.elf",
+    "shadowmountplus-v1.7alpha11.elf",
+    "onionhen-0.0.11.elf",
+    "pizza-hen-v0.1.elf",
 )
 
 # slopkit references its own scripts with cache-busting query strings

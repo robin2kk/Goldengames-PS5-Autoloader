@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520">
+  <defs>
+    <linearGradient id="case" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f1f1ed"/><stop offset="1" stop-color="#8e918e"/>
+    </linearGradient>
+    <radialGradient id="lid"><stop stop-color="#e8e8e3"/><stop offset="1" stop-color="#9fa19d"/></radialGradient>
+  </defs>
+  <path d="M100 128 543 94l87 75-28 235-431 30-85-77z" fill="url(#case)" stroke="#767a78" stroke-width="12"/>
+  <ellipse cx="357" cy="250" rx="161" ry="124" fill="url(#lid)" stroke="#858985" stroke-width="12"/>
+  <ellipse cx="357" cy="250" rx="118" ry="89" fill="none" stroke="#b6b8b3" stroke-width="6"/>
+  <path d="M290 221h32l17-29 22 41 25-54 26 50h33" fill="none" stroke="#737773" stroke-width="8" stroke-linecap="round"/>
+  <text x="360" y="288" text-anchor="middle" font-family="Arial,sans-serif" font-size="45" font-weight="700" fill="#686c69">PS one</text>
+  <rect x="125" y="333" width="116" height="45" rx="8" fill="#757976"/><rect x="474" y="326" width="112" height="45" rx="8" fill="#757976"/>
+  <circle cx="184" cy="354" r="12" fill="#36a15f"/><circle cx="527" cy="348" r="12" fill="#d44c51"/>
+  <path d="M155 431v31m391-59v31" stroke="#656965" stroke-width="18" stroke-linecap="round"/>
+</svg>

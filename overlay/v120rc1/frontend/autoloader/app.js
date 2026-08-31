@@ -5,6 +5,7 @@
   var loaderEl = document.getElementById('loader');
   var logContainer = document.getElementById('logContainer');
   var progressBar = document.getElementById('progressBar');
+  var progressSegments = progressBar ? progressBar.getElementsByTagName('i') : [];
   var progressLabel = document.getElementById('progressLabel');
   var exploitEl = document.getElementById('exploit');
   var dashboardEl = document.getElementById('dashboard');
@@ -19,18 +20,39 @@
   var riskCancelEl = document.getElementById('riskCancel');
   var riskContinueEl = document.getElementById('riskContinue');
   var goldenStateEl = document.getElementById('goldenState');
+  var headerStateEl = document.getElementById('headerState');
+  var firmwareValueEl = document.getElementById('firmwareValue');
+  var exploitValueEl = document.getElementById('exploitValue');
+  var payloadValueEl = document.getElementById('payloadValue');
+  var uptimeValueEl = document.getElementById('uptimeValue');
+  var modeValueEl = document.getElementById('modeValue');
+  var modeNameEl = document.getElementById('modeName');
+  var modeHelpEl = document.getElementById('modeHelp');
+  var autoModeToggleEl = document.getElementById('autoModeToggle');
+  var activityPayloadEl = document.getElementById('activityPayload');
+  var detailsDrawerEl = document.getElementById('detailsDrawer');
   var retroStatusEl = document.querySelector('.retroLoader span');
   var retroBlocks = document.querySelectorAll('.retroBlocks i');
   var selectedPayload = 'etahen-2.6B.bin';
   var selectedLabel = 'etaHEN 2.6B';
   var pendingRiskLaunch = null;
-  var SESSION_KEY = 'goldengames:v120rc13-session-ready';
-  var ACTIVE_PAYLOAD_KEY = 'goldengames:v120rc13-active-payload';
-  var queuedAutoEtaHen = false;
+  var SESSION_KEY = 'goldengames:v111-session-ready';
+  var ACTIVE_PAYLOAD_KEY = 'goldengames:v111-active-payload';
+  var AUTO_MODE_KEY = 'goldengames:v111-auto-mode';
+  var AUTO_PAYLOAD_KEY = 'goldengames:v111-auto-payload';
+  var queuedAutoPayload = null;
+  var runtimeSessionReady = false;
+  var currentForceJailbreak = false;
+  var autoMode = false;
+  var operationStartedAt = Date.now();
 
   function hasKnownSession() {
+    if (runtimeSessionReady) return true;
     try {
-      return !!(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY));
+      /* sessionStorage belongs to the current browser/console session. Never
+         restore an exploit-ready state from localStorage: it survives a full
+         PS5 reboot and would make a fresh kernel look jailbroken. */
+      return !!sessionStorage.getItem(SESSION_KEY);
     } catch (e) {
       return false;
     }
@@ -60,6 +82,25 @@
   var retroAnimationFrame = 0;
   var reportedProgress = 0;
 
+  function renderSegmentProgress(percent, animateEdge) {
+    var total = progressSegments.length;
+    if (!total) return;
+    var safe = Math.max(0, Math.min(100, Number(percent) || 0));
+    var lit = safe > 0 ? Math.max(1, Math.ceil(safe * total / 100)) : 0;
+    var palette = ['#ed3941', '#efbd2c', '#42bd68', '#2e82d8'];
+    for (var i = 0; i < total; i++) {
+      var on = i < lit;
+      var color = palette[Math.min(3, Math.floor(i * 4 / total))];
+      var edge = on && i === lit - 1;
+      var high = edge && animateEdge && (retroAnimationFrame % 2 === 0);
+      progressSegments[i].className = on ? (edge ? 'on edge' : 'on') : '';
+      progressSegments[i].style.backgroundColor = on ? color : 'rgba(74,84,98,.3)';
+      progressSegments[i].style.height = high ? '24px' : (on ? '19px' : '15px');
+      progressSegments[i].style.opacity = high ? '1' : (on ? '.9' : '.38');
+      progressSegments[i].style.boxShadow = on ? ('0 0 ' + (high ? '14px ' : '7px ') + color) : 'none';
+    }
+  }
+
   function startRetroAnimation() {
     if (retroAnimationTimer) clearInterval(retroAnimationTimer);
     retroAnimationFrame = 0;
@@ -73,27 +114,15 @@
         retroBlocks[i].style.opacity = String(0.38 + height / 48);
         retroBlocks[i].style.background = colors[i];
       }
-      /* The long lower bar is an activity indicator while the exploit runs.
-         Move a 20% segment across the full track; progress text continues to
-         show the real reported stage instead of pretending to be a percent. */
-      var sweep = (retroAnimationFrame * 4) % 100;
-      if (sweep > 80) sweep = 160 - sweep;
-      progressBar.style.webkitTransition = 'none';
-      progressBar.style.transition = 'none';
-      progressBar.style.width = '20%';
-      progressBar.style.left = sweep + '%';
-      progressBar.style.webkitTransform = 'scaleX(1)';
-      progressBar.style.transform = 'scaleX(1)';
+      /* Real DOM segments: compatible with older PS5 WebKit builds. */
+      renderSegmentProgress(reportedProgress, true);
     }, 140);
   }
 
   function stopRetroAnimation() {
     if (retroAnimationTimer) clearInterval(retroAnimationTimer);
     retroAnimationTimer = 0;
-    progressBar.style.width = '100%';
-    progressBar.style.left = '0';
-    progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
-    progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
+    renderSegmentProgress(reportedProgress, false);
   }
 
   /* The slopkit chains (poops 7.00-12.00, p2jb 12.02-12.70) keep a one-shot
@@ -135,10 +164,10 @@
      AppCache manifest lists these exact URLs so the console can serve them
      offline (AppCache matches URLs including the query string). */
   function poopsUrl(payload) {
-    return 'slopkit/slopkit/poops.html?go=1&auto=1&production=1&trigger=netcontrol&attempts=8&only=ps0_preflight,ps1_prepare,ps3_stage0,ps4_validate,ps5_stage1,ps6_stage2,ps8_stage3,ps9_stage4,ps10_stage5&log=debug&payload=1&autoload=' + encodeURIComponent(payload) + '&v=goldengames120rc1';
+    return 'slopkit/slopkit/poops.html?go=1&auto=1&production=1&trigger=netcontrol&attempts=8&only=ps0_preflight,ps1_prepare,ps3_stage0,ps4_validate,ps5_stage1,ps6_stage2,ps8_stage3,ps9_stage4,ps10_stage5&log=debug&payload=1&v=final&autoload=' + encodeURIComponent(payload);
   }
   function p2jbUrl(payload) {
-    return 'slopkit/slopkit/p2jb.html?go=1&auto=1&production=1&log=debug&payload=1&autoload=' + encodeURIComponent(payload) + '&v=goldengames120rc1';
+    return 'slopkit/slopkit/p2jb.html?go=1&auto=1&production=1&log=debug&payload=1&v=final&autoload=' + encodeURIComponent(payload);
   }
 
   var EXPLOIT_URL = '';
@@ -159,10 +188,10 @@
 
   function updateProgress(percent, message) {
     reportedProgress = percent;
-    progressBar.style.webkitTransform = 'scaleX(' + percent / 100 + ')';
-    progressBar.style.transform = 'scaleX(' + percent / 100 + ')';
+    renderSegmentProgress(percent, false);
     if (message) {
       progressLabel.textContent = message;
+      if (activityPayloadEl) activityPayloadEl.textContent = selectedLabel;
       if (retroStatusEl) retroStatusEl.textContent = String(message).toUpperCase();
       uiLog(message, 'info');
     }
@@ -175,6 +204,44 @@
     var m = /PlayStation 5\/(\d+\.\d+)/.exec(navigator.userAgent);
     if (!m) return null;
     return { str: m[1], num: parseFloat(m[1]) };
+  }
+
+  function setControlsDisabled(disabled) {
+    if (autoModeToggleEl) autoModeToggleEl.disabled = disabled;
+    var cards = document.querySelectorAll('.payloadCard');
+    for (var i = 0; i < cards.length; i++) cards[i].disabled = disabled;
+  }
+
+  function formatUptime(ms) {
+    var total = Math.max(0, Math.floor(ms / 1000));
+    var h = Math.floor(total / 3600);
+    var m = Math.floor((total % 3600) / 60);
+    var s = total % 60;
+    function pad(v) { return v < 10 ? '0' + v : String(v); }
+    return pad(h) + ':' + pad(m) + ':' + pad(s);
+  }
+
+  function updateModeUi() {
+    if (autoModeToggleEl) {
+      autoModeToggleEl.classList.toggle('on', autoMode);
+      autoModeToggleEl.setAttribute('aria-checked', autoMode ? 'true' : 'false');
+      autoModeToggleEl.querySelector('span').textContent = autoMode ? 'AUTO ON' : 'AUTO OFF';
+    }
+    if (modeNameEl) modeNameEl.textContent = autoMode ? 'AUTO MODE' : 'MANUAL MODE';
+    if (modeValueEl) modeValueEl.textContent = autoMode ? 'AUTO' : 'MANUAL';
+    if (modeHelpEl) modeHelpEl.textContent = autoMode
+      ? selectedLabel + ' will launch automatically when Goldengames opens.'
+      : 'Press any payload button to jailbreak and launch it.';
+  }
+
+  function selectPayload(card) {
+    var cards = document.querySelectorAll('.payloadCard');
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove('selected');
+    card.classList.add('selected');
+    selectedPayload = card.getAttribute('data-payload');
+    selectedLabel = card.getAttribute('data-label');
+    if (payloadValueEl && hasKnownSession()) payloadValueEl.textContent = selectedLabel.toUpperCase();
+    updateModeUi();
   }
 
   /* Choose which exploit to arm. Forced modes (build-time EXPLOIT_MODE or a
@@ -212,22 +279,22 @@
 
   function revealExploit() {
     startRetroAnimation();
-    splashEl.classList.add('hide');
-    setTimeout(function () {
-      splashEl.hidden = true;
-      if (dashboardEl) dashboardEl.hidden = true;
-      loaderEl.hidden = false;
-    }, 480);
+    if (splashEl) splashEl.hidden = true;
+    if (loaderEl) loaderEl.hidden = true;
+    if (dashboardEl) dashboardEl.hidden = false;
+    document.body.classList.add('running');
+    setControlsDisabled(true);
   }
 
   function showDashboard() {
     stopRetroAnimation();
-    splashEl.classList.add('hide');
-    splashEl.hidden = true;
-    loaderEl.hidden = true;
+    if (splashEl) splashEl.hidden = true;
+    if (loaderEl) loaderEl.hidden = true;
     if (dashboardEl) dashboardEl.hidden = false;
-    document.body.classList.remove('details-open');
-    if (goldenStateEl) goldenStateEl.textContent = 'PAYLOAD MENU READY';
+    document.body.classList.remove('running');
+    var activeCards = document.querySelectorAll('.payloadCard.active-launch');
+    for (var i = 0; i < activeCards.length; i++) activeCards[i].classList.remove('active-launch');
+    setControlsDisabled(false);
   }
 
   function onAutoloadResult(data) {
@@ -244,49 +311,65 @@
        restore the classic full-height log; no-op for the other chains. */
     collapseP2jbStats();
     if (data.ok) {
+      runtimeSessionReady = true;
       try {
         sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         sessionStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
-        localStorage.setItem(SESSION_KEY, String(Date.now()));
-        localStorage.setItem(ACTIVE_PAYLOAD_KEY, selectedPayload);
       } catch (e) { }
 
-      /* RC10 restores the lifecycle used by the earlier no-warning build:
-         wait for the final WKAL autoload result, then navigate the existing
-         UMTX2 iframe to about:blank. Do not remove it and do not reload the
-         outer app while etaHEN is starting. */
-      if (exploitMode === 'umtx2') {
-        try { exploitEl.src = 'about:blank'; } catch (e) { }
-      }
+      /* Keep the runner iframe and the outer dashboard alive. Navigating the
+         iframe to about:blank here could make the PS5 WebKit application
+         disappear while a large HEN was still starting. */
 
-      /* RC11 follows upstream v0.4.0 for the memory-heavy first stage:
-         UMTX2 launches the small unified Payload Manager first. Only after
-         WebKit has returned the final result and the iframe is blank do we
-         send etaHEN through the already-live sender, without another kernel
-         exploit. This avoids starting etaHEN at UMTX2's memory peak. */
-      if (queuedAutoEtaHen && selectedPayload === 'payload.elf') {
-        queuedAutoEtaHen = false;
-        if (goldenStateEl) goldenStateEl.textContent = 'STAGE 1 READY · COOLING DOWN';
-        updateProgress(55, 'Payload Manager ready · preparing etaHEN 2.6B...');
+      /* UMTX2 on 1.00-5.50 launches an inert hand-off ELF first. It must not
+         use payload.elf here: the unified autoloader reads autoload.txt and
+         could launch a stale HEN instead of the card the user pressed. */
+      if (queuedAutoPayload && selectedPayload === 'goldengames-stage.elf') {
+        var nextPayload = queuedAutoPayload;
+        queuedAutoPayload = null;
+        /* Retire only the hidden UMTX2 runner to release its memory. The
+           visible Goldengames dashboard remains open and untouched. */
+        try { exploitEl.src = 'about:blank'; } catch (e) { }
+        if (goldenStateEl) goldenStateEl.textContent = 'JAILBREAK READY · PREPARING PAYLOAD';
+        if (headerStateEl) headerStateEl.textContent = 'JAILBREAK COMPLETE';
+        if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
+        if (payloadValueEl) payloadValueEl.textContent = nextPayload.label.toUpperCase();
+        updateProgress(62, 'Jailbreak complete · preparing ' + nextPayload.label + '...');
         setTimeout(function () {
-          launchSelected('etahen-2.6B.bin', 'etaHEN 2.6B', false);
+          launchSelected(nextPayload.payload, nextPayload.label, false);
         }, 6500);
         return;
       }
 
       uiLog('Payload loaded (' + data.bytes + ' bytes sent to elfldr).', 'success');
-      updateProgress(100, 'Autoload finished.');
+      updateProgress(100, 'Payload launched successfully.');
       if (goldenStateEl) goldenStateEl.textContent = selectedLabel.toUpperCase() + ' READY';
+      if (headerStateEl) headerStateEl.textContent = 'OPERATION COMPLETE';
+      if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
+      if (payloadValueEl) payloadValueEl.textContent = selectedLabel.toUpperCase();
     } else {
+      queuedAutoPayload = null;
       stopRetroAnimation();
-      uiLog('[ERROR] Autoload failed: ' + (data.why || 'unknown error'), 'error');
-      updateProgress(0, 'Autoload failed.');
+      var failureReason = data.why || 'unknown error';
+      if (currentForceJailbreak) {
+        runtimeSessionReady = false;
+        try {
+          sessionStorage.removeItem(SESSION_KEY);
+          sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+          localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+        } catch (e) { }
+      }
+      uiLog('[ERROR] Autoload failed: ' + failureReason, 'error');
+      updateProgress(0, 'Failed: ' + failureReason);
+      if (headerStateEl) headerStateEl.textContent = 'OPERATION FAILED';
+      if (exploitValueEl) exploitValueEl.textContent = currentForceJailbreak ? 'FAILED' : 'EXPLOIT OK';
+      if (goldenStateEl) goldenStateEl.textContent = 'PAYLOAD FAILED · TRY AGAIN';
+      if (payloadValueEl) payloadValueEl.textContent = 'NOT LOADED';
     }
     setTimeout(function () {
-      if (data.ok) {
-        uiLog('Payload running on the console.', 'success');
-        if (selectedPayload !== 'ps5-linux-loader-v2.4.elf') showDashboard();
-      }
+      if (data.ok) uiLog('Payload running on the console.', 'success');
+      showDashboard();
     }, 1500);
   }
 
@@ -865,7 +948,7 @@
          autoload flow owns the UI from this point on. */
       if (!p2jbComplete && p2jbLastStageText.indexOf('ELF LOADER READY') !== -1) {
         p2jbComplete = true;
-        progressBar.style.transform = 'scaleX(1)';
+        renderSegmentProgress(100, false);
         uiLog('[p2jb] exploit complete — elfldr ready.', 'success');
         /* Pin the panel green at 100% until the autoload result lands, then
            onAutoloadResult collapses back to the classic full-height log.
@@ -931,12 +1014,21 @@
   function launchSelected(payload, label, forceJailbreak) {
     selectedPayload = payload;
     selectedLabel = label;
+    currentForceJailbreak = !!forceJailbreak;
+    var activeCard = document.querySelector('.payloadCard[data-payload="' + payload + '"]');
+    if (activeCard) activeCard.classList.add('active-launch');
     finished = false;
     chainStarted = false;
     mirroredLines = 0;
     repairCount = 0;
-    if (goldenStateEl) goldenStateEl.textContent = forceJailbreak ? 'AUTO JAILBREAK · ETAHEN 2.6B' : 'LAUNCHING · ' + label.toUpperCase();
-    updateProgress(4, forceJailbreak ? 'Preparing Auto Jailbreak...' : 'Preparing ' + label + '...');
+    if (goldenStateEl) goldenStateEl.textContent = forceJailbreak ? 'JAILBREAK IN PROGRESS' : 'LAUNCHING · ' + label.toUpperCase();
+    if (headerStateEl) headerStateEl.textContent = forceJailbreak ? 'JAILBREAK RUNNING' : 'PAYLOAD RUNNING';
+    if (exploitValueEl) exploitValueEl.textContent = forceJailbreak ? 'RUNNING' : (hasKnownSession() ? 'EXPLOIT OK' : 'STARTING');
+    if (payloadValueEl) payloadValueEl.textContent = label.toUpperCase();
+    var initialProgress = !forceJailbreak && hasKnownSession() ? 68 : 4;
+    updateProgress(initialProgress, forceJailbreak
+      ? (autoMode ? 'Preparing Auto Jailbreak...' : 'Preparing Jailbreak...')
+      : 'Preparing ' + label + '...');
 
     var picked = pickExploit();
     if (!picked) {
@@ -973,9 +1065,14 @@
     revealExploit();
   }
 
-  function startAutoJailbreak() {
-    queuedAutoEtaHen = true;
-    launchSelected('payload.elf', 'Payload Manager · Stage 1', true);
+  function beginPayloadLaunch(payload, label, forceJailbreak) {
+    if (forceJailbreak && payload !== 'goldengames-stage.elf' && pickExploit() === 'umtx2') {
+      queuedAutoPayload = { payload: payload, label: label };
+      launchSelected('goldengames-stage.elf', 'Jailbreak Stage', true);
+      return;
+    }
+    queuedAutoPayload = null;
+    launchSelected(payload, label, forceJailbreak);
   }
 
   function closeRiskDialog() {
@@ -985,29 +1082,61 @@
 
   function requestPayloadLaunch(payload, label, risk, forceJailbreak) {
     if (!risk) {
-      launchSelected(payload, label, !!forceJailbreak);
+      beginPayloadLaunch(payload, label, !!forceJailbreak);
       return;
     }
     var active = '';
-    try { active = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || localStorage.getItem(ACTIVE_PAYLOAD_KEY) || ''; } catch (e) { }
-    pendingRiskLaunch = { payload: payload, label: label, force: !!forceJailbreak };
+    try { active = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || ''; } catch (e) { }
+    if (!hasKnownSession() && !active) {
+      beginPayloadLaunch(payload, label, true);
+      return;
+    }
+    pendingRiskLaunch = { payload: payload, label: label, force: true };
     if (riskMessageEl) {
       if (risk === 'kstuff') {
         riskMessageEl.textContent = (active.indexOf('etahen') !== -1
           ? 'etaHEN appears to be active. Do not stack Kstuff over etaHEN. Fully reboot the PS5 first, reopen Goldengames, then continue only if this is a fresh session.'
           : 'Kstuff modifies the active kernel session. Fully reboot before switching between etaHEN, Kstuff and Kstuff Lite. Continue only from a fresh session.');
+      } else if (risk === 'kernel') {
+        riskMessageEl.textContent = 'Another HEN or kernel payload may already be active. Fully reboot before switching between etaHEN, OnionHEN, PIZZA-HEN, or Kstuff. Continue only from a fresh session.';
       } else {
         riskMessageEl.textContent = 'Linux Loader can conflict with etaHEN or Kstuff. Use a fresh console session and do not launch it after another kernel payload.';
       }
     }
-    if (riskContinueEl) riskContinueEl.textContent = risk === 'kstuff' ? '× I REBOOTED · CONTINUE' : '× FRESH SESSION · CONTINUE';
+    if (riskContinueEl) riskContinueEl.textContent = (risk === 'kstuff' || risk === 'kernel') ? '× I REBOOTED · CONTINUE' : '× FRESH SESSION · CONTINUE';
     if (riskDialogEl) riskDialogEl.hidden = false;
     if (riskCancelEl) riskCancelEl.focus();
   }
 
   function start() {
-    uiLog('Goldengames PS5 Auto Jailbreak v1.1.0', 'success');
+    uiLog('Goldengames PS5 Jailbreak v1.1.1', 'success');
     updateProgress(0, 'Ready.');
+    if (progressLabel) progressLabel.textContent = 'SELECT A PAYLOAD';
+    if (activityPayloadEl) activityPayloadEl.textContent = 'NONE LAUNCHED';
+    /* Remove legacy persistent session markers written by Test 6/7. User
+       preferences remain persistent, but exploit state must never survive a
+       console reboot. */
+    try {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+    } catch (e) { }
+    /* A page reload between the lightweight stage and the final payload must
+       never be displayed as a completed jailbreak session. */
+    try {
+      var restoredPayload = sessionStorage.getItem(ACTIVE_PAYLOAD_KEY) || '';
+      if (restoredPayload === 'payload.elf' || restoredPayload === 'goldengames-stage.elf') {
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
+      }
+    } catch (e) { }
+    var detected = detectFirmware();
+    if (firmwareValueEl) firmwareValueEl.textContent = detected ? detected.str : 'UNKNOWN';
+    updateModeUi();
+    setInterval(function () {
+      if (uptimeValueEl) uptimeValueEl.textContent = formatUptime(Date.now() - operationStartedAt);
+    }, 1000);
 
     window.addEventListener('message', function (event) {
       var data = event.data;
@@ -1044,15 +1173,24 @@
       document.body.classList.toggle('details-open');
       this.textContent = document.body.classList.contains('details-open') ? '□ HIDE DETAILS' : '□ SHOW DETAILS';
     });
-    if (backToMenuEl) backToMenuEl.addEventListener('click', showDashboard);
-    var launchCards = document.querySelectorAll('[data-payload]');
+    if (backToMenuEl) backToMenuEl.addEventListener('click', function () {
+      document.body.classList.remove('details-open');
+      if (showDetailsEl) showDetailsEl.textContent = '□ SHOW DETAILS';
+    });
+    if (autoModeToggleEl) autoModeToggleEl.addEventListener('click', function () {
+      autoMode = !autoMode;
+      try {
+        localStorage.setItem(AUTO_MODE_KEY, autoMode ? '1' : '0');
+        localStorage.setItem(AUTO_PAYLOAD_KEY, selectedPayload);
+      } catch (e) { }
+      updateModeUi();
+    });
+    var launchCards = document.querySelectorAll('.payloadCard[data-payload]');
     for (var c = 0; c < launchCards.length; c++) {
       launchCards[c].addEventListener('click', function () {
-        if (this.getAttribute('data-auto') === '1') {
-          startAutoJailbreak();
-          return;
-        }
-        requestPayloadLaunch(this.getAttribute('data-payload'), this.getAttribute('data-label'), this.getAttribute('data-risk') || '', false);
+        selectPayload(this);
+        try { localStorage.setItem(AUTO_PAYLOAD_KEY, selectedPayload); } catch (e) { }
+        requestPayloadLaunch(selectedPayload, selectedLabel, this.getAttribute('data-risk') || '', !hasKnownSession());
       });
     }
     if (riskCancelEl) riskCancelEl.addEventListener('click', closeRiskDialog);
@@ -1067,14 +1205,31 @@
         localStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(ACTIVE_PAYLOAD_KEY);
       } catch (e) { }
-      launchSelected(pending.payload, pending.label, pending.force);
+      runtimeSessionReady = false;
+      beginPayloadLaunch(pending.payload, pending.label, true);
     });
 
-    var knownSession = hasKnownSession();
-    if (knownSession) {
-      setTimeout(showDashboard, 350);
-    } else {
-      setTimeout(startAutoJailbreak, 900);
+    if (hasKnownSession()) {
+      if (exploitValueEl) exploitValueEl.textContent = 'EXPLOIT OK';
+      if (goldenStateEl) goldenStateEl.textContent = 'PAYLOADS READY';
+      if (headerStateEl) headerStateEl.textContent = 'JAILBREAK COMPLETE';
+      updateProgress(100, 'Session ready.');
+    }
+    try {
+      autoMode = localStorage.getItem(AUTO_MODE_KEY) === '1';
+      var savedPayload = localStorage.getItem(AUTO_PAYLOAD_KEY);
+      var savedCard = savedPayload && document.querySelector('.payloadCard[data-payload="' + savedPayload + '"]');
+      if (savedCard) selectPayload(savedCard);
+    } catch (e) { }
+    updateModeUi();
+    setTimeout(showDashboard, 150);
+    if (autoMode) {
+      setTimeout(function () {
+        requestPayloadLaunch(selectedPayload, selectedLabel,
+          (document.querySelector('.payloadCard.selected') || {}).getAttribute
+            ? document.querySelector('.payloadCard.selected').getAttribute('data-risk') || ''
+            : '', !hasKnownSession());
+      }, 1400);
     }
   }
 
