@@ -52,4 +52,6 @@ The installer is an ELF payload, not a PKG, and cannot be installed by opening i
 
 ## Testing status
 
-Static validation and reproducible-build checks do not replace testing on real PS5 hardware. Firmware 7.61, 10.20, and PS5 Pro 12.70 should be tested before this build is marked as the final public release.
+Version 1.1.1 has been successfully tested on real PS5 hardware running firmware 5.10, including the jailbreak flow, etaHEN 2.5B and 2.6B selection, individual payload launching, persistent dashboard behavior, and the animated segmented progress bar.
+
+The listed exploit routes and offsets for other supported firmware ranges are included, but firmware 7.61, 10.20, and PS5 Pro 12.70 have not yet been confirmed on real hardware for this release. Success rates can vary by console, firmware, and session state.
