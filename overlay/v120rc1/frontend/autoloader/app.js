@@ -99,6 +99,14 @@
       progressBar.style.left = '0';
       progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
       progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
+      /* Drive the visible retro pulse in JavaScript as well as CSS. Older PS5
+         WebKit builds do not reliably animate masked gradients. */
+      var pulseSteps = [0.76, 0.9, 1.08, 1.32, 1.08, 0.9];
+      var pulse = pulseSteps[retroAnimationFrame % pulseSteps.length];
+      progressBar.style.opacity = String(0.82 + (pulse - 0.76) * 0.32);
+      progressBar.style.webkitFilter = 'brightness(' + pulse + ') saturate(1.25)';
+      progressBar.style.filter = 'brightness(' + pulse + ') saturate(1.25)';
+      progressBar.style.boxShadow = '0 0 ' + Math.round(8 + pulse * 9) + 'px rgba(62,149,255,.78)';
     }, 140);
   }
 
@@ -109,6 +117,10 @@
     progressBar.style.left = '0';
     progressBar.style.webkitTransform = 'scaleX(' + reportedProgress / 100 + ')';
     progressBar.style.transform = 'scaleX(' + reportedProgress / 100 + ')';
+    progressBar.style.opacity = '1';
+    progressBar.style.webkitFilter = 'none';
+    progressBar.style.filter = 'none';
+    progressBar.style.boxShadow = 'none';
   }
 
   /* The slopkit chains (poops 7.00-12.00, p2jb 12.02-12.70) keep a one-shot
